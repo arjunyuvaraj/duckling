@@ -213,24 +213,22 @@ export default function Home() {
                 fontSize: 'clamp(2.8rem, 4.2vw, 5rem)',
                 color: '#fff',
                 marginBottom: '1.5rem',
-                lineHeight: 0.92,
+                lineHeight: 0.75,
                 letterSpacing: '-0.025em',
               }}
             >
-              The coding practice
+              Practice coding with
               <br />
-              platform that{' '}
-              <span style={{ color: '#0045FF' }}>actually</span>
-              <br />
-              teaches you.
+              <span style={{ color: '#0045FF' }}>today's </span>
+              tools.
             </h1>
 
             <p
               style={{
                 fontSize: '1.5rem',
-                color: '#c0c0c0',
+                color: '#ffffff',
                 maxWidth: 560,
-                lineHeight: 1.5,
+                lineHeight: 1.1,
                 letterSpacing: '-0.02em',
                 marginBottom: '2.25rem',
                 fontWeight: 500,
@@ -261,7 +259,7 @@ export default function Home() {
                   whiteSpace: 'nowrap',
                 }}
               >
-                Get Started For Free
+                Try Ducklings Free
               </Link>
               <button
                 className="hero-cta-secondary"
@@ -285,13 +283,153 @@ export default function Home() {
                 Learn More
               </button>
             </div>
-
           </div>
 
           {/* Right: editor */}
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingBottom: '40px' }}>
             <EditorPreview />
           </div>
+        </div>
+      </section>
+
+      {/* ── Built by students ── */}
+      <section style={{ padding: '4rem 4rem', maxWidth: '1440px', margin: '0 auto', width: '100%', textAlign: 'center' }}>
+        <h2
+          style={{
+            fontFamily: "'Jersey 10', sans-serif",
+            fontSize: 'clamp(2.8rem, 4vw, 4.5rem)',
+            color: '#fff',
+            lineHeight: 0.95,
+            letterSpacing: '-0.015em',
+            marginBottom: '1.75rem',
+          }}
+        >
+          Built by students, for
+          <span style={{ color: '#0045FF' }}> students. </span>
+        </h2>
+        <p
+          style={{
+            fontFamily: 'Inter',
+            fontSize: '1.5rem',
+            color: '#fff',
+            lineHeight: 1.1,
+            fontWeight: 500,
+            maxWidth: 600,
+            margin: '0 auto',
+            letterSpacing: '-0.01em',
+          }}
+        >
+          We've been utilizing computer science practice websites from the start of our computer science career. However, all of these tools were lacking in some way or the other. Ducklings is our attempt.
+        </p>
+      </section>
+
+      {/* ── How it works ── */}
+      <section style={{ padding: '0 4rem 10rem', maxWidth: '1440px', margin: '0 auto', width: '100%' }}>
+        {/* Section label */}
+        <div style={{ marginBottom: '5rem' }}>
+          <span
+            style={{
+              fontFamily: 'Inter',
+              fontSize: '0.78rem',
+              fontWeight: 600,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: '#0045FF',
+            }}
+          >
+            How it works
+          </span>
+          <h2
+            style={{
+              fontFamily: "'Jersey 10', sans-serif",
+              fontSize: 'clamp(2.2rem, 3.5vw, 3.5rem)',
+              color: '#fff',
+              lineHeight: 0.95,
+              letterSpacing: '-0.015em',
+              marginTop: '0.75rem',
+            }}
+          >
+            Three steps.<br />
+            No fluff.
+          </h2>
+        </div>
+
+        {/* Steps */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+          {[
+            {
+              n: '01',
+              title: 'Pick a problem',
+              body: 'Browse a curated set of problems sorted by difficulty and topic. Every problem is chosen because it trains a real pattern, not just to inflate a number.',
+            },
+            {
+              n: '02',
+              title: 'Write your solution',
+              body: 'Work in a clean split-pane editor — problem statement on the left, your code on the right. Five languages supported. No setup, no IDE required.',
+            },
+            {
+              n: '03',
+              title: 'Get unstuck, not just answers',
+              body: 'When you hit a wall, ask for a hint. You get a nudge toward the right thinking, not a solution to copy. That\'s the difference between practicing and actually learning.',
+            },
+          ].map((step) => (
+            <div
+              key={step.n}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '160px 1fr',
+                gap: '0 4rem',
+                alignItems: 'start',
+                paddingBottom: '4rem',
+                marginBottom: '4rem',
+                borderBottom: '1px solid rgba(255,255,255,0.06)',
+              }}
+            >
+              {/* Big number */}
+              <div
+                style={{
+                  fontFamily: "'Jersey 10', sans-serif",
+                  fontSize: '7.5rem',
+                  color: '#0045FF',
+                  lineHeight: 0.85,
+                  letterSpacing: '-0.02em',
+                  userSelect: 'none',
+                }}
+              >
+                {step.n}
+              </div>
+
+              {/* Content */}
+              <div style={{ paddingTop: '0.5rem' }}>
+                <h3
+                  style={{
+                    fontFamily: 'Inter',
+                    fontWeight: 700,
+                    fontSize: '1.9rem',
+                    color: '#fff',
+                    letterSpacing: '-0.025em',
+                    marginBottom: '0.875rem',
+                    lineHeight: 1.1,
+                  }}
+                >
+                  {step.title}
+                </h3>
+                <p
+                  style={{
+                    fontFamily: 'Inter',
+                    fontSize: '1.3rem',
+                    color: '#fff',
+                    lineHeight: 1.7,
+                    fontWeight: 500,
+                    maxWidth: 560,
+                    letterSpacing: '-0.01em',
+                  }}
+                >
+                  {step.body}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
     </div>

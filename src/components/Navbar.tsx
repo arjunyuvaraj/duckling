@@ -44,7 +44,6 @@ export default function Navbar({ showHome = false }: NavbarProps) {
     ...btnBase,
     background: '#1E1E1E',
     color: '#e0e0e0',
-    border: '2px solid #4D4D4D',
   };
 
   return (
