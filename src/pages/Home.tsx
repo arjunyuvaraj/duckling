@@ -1,163 +1,252 @@
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import Typewriter from '../components/Typewriter';
+import { useState, useEffect } from 'react';
 
-const kw  = (t: string) => <span style={{ color: '#ff7b72' }}>{t}</span>;
-const ty  = (t: string) => <span style={{ color: '#79c0ff' }}>{t}</span>;
-const fn  = (t: string) => <span style={{ color: '#d2a8ff' }}>{t}</span>;
-const num = (t: string) => <span style={{ color: '#f2cc60' }}>{t}</span>;
-const dim = (t: string) => <span style={{ color: '#6e7681' }}>{t}</span>;
+const primaryYellow = '#fbbf24';
+const duckAscii = String.raw`    __
+  <(o )___
+   ( ._> /
+~~~~` + '`---' + String.raw`~~~~`;
 
-function EditorPreview() {
+function PracticePreview() {
+  const [stage, setStage] = useState<'typing_cmd' | 'showing_problem' | 'typing_code' | 'running_tests' | 'success'>('typing_cmd');
+  const [typedCmd, setTypedCmd] = useState('');
+  const [typedCode, setTypedCode] = useState('');
+  const [testsRun, setTestsRun] = useState<string[]>([]);
+  const [testCount, setTestCount] = useState(0);
+
+  const commandText = 'solve next_rep --topic arrays';
+  const codeText = 'seen[target - value] = index';
+
+  useEffect(() => {
+    if (stage === 'typing_cmd') {
+      let index = 0;
+      const interval = setInterval(() => {
+        if (index < commandText.length) {
+          setTypedCmd(commandText.slice(0, index + 1));
+          index++;
+        } else {
+          clearInterval(interval);
+          setTimeout(() => setStage('showing_problem'), 1000);
+        }
+      }, 40);
+      return () => clearInterval(interval);
+    }
+  }, [stage]);
+
+  useEffect(() => {
+    if (stage === 'showing_problem') {
+      const timeout = setTimeout(() => {
+        setStage('typing_code');
+      }, 2200);
+      return () => clearTimeout(timeout);
+    }
+  }, [stage]);
+
+  useEffect(() => {
+    if (stage === 'typing_code') {
+      let index = 0;
+      const interval = setInterval(() => {
+        if (index < codeText.length) {
+          setTypedCode(codeText.slice(0, index + 1));
+          index++;
+        } else {
+          clearInterval(interval);
+          setTimeout(() => {
+            setStage('running_tests');
+            setTestsRun([]);
+            setTestCount(0);
+          }, 800);
+        }
+      }, 50);
+      return () => clearInterval(interval);
+    }
+  }, [stage]);
+
+  useEffect(() => {
+    if (stage === 'running_tests') {
+      const testNames = [
+        '✓ test_empty_array',
+        '✓ test_positive_match',
+        '✓ test_negative_match',
+        '✓ test_multiple_pairs'
+      ];
+      let currentTest = 0;
+      const interval = setInterval(() => {
+        if (currentTest < testNames.length) {
+          setTestsRun((prev) => [...prev, testNames[currentTest]]);
+          setTestCount((c) => c + 2);
+          currentTest++;
+        } else {
+          clearInterval(interval);
+          setTimeout(() => setStage('success'), 600);
+        }
+      }, 500);
+      return () => clearInterval(interval);
+    }
+  }, [stage]);
+
+  useEffect(() => {
+    if (stage === 'success') {
+      const timeout = setTimeout(() => {
+        setStage('typing_cmd');
+        setTypedCmd('');
+        setTypedCode('');
+        setTestsRun([]);
+        setTestCount(0);
+      }, 4500);
+      return () => clearTimeout(timeout);
+    }
+  }, [stage]);
+
   return (
-    <div style={{ position: 'relative', width: '100%', maxWidth: 640 }}>
-      {/* Ambient glow */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: '-40px',
-          background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.05) 0%, transparent 65%)',
-          pointerEvents: 'none',
-          zIndex: 0,
-        }}
-      />
-
-      <div
-        style={{
-          position: 'relative',
-          zIndex: 1,
-          background: '#0d0d0d',
-          border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: '14px',
-          overflow: 'hidden',
-          boxShadow: '0 48px 96px rgba(0,0,0,0.85), 0 0 0 1px rgba(255,255,255,0.04) inset',
-          fontFamily: "'JetBrains Mono', monospace",
-          fontSize: '0.78rem',
-          lineHeight: 1.75,
-        }}
-      >
-        {/* Title bar */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            padding: '10px 14px',
-            background: '#111',
-            borderBottom: '1px solid rgba(255,255,255,0.06)',
-            gap: '8px',
-          }}
-        >
-          <div style={{ display: 'flex', gap: '6px' }}>
-            {['#ff5f57', '#febc2e', '#28c840'].map((c) => (
-              <div key={c} style={{ width: 11, height: 11, borderRadius: '50%', background: c, opacity: 0.85 }} />
-            ))}
+    <div
+      className="practice-preview terminal-window terminal-scanlines glass-panel"
+      aria-label="Student coding practice preview"
+      style={{
+        width: '100%',
+        maxWidth: '580px',
+        height: '470px',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <div className="terminal-bar">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className="terminal-dots">
+            <span className="terminal-dot terminal-dot-red" />
+            <span className="terminal-dot terminal-dot-yellow" />
+            <span className="terminal-dot terminal-dot-green" />
           </div>
-          <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-            <span style={{ fontSize: '0.68rem', color: '#444', fontFamily: 'Inter' }}>
-              duckling.codes — solution.cpp
-            </span>
-          </div>
+          <span>/arrays/two-sum</span>
         </div>
+        <span>class: intro-cs</span>
+      </div>
 
-        {/* Split: problem | code */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1px 1.15fr', height: 360 }}>
-          {/* Problem pane */}
-          <div style={{ padding: '14px', overflowY: 'hidden', fontSize: '0.66rem', lineHeight: 1.8 }}>
-            <div style={{ color: '#e8e8e8', fontFamily: 'Inter', fontWeight: 600, marginBottom: '3px', fontSize: '0.75rem' }}>
-              Ice Cream Parlor
-            </div>
-            <div style={{ color: '#444', fontFamily: 'Inter', marginBottom: '10px', fontSize: '0.63rem' }}>
-              Easy · Arrays
-            </div>
-            <div style={{ color: '#555', fontFamily: 'Inter', lineHeight: 1.7, marginBottom: '10px' }}>
-              Each time Sunny and Johnny visit, they pool{' '}
-              <span style={{ color: '#888', fontFamily: 'JetBrains Mono' }}>m</span> dollars. Given
-              flavor costs, find which two they buy.
-            </div>
-            <div style={{ color: '#333', fontFamily: 'Inter', textTransform: 'uppercase', letterSpacing: '0.08em', fontSize: '0.58rem', marginBottom: '6px' }}>
-              Constraints
-            </div>
-            {['1 ≤ t ≤ 50', '2 ≤ m ≤ 10⁹', '2 ≤ n ≤ 10⁵'].map((c) => (
-              <div key={c} style={{ color: '#3a3a3a', fontFamily: 'Inter', fontSize: '0.62rem' }}>· {c}</div>
-            ))}
-            <div style={{ marginTop: '12px', color: '#333', fontFamily: 'Inter', textTransform: 'uppercase', letterSpacing: '0.08em', fontSize: '0.58rem', marginBottom: '4px' }}>
-              Sample Input
-            </div>
-            <pre style={{ margin: 0, color: '#3a3a3a', fontSize: '0.62rem', fontFamily: 'JetBrains Mono' }}>{`2\n4 5\n1 4 5 3 2`}</pre>
-          </div>
-
-          {/* Divider */}
-          <div style={{ background: 'rgba(255,255,255,0.05)' }} />
-
-          {/* Code pane */}
-          <div style={{ padding: '14px', overflowY: 'hidden', color: '#c9d1d9' }}>
-            <pre style={{ margin: 0, fontFamily: 'inherit', fontSize: 'inherit', lineHeight: 'inherit' }}>
-              {dim('#include <bits/stdc++.h>')}{'\n'}
-              {dim('using namespace std;')}{'\n'}
-              {'\n'}
-              {ty('vector')}&lt;{ty('int')}&gt; {fn('solve')}({ty('int')} m, {ty('vector')}&lt;{ty('int')}&gt; arr) {'{'}{'\n'}
-              {'  '}{ty('map')}&lt;{ty('int')},{ty('int')}&gt; seen;{'\n'}
-              {'  '}{kw('for')} ({ty('int')} i={num('0')}; i&lt;arr.size(); i++) {'{'}{'\n'}
-              {'    '}{ty('int')} need = m - arr[i];{'\n'}
-              {'    '}{kw('if')} (seen.count(need)){'\n'}
-              {'      '}{kw('return')} {'{'}{dim('seen')}[need]+{num('1')}, i+{num('1')}{'}'};{'\n'}
-              {'    '}seen[arr[i]] = i+{num('1')};{'\n'}
-              {'  '}{'}'}{'\n'}
-              {'}'}{'\n'}
-              {'\n'}
-              {ty('int')} {fn('main')}() {'{'}{'\n'}
-              {'  '}{ty('int')} t; cin &gt;&gt; t;{'\n'}
-              {'  '}{kw('while')} (t--) {'{'}{'\n'}
-              {'    '}{ty('int')} m, n; cin &gt;&gt; m &gt;&gt; n;{'\n'}
-              {'    '}{ty('vector')}&lt;{ty('int')}&gt; arr(n);{'\n'}
-              {'    '}{kw('for')} ({kw('auto')}&amp; x : arr) cin &gt;&gt; x;{'\n'}
-            </pre>
-          </div>
+      <div className="terminal-tabs">
+        <div className="terminal-tab active">
+          <span className="terminal-tab-dot"></span>
+          <span>student.py</span>
         </div>
-
-        {/* Status bar */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '5px 14px',
-            background: '#0a0a0a',
-            borderTop: '1px solid rgba(255,255,255,0.04)',
-            fontSize: '0.62rem',
-            fontFamily: 'Inter',
-            color: '#333',
-          }}
-        >
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <span>C++ 17</span>
-            <span>UTF-8</span>
-          </div>
-          <span style={{ color: '#4ade80', display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80', display: 'inline-block' }} />
-            3 / 3 tests passing
-          </span>
+        <div className="terminal-tab">
+          <span>output.log</span>
         </div>
       </div>
 
-      {/* Floating hint card */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: '-18px',
-          right: '-16px',
-          background: '#161616',
-          border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: '10px',
-          padding: '10px 14px',
-          fontSize: '0.7rem',
-          fontFamily: 'Inter',
-          color: '#888',
-          maxWidth: 210,
-          boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-          zIndex: 2,
-        }}
-      >
-        Hint: try a hash map for O(n) time!
+      <div className="practice-preview-body" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        <div className="practice-stage">
+          <div className="practice-prompt">
+            <span>$</span> {typedCmd}
+            {stage === 'typing_cmd' && <span className="terminal-caret-blink">▋</span>}
+          </div>
+
+          {stage !== 'typing_cmd' && (
+            <div
+              className="practice-text"
+              aria-label="Practice text"
+              style={{
+                fontSize: '1.05rem',
+                lineHeight: 1.45,
+                color: '#777',
+                marginBottom: '1rem',
+                height: '74px',
+                overflow: 'hidden',
+              }}
+            >
+              <span className="practice-done" style={{ color: '#aaa' }}>
+                for each number, store its complement.
+              </span>{' '}
+              <span
+                className="practice-active"
+                style={{
+                  color: stage === 'showing_problem' ? '#fff' : '#777',
+                  borderBottom: stage === 'showing_problem' ? '2px solid var(--yellow)' : 'none',
+                  paddingBottom: '2px',
+                }}
+              >
+                if the complement appears, return both indexes.
+              </span>{' '}
+              <span style={{ color: '#444' }}>explain why this is O(n).</span>
+            </div>
+          )}
+
+          {(stage === 'typing_code' || stage === 'running_tests' || stage === 'success') && (
+            <div
+              className="practice-code-line"
+              style={{
+                marginTop: '0.5rem',
+                background: '#040404',
+                border: '1px solid rgba(255, 255, 255, 0.05)',
+                padding: '0.85rem',
+              }}
+            >
+              <span style={{ color: '#555' }}>student.py</span>
+              <strong style={{ color: '#fff', fontSize: '0.9rem' }}>
+                {typedCode}
+              </strong>
+            </div>
+          )}
+
+          {stage === 'running_tests' && (
+            <div
+              style={{
+                marginTop: '0.85rem',
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: '0.76rem',
+                background: '#020202',
+                padding: '0.65rem 0.85rem',
+                borderRadius: '6px',
+                border: '1px solid rgba(255, 255, 255, 0.04)',
+              }}
+            >
+              <div style={{ color: 'var(--yellow)', marginBottom: '0.3rem', fontWeight: 600 }}>
+                Running tests...
+              </div>
+              {testsRun.map((test, i) => (
+                <div key={i} className="terminal-success-text" style={{ paddingLeft: '0.4rem', lineHeight: 1.4 }}>
+                  {test}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {stage === 'success' && (
+            <div
+              style={{
+                marginTop: '0.85rem',
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: '0.76rem',
+                background: 'rgba(74, 222, 128, 0.04)',
+                padding: '0.65rem 0.85rem',
+                borderRadius: '6px',
+                border: '1px solid rgba(74, 222, 128, 0.18)',
+              }}
+            >
+              <div className="terminal-success-text" style={{ fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span>✓</span> SUCCESS: 8/8 tests passed (0.03s)
+              </div>
+              <div style={{ color: '#7bb38e', fontSize: '0.72rem', marginTop: '0.2rem' }}>
+                Engine trace: feedback loop completed successfully.
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="practice-meter" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '0.85rem' }}>
+          <div>
+            <span>accuracy</span>
+            <strong>{stage === 'success' ? '100%' : stage === 'running_tests' ? `${80 + testCount * 2.5}%` : '94%'}</strong>
+          </div>
+          <div>
+            <span>tests</span>
+            <strong>{stage === 'success' ? '8/8' : stage === 'running_tests' ? `${testCount}/8` : '0/8'}</strong>
+          </div>
+          <div>
+            <span>hint level</span>
+            <strong>{stage === 'success' ? 'none' : 'nudge'}</strong>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -165,9 +254,10 @@ function EditorPreview() {
 
 export default function Home() {
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#000' }}>
+    <div className="grid-backdrop page-flow-enter" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
 
+      {/* Hero section */}
       <section
         style={{
           position: 'relative',
@@ -177,256 +267,267 @@ export default function Home() {
           alignItems: 'center',
         }}
       >
-
-        {/* Bottom fade into next section */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: '200px',
-            background: 'linear-gradient(to bottom, transparent, #000)',
-            pointerEvents: 'none',
-          }}
-        />
-
-        {/* Content */}
         <div
           style={{
             position: 'relative',
             width: '100%',
             maxWidth: '1440px',
             margin: '0 auto',
-            padding: '5rem 4rem',
+            padding: '4rem 2.5rem',
             display: 'grid',
-            gridTemplateColumns: '1.5fr 1fr',
-            gap: '5rem',
+            gridTemplateColumns: '1.2fr 1fr',
+            gap: '4rem',
             alignItems: 'center',
           }}
+          className="home-hero-grid"
         >
-          {/* Left: copy */}
-          <div>
+          {/* Left info column */}
+          <div className="hero-copy-flow">
+            <pre className="home-duck-ascii" aria-label="ASCII duck logo">{duckAscii}</pre>
+            <div className="home-terminal-kicker">
+              <span>$</span> <Typewriter text="duckling classroom --practice" speed={30} delay={100} cursor={false} />
+            </div>
             <h1
               style={{
-                fontFamily: "'Jersey 10', sans-serif",
-                fontSize: 'clamp(2.8rem, 4.2vw, 5rem)',
+                fontFamily: "'Inter', system-ui, sans-serif",
+                fontSize: 'clamp(2.5rem, 4.5vw, 5.2rem)',
+                fontWeight: 850,
                 color: '#fff',
-                marginBottom: '1.5rem',
-                lineHeight: 0.75,
-                letterSpacing: '-0.025em',
+                marginBottom: '1.25rem',
+                lineHeight: 0.95,
+                letterSpacing: '-1.5px',
               }}
             >
-              Practice coding with
+              Practice code.
               <br />
-              <span style={{ color: '#0045FF' }}>today's </span>
-              tools.
+              <span style={{ color: primaryYellow }}>Get unstuck.</span>
             </h1>
 
             <p
               style={{
-                fontSize: '1.5rem',
-                color: '#ffffff',
-                maxWidth: 560,
-                lineHeight: 1.1,
-                letterSpacing: '-0.02em',
-                marginBottom: '2.25rem',
+                fontSize: '1.25rem',
+                color: '#aaa',
+                maxWidth: 580,
+                lineHeight: 1.5,
+                marginBottom: '2rem',
                 fontWeight: 500,
               }}
             >
-              Most practice platforms throw problems at you and wait. Duckling is
-              different. Every problem is a chance to actually learn, compete, and
-              improve your coding skills, targeted for students.
+              Short problems, useful hints, and class-ready progress.
             </p>
 
-            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+            <div className="hero-actions-flow" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
               <Link
                 to="/get-started"
-                className="hero-cta-primary"
+                className="hero-cta-primary glow-yellow-hover"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
                   height: '48px',
                   padding: '0 1.75rem',
-                  background: '#fff',
-                  color: '#000',
-                  fontWeight: 600,
-                  fontSize: '1rem',
-                  fontFamily: 'Inter',
-                  borderRadius: '9px',
+                  background: primaryYellow,
+                  color: '#171100',
+                  fontWeight: 700,
+                  fontSize: '0.9rem',
+                  fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, monospace",
+                  borderRadius: '8px',
                   textDecoration: 'none',
-                  letterSpacing: '-0.015em',
+                  letterSpacing: '-0.2px',
                   whiteSpace: 'nowrap',
+                  boxShadow: '0 0 10px rgba(251, 191, 36, 0.15)',
+                  transition: 'all 0.15s ease',
                 }}
               >
-                Try Ducklings Free
+                Register Free
               </Link>
-              <button
+              <Link
+                to="/login"
                 className="hero-cta-secondary"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
                   height: '48px',
                   padding: '0 1.75rem',
-                  background: '#1E1E1E',
+                  background: 'rgba(255,255,255,0.03)',
                   color: '#e0e0e0',
-                  fontWeight: 600,
-                  fontSize: '1rem',
-                  border: '2px solid #4D4D4D',
-                  borderRadius: '9px',
+                  fontWeight: 700,
+                  fontSize: '0.9rem',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  borderRadius: '8px',
                   cursor: 'pointer',
-                  fontFamily: 'Inter',
-                  letterSpacing: '-0.015em',
+                  fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, monospace",
+                  letterSpacing: '-0.2px',
                   whiteSpace: 'nowrap',
+                  textDecoration: 'none',
+                  transition: 'all 0.15s ease',
                 }}
               >
-                Learn More
-              </button>
+                Log In
+              </Link>
+            </div>
+
+            <div className="home-terminal-badges" aria-label="Duckling product highlights">
+              <span>students: practice</span>
+              <span>teachers: assign</span>
+              <span>feedback: hint-first</span>
             </div>
           </div>
 
-          {/* Right: editor */}
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingBottom: '40px' }}>
-            <EditorPreview />
+          {/* Right mock terminal column */}
+          <div className="hero-preview-flow" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <PracticePreview />
           </div>
         </div>
       </section>
 
-      {/* ── Built by students ── */}
-      <section style={{ padding: '4rem 4rem', maxWidth: '1440px', margin: '0 auto', width: '100%', textAlign: 'center' }}>
+      {/* Built for classrooms section */}
+      <section
+        className="home-terminal-section"
+        style={{
+          padding: '5rem 2.5rem',
+          maxWidth: '1440px',
+          margin: '0 auto',
+          width: '100%',
+        }}
+      >
+        <div className="terminal-line">
+          <span>$</span> <Typewriter text="duckling about --audience" speed={30} delay={200} cursor={false} />
+        </div>
         <h2
           style={{
-            fontFamily: "'Jersey 10', sans-serif",
-            fontSize: 'clamp(2.8rem, 4vw, 4.5rem)',
+            fontFamily: "'Inter', system-ui, sans-serif",
+            fontSize: 'clamp(2rem, 3.2vw, 3.2rem)',
+            fontWeight: 850,
             color: '#fff',
-            lineHeight: 0.95,
-            letterSpacing: '-0.015em',
-            marginBottom: '1.75rem',
+            lineHeight: 1.05,
+            marginBottom: '1.25rem',
+            maxWidth: 850,
+            letterSpacing: '-0.8px',
           }}
         >
-          Built by students, for
-          <span style={{ color: '#0045FF' }}> students. </span>
+          A practice workspace that works for both sides of the classroom.
         </h2>
         <p
           style={{
             fontFamily: 'Inter',
-            fontSize: '1.5rem',
-            color: '#fff',
-            lineHeight: 1.1,
+            fontSize: '1.15rem',
+            color: '#a0a0a0',
+            lineHeight: 1.6,
             fontWeight: 500,
-            maxWidth: 600,
-            margin: '0 auto',
-            letterSpacing: '-0.01em',
+            maxWidth: 820,
           }}
         >
-          We've been utilizing computer science practice websites from the start of our computer science career. However, all of these tools were lacking in some way or the other. Ducklings is our attempt.
+          Students get a calm coding environment with feedback that nudges them forward.
+          Teachers get a clearer way to assign practice, review progress, and keep everyone moving.
         </p>
       </section>
 
-      {/* ── How it works ── */}
-      <section style={{ padding: '0 4rem 10rem', maxWidth: '1440px', margin: '0 auto', width: '100%' }}>
-        {/* Section label */}
-        <div style={{ marginBottom: '5rem' }}>
-          <span
-            style={{
-              fontFamily: 'Inter',
-              fontSize: '0.78rem',
-              fontWeight: 600,
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              color: '#0045FF',
-            }}
-          >
-            How it works
-          </span>
+      {/* Workflow steps section */}
+      <section style={{ padding: '3rem 2.5rem 8rem', maxWidth: '1440px', margin: '0 auto', width: '100%' }}>
+        <div style={{ marginBottom: '3.5rem' }}>
+          <div className="terminal-line">
+            <span>$</span> <Typewriter text="duckling workflow --short" speed={30} delay={200} cursor={false} />
+          </div>
           <h2
             style={{
-              fontFamily: "'Jersey 10', sans-serif",
-              fontSize: 'clamp(2.2rem, 3.5vw, 3.5rem)',
+              fontFamily: "'Inter', system-ui, sans-serif",
+              fontSize: 'clamp(2rem, 3.2vw, 3.2rem)',
+              fontWeight: 850,
               color: '#fff',
-              lineHeight: 0.95,
-              letterSpacing: '-0.015em',
+              lineHeight: 1.05,
               marginTop: '0.75rem',
+              letterSpacing: '-0.8px',
             }}
           >
-            Three steps.<br />
-            No fluff.
+            Focused practice, classroom ready.
           </h2>
         </div>
 
-        {/* Steps */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+        {/* Diagonal style modern terminal grid */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: '2rem',
+          }}
+        >
           {[
             {
               n: '01',
-              title: 'Pick a problem',
-              body: 'Browse a curated set of problems sorted by difficulty and topic. Every problem is chosen because it trains a real pattern, not just to inflate a number.',
+              title: 'Assign or choose a problem',
+              body: 'Teachers can frame practice around class goals. Students can also jump into curated problems by topic and difficulty.',
             },
             {
               n: '02',
-              title: 'Write your solution',
-              body: 'Work in a clean split-pane editor — problem statement on the left, your code on the right. Five languages supported. No setup, no IDE required.',
+              title: 'Solve in a real editor flow',
+              body: 'The workspace keeps the prompt, code, tests, and feedback close together so students stay focused.',
             },
             {
               n: '03',
-              title: 'Get unstuck, not just answers',
-              body: 'When you hit a wall, ask for a hint. You get a nudge toward the right thinking, not a solution to copy. That\'s the difference between practicing and actually learning.',
+              title: 'Learn from the attempt',
+              body: 'Hints and test results point students toward the next idea without turning practice into copy-paste.',
             },
           ].map((step) => (
             <div
               key={step.n}
+              className="terminal-window terminal-scanlines glass-panel"
               style={{
-                display: 'grid',
-                gridTemplateColumns: '160px 1fr',
-                gap: '0 4rem',
-                alignItems: 'start',
-                paddingBottom: '4rem',
-                marginBottom: '4rem',
-                borderBottom: '1px solid rgba(255,255,255,0.06)',
+                display: 'flex',
+                flexDirection: 'column',
+                borderRadius: '8px',
+                overflow: 'hidden',
+                transition: 'transform 0.2s ease, border-color 0.2s ease',
               }}
             >
-              {/* Big number */}
-              <div
-                style={{
-                  fontFamily: "'Jersey 10', sans-serif",
-                  fontSize: '7.5rem',
-                  color: '#0045FF',
-                  lineHeight: 0.85,
-                  letterSpacing: '-0.02em',
-                  userSelect: 'none',
-                }}
-              >
-                {step.n}
+              <div className="terminal-bar">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div className="terminal-dots">
+                    <span className="terminal-dot terminal-dot-red" />
+                    <span className="terminal-dot terminal-dot-yellow" />
+                    <span className="terminal-dot terminal-dot-green" />
+                  </div>
+                  <span style={{ fontSize: '0.72rem', color: '#666' }}>DIAGNOSTIC_MODULE_{step.n}.EXE</span>
+                </div>
               </div>
-
-              {/* Content */}
-              <div style={{ paddingTop: '0.5rem' }}>
-                <h3
-                  style={{
-                    fontFamily: 'Inter',
-                    fontWeight: 700,
-                    fontSize: '1.9rem',
-                    color: '#fff',
-                    letterSpacing: '-0.025em',
-                    marginBottom: '0.875rem',
-                    lineHeight: 1.1,
-                  }}
-                >
-                  {step.title}
-                </h3>
-                <p
-                  style={{
-                    fontFamily: 'Inter',
-                    fontSize: '1.3rem',
-                    color: '#fff',
-                    lineHeight: 1.7,
-                    fontWeight: 500,
-                    maxWidth: 560,
-                    letterSpacing: '-0.01em',
-                  }}
-                >
-                  {step.body}
-                </p>
+              <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div>
+                  <div
+                    className="jersey-header"
+                    style={{
+                      fontSize: '3.6rem',
+                      fontWeight: 800,
+                      color: primaryYellow,
+                      lineHeight: 1,
+                      marginBottom: '0.75rem',
+                      userSelect: 'none',
+                    }}
+                  >
+                    {step.n}
+                  </div>
+                  <h3
+                    style={{
+                      fontFamily: 'Inter',
+                      fontWeight: 700,
+                      fontSize: '1.35rem',
+                      color: '#fff',
+                      marginBottom: '0.75rem',
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    {step.title}
+                  </h3>
+                  <p
+                    style={{
+                      fontFamily: 'Inter',
+                      fontSize: '0.95rem',
+                      color: '#999',
+                      lineHeight: 1.5,
+                      fontWeight: 500,
+                    }}
+                  >
+                    {step.body}
+                  </p>
+                </div>
               </div>
             </div>
           ))}

@@ -21,29 +21,31 @@ export default function Navbar({ showHome = false }: NavbarProps) {
     display: 'inline-flex',
     alignItems: 'center',
     height: '42px',
-    padding: '0 1.375rem',
-    fontFamily: "'Inter', sans-serif",
-    fontSize: '0.95rem',
-    fontWeight: 600,
-    letterSpacing: '-0.015em',
-    borderRadius: '9px',
+    padding: '0 1.25rem',
+    fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+    fontSize: '0.86rem',
+    fontWeight: 700,
+    letterSpacing: '-0.2px',
+    borderRadius: '6px',
     textDecoration: 'none',
     cursor: 'pointer',
     whiteSpace: 'nowrap',
     lineHeight: 1,
+    transition: 'all 0.15s ease',
   };
 
   const primaryBtn: React.CSSProperties = {
     ...btnBase,
-    background: '#fff',
-    color: '#000',
-    border: 'none',
+    background: '#fbbf24',
+    color: '#171100',
+    border: '1px solid #fbbf24',
   };
 
   const secondaryBtn: React.CSSProperties = {
     ...btnBase,
-    background: '#1E1E1E',
+    background: '#080808',
     color: '#e0e0e0',
+    border: '1px solid rgba(255,255,255,0.16)',
   };
 
   return (
@@ -54,9 +56,8 @@ export default function Navbar({ showHome = false }: NavbarProps) {
         justifyContent: 'space-between',
         padding: '0 2.5rem',
         height: '64px',
-        background: scrolled ? 'rgba(0,0,0,0.9)' : 'transparent',
-        backdropFilter: scrolled ? 'blur(16px)' : 'none',
-        borderBottom: scrolled ? '1px solid rgba(255,255,255,0.07)' : '1px solid transparent',
+        background: '#000',
+        borderBottom: scrolled ? '1px solid rgba(255,255,255,0.14)' : '1px solid rgba(255,255,255,0.08)',
         position: 'sticky',
         top: 0,
         zIndex: 50,
@@ -73,18 +74,25 @@ export default function Navbar({ showHome = false }: NavbarProps) {
           style={{
             width: 28,
             height: 28,
-            background: 'rgba(255,255,255,0.06)',
-            border: '1px solid rgba(255,255,255,0.12)',
-            borderRadius: '7px',
+            background: '#080808',
+            border: '1px solid rgba(251,191,36,0.55)',
+            borderRadius: '6px',
             flexShrink: 0,
+            display: 'grid',
+            placeItems: 'center',
+            color: '#fbbf24',
+            fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+            fontSize: '0.72rem',
+            fontWeight: 800,
           }}
-        />
+        >
+          &gt;_
+        </div>
         <span
+          className="logo-pixel"
           style={{
-            fontFamily: "'Jersey 10', sans-serif",
-            fontSize: '1.2rem',
             color: '#e8e8e8',
-            letterSpacing: '0.02em',
+            marginTop: '3px'
           }}
         >
           duckling.codes
@@ -96,12 +104,12 @@ export default function Navbar({ showHome = false }: NavbarProps) {
         {isLanding ? (
           <>
             {/* Log In styled like the secondary (Learn More) button */}
-            <button style={secondaryBtn} className="nav-secondary-btn">
+            <Link to="/login" style={secondaryBtn} className="nav-secondary-btn">
               Log In
-            </button>
+            </Link>
             {/* Get Started styled like the primary button */}
-            <Link to="/get-started" style={primaryBtn} className="nav-primary-btn">
-              Get Started
+            <Link to="/register" style={primaryBtn} className="nav-primary-btn">
+              Register
             </Link>
           </>
         ) : (
