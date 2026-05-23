@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import { Title, H1, Body, MainButton, SubButton } from '../components/ui';
 
 const kw  = (t: string) => <span style={{ color: '#ff7b72' }}>{t}</span>;
 const ty  = (t: string) => <span style={{ color: '#79c0ff' }}>{t}</span>;
@@ -10,7 +11,6 @@ const dim = (t: string) => <span style={{ color: '#6e7681' }}>{t}</span>;
 function EditorPreview() {
   return (
     <div style={{ position: 'relative', width: '100%', maxWidth: 640 }}>
-      {/* Ambient glow */}
       <div
         style={{
           position: 'absolute',
@@ -35,7 +35,6 @@ function EditorPreview() {
           lineHeight: 1.75,
         }}
       >
-        {/* Title bar */}
         <div
           style={{
             display: 'flex',
@@ -53,14 +52,12 @@ function EditorPreview() {
           </div>
           <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
             <span style={{ fontSize: '0.68rem', color: '#444', fontFamily: 'Inter' }}>
-              duckling.codes — solution.cpp
+              ducklings.dev
             </span>
           </div>
         </div>
 
-        {/* Split: problem | code */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1px 1.15fr', height: 360 }}>
-          {/* Problem pane */}
           <div style={{ padding: '14px', overflowY: 'hidden', fontSize: '0.66rem', lineHeight: 1.8 }}>
             <div style={{ color: '#e8e8e8', fontFamily: 'Inter', fontWeight: 600, marginBottom: '3px', fontSize: '0.75rem' }}>
               Ice Cream Parlor
@@ -85,10 +82,8 @@ function EditorPreview() {
             <pre style={{ margin: 0, color: '#3a3a3a', fontSize: '0.62rem', fontFamily: 'JetBrains Mono' }}>{`2\n4 5\n1 4 5 3 2`}</pre>
           </div>
 
-          {/* Divider */}
           <div style={{ background: 'rgba(255,255,255,0.05)' }} />
 
-          {/* Code pane */}
           <div style={{ padding: '14px', overflowY: 'hidden', color: '#c9d1d9' }}>
             <pre style={{ margin: 0, fontFamily: 'inherit', fontSize: 'inherit', lineHeight: 'inherit' }}>
               {dim('#include <bits/stdc++.h>')}{'\n'}
@@ -114,7 +109,6 @@ function EditorPreview() {
           </div>
         </div>
 
-        {/* Status bar */}
         <div
           style={{
             display: 'flex',
@@ -139,7 +133,6 @@ function EditorPreview() {
         </div>
       </div>
 
-      {/* Floating hint card */}
       <div
         style={{
           position: 'absolute',
@@ -177,8 +170,6 @@ export default function Home() {
           alignItems: 'center',
         }}
       >
-
-        {/* Bottom fade into next section */}
         <div
           style={{
             position: 'absolute',
@@ -191,7 +182,6 @@ export default function Home() {
           }}
         />
 
-        {/* Content */}
         <div
           style={{
             position: 'relative',
@@ -205,127 +195,47 @@ export default function Home() {
             alignItems: 'center',
           }}
         >
-          {/* Left: copy */}
           <div>
-            <h1
-              style={{
-                fontFamily: "'Jersey 10', sans-serif",
-                fontSize: 'clamp(2.8rem, 4.2vw, 5rem)',
-                color: '#fff',
-                marginBottom: '1.5rem',
-                lineHeight: 0.75,
-                letterSpacing: '-0.025em',
-              }}
-            >
+            <Title style={{ marginBottom: '1.5rem' }}>
               Practice coding with
               <br />
-              <span style={{ color: '#0045FF' }}>today's </span>
+              <span style={{ color: '#FFC91A' }}>today's </span>
               tools.
-            </h1>
+            </Title>
 
-            <p
-              style={{
-                fontSize: '1.5rem',
-                color: '#ffffff',
-                maxWidth: 560,
-                lineHeight: 1.1,
-                letterSpacing: '-0.02em',
-                marginBottom: '2.25rem',
-                fontWeight: 500,
-              }}
-            >
+            <Body style={{ maxWidth: 560, marginBottom: '2.25rem' }}>
               Most practice platforms throw problems at you and wait. Duckling is
               different. Every problem is a chance to actually learn, compete, and
               improve your coding skills, targeted for students.
-            </p>
+            </Body>
 
             <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-              <Link
-                to="/get-started"
-                className="hero-cta-primary"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  height: '48px',
-                  padding: '0 1.75rem',
-                  background: '#fff',
-                  color: '#000',
-                  fontWeight: 600,
-                  fontSize: '1rem',
-                  fontFamily: 'Inter',
-                  borderRadius: '9px',
-                  textDecoration: 'none',
-                  letterSpacing: '-0.015em',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                Try Ducklings Free
+              <Link to="/library" style={{ textDecoration: 'none' }}>
+                <MainButton>Try Ducklings Free</MainButton>
               </Link>
-              <button
-                className="hero-cta-secondary"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  height: '48px',
-                  padding: '0 1.75rem',
-                  background: '#1E1E1E',
-                  color: '#e0e0e0',
-                  fontWeight: 600,
-                  fontSize: '1rem',
-                  border: '2px solid #4D4D4D',
-                  borderRadius: '9px',
-                  cursor: 'pointer',
-                  fontFamily: 'Inter',
-                  letterSpacing: '-0.015em',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                Learn More
-              </button>
+              <SubButton>Learn More</SubButton>
             </div>
           </div>
 
-          {/* Right: editor */}
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingBottom: '40px' }}>
             <EditorPreview />
           </div>
         </div>
       </section>
 
-      {/* ── Built by students ── */}
+      <div aria-hidden style={{ height: 80 }} />
+
       <section style={{ padding: '4rem 4rem', maxWidth: '1440px', margin: '0 auto', width: '100%', textAlign: 'center' }}>
-        <h2
-          style={{
-            fontFamily: "'Jersey 10', sans-serif",
-            fontSize: 'clamp(2.8rem, 4vw, 4.5rem)',
-            color: '#fff',
-            lineHeight: 0.95,
-            letterSpacing: '-0.015em',
-            marginBottom: '1.75rem',
-          }}
-        >
+        <Title style={{ fontSize: 'clamp(2.8rem, 4vw, 4.5rem)', lineHeight: 0.95, marginBottom: '1.75rem' }}>
           Built by students, for
-          <span style={{ color: '#0045FF' }}> students. </span>
-        </h2>
-        <p
-          style={{
-            fontFamily: 'Inter',
-            fontSize: '1.5rem',
-            color: '#fff',
-            lineHeight: 1.1,
-            fontWeight: 500,
-            maxWidth: 600,
-            margin: '0 auto',
-            letterSpacing: '-0.01em',
-          }}
-        >
+          <span style={{ color: '#FFC91A' }}> students. </span>
+        </Title>
+        <Body style={{ maxWidth: 600, margin: '0 auto' }}>
           We've been utilizing computer science practice websites from the start of our computer science career. However, all of these tools were lacking in some way or the other. Ducklings is our attempt.
-        </p>
+        </Body>
       </section>
 
-      {/* ── How it works ── */}
       <section style={{ padding: '0 4rem 10rem', maxWidth: '1440px', margin: '0 auto', width: '100%' }}>
-        {/* Section label */}
         <div style={{ marginBottom: '5rem' }}>
           <span
             style={{
@@ -334,27 +244,17 @@ export default function Home() {
               fontWeight: 600,
               letterSpacing: '0.12em',
               textTransform: 'uppercase',
-              color: '#0045FF',
+              color: '#FFC91A',
             }}
           >
             How it works
           </span>
-          <h2
-            style={{
-              fontFamily: "'Jersey 10', sans-serif",
-              fontSize: 'clamp(2.2rem, 3.5vw, 3.5rem)',
-              color: '#fff',
-              lineHeight: 0.95,
-              letterSpacing: '-0.015em',
-              marginTop: '0.75rem',
-            }}
-          >
+          <Title style={{ fontSize: 'clamp(2.2rem, 3.5vw, 3.5rem)', lineHeight: 0.95, marginTop: '0.75rem' }}>
             Three steps.<br />
             No fluff.
-          </h2>
+          </Title>
         </div>
 
-        {/* Steps */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
           {[
             {
@@ -385,12 +285,11 @@ export default function Home() {
                 borderBottom: '1px solid rgba(255,255,255,0.06)',
               }}
             >
-              {/* Big number */}
               <div
                 style={{
                   fontFamily: "'Jersey 10', sans-serif",
                   fontSize: '7.5rem',
-                  color: '#0045FF',
+                  color: '#FFC91A',
                   lineHeight: 0.85,
                   letterSpacing: '-0.02em',
                   userSelect: 'none',
@@ -399,34 +298,13 @@ export default function Home() {
                 {step.n}
               </div>
 
-              {/* Content */}
               <div style={{ paddingTop: '0.5rem' }}>
-                <h3
-                  style={{
-                    fontFamily: 'Inter',
-                    fontWeight: 700,
-                    fontSize: '1.9rem',
-                    color: '#fff',
-                    letterSpacing: '-0.025em',
-                    marginBottom: '0.875rem',
-                    lineHeight: 1.1,
-                  }}
-                >
+                <H1 style={{ fontSize: '1.9rem', marginBottom: '0.875rem' }}>
                   {step.title}
-                </h3>
-                <p
-                  style={{
-                    fontFamily: 'Inter',
-                    fontSize: '1.3rem',
-                    color: '#fff',
-                    lineHeight: 1.7,
-                    fontWeight: 500,
-                    maxWidth: 560,
-                    letterSpacing: '-0.01em',
-                  }}
-                >
+                </H1>
+                <Body style={{ fontSize: '1.3rem', lineHeight: 1.7, maxWidth: 560 }}>
                   {step.body}
-                </p>
+                </Body>
               </div>
             </div>
           ))}

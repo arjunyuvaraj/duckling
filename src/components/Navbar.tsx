@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { MainButton, DefaultButton } from './ui';
 
 interface NavbarProps {
   showHome?: boolean;
@@ -17,33 +18,10 @@ export default function Navbar({ showHome = false }: NavbarProps) {
 
   const isLanding = location.pathname === '/';
 
-  const btnBase: React.CSSProperties = {
-    display: 'inline-flex',
-    alignItems: 'center',
+  const navBtnOverride: React.CSSProperties = {
     height: '42px',
     padding: '0 1.375rem',
-    fontFamily: "'Inter', sans-serif",
     fontSize: '0.95rem',
-    fontWeight: 600,
-    letterSpacing: '-0.015em',
-    borderRadius: '9px',
-    textDecoration: 'none',
-    cursor: 'pointer',
-    whiteSpace: 'nowrap',
-    lineHeight: 1,
-  };
-
-  const primaryBtn: React.CSSProperties = {
-    ...btnBase,
-    background: '#fff',
-    color: '#000',
-    border: 'none',
-  };
-
-  const secondaryBtn: React.CSSProperties = {
-    ...btnBase,
-    background: '#1E1E1E',
-    color: '#e0e0e0',
   };
 
   return (
@@ -64,7 +42,6 @@ export default function Navbar({ showHome = false }: NavbarProps) {
         flexShrink: 0,
       }}
     >
-      {/* Logo */}
       <Link
         to="/"
         style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', textDecoration: 'none' }}
@@ -87,27 +64,22 @@ export default function Navbar({ showHome = false }: NavbarProps) {
             letterSpacing: '0.02em',
           }}
         >
-          duckling.codes
+          ducklings.dev
         </span>
       </Link>
 
-      {/* Right */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
         {isLanding ? (
           <>
-            {/* Log In styled like the secondary (Learn More) button */}
-            <button style={secondaryBtn} className="nav-secondary-btn">
-              Log In
-            </button>
-            {/* Get Started styled like the primary button */}
-            <Link to="/get-started" style={primaryBtn} className="nav-primary-btn">
-              Get Started
+            <DefaultButton style={navBtnOverride}>Log In</DefaultButton>
+            <Link to="/library" style={{ textDecoration: 'none' }}>
+              <MainButton style={navBtnOverride}>Get Started</MainButton>
             </Link>
           </>
         ) : (
           showHome && (
-            <Link to="/" style={secondaryBtn} className="nav-secondary-btn">
-              ← Home
+            <Link to="/" style={{ textDecoration: 'none' }}>
+              <DefaultButton style={navBtnOverride}>← Home</DefaultButton>
             </Link>
           )
         )}
