@@ -5,7 +5,6 @@ export interface ProblemDetail {
   sampleInput: string;
   sampleOutput: string;
   explanation: string;
-  starterCode: string;
 }
 
 export const PROBLEM_DETAILS: Record<number, ProblemDetail> = {
@@ -15,13 +14,6 @@ export const PROBLEM_DETAILS: Record<number, ProblemDetail> = {
     sampleInput: `nums = [2, 7, 11, 15]\ntarget = 9`,
     sampleOutput: `[0, 1]`,
     explanation: `nums[0] + nums[1] = 2 + 7 = 9, so the answer is [0, 1].`,
-    starterCode: `import java.util.*;
-
-public class Solution {
-    public int[] twoSum(int[] nums, int target) {
-
-    }
-}`,
   },
 
   2: {
@@ -30,11 +22,6 @@ public class Solution {
     sampleInput: `s = ['h','e','l','l','o']`,
     sampleOutput: `['o','l','l','e','h']`,
     explanation: `Each character is swapped with its mirror from the opposite end, working inward.`,
-    starterCode: `public class Solution {
-    public void reverseString(char[] s) {
-
-    }
-}`,
   },
 
   3: {
@@ -43,11 +30,6 @@ public class Solution {
     sampleInput: `n = 6`,
     sampleOutput: `8`,
     explanation: `F(6) = F(5) + F(4) = 5 + 3 = 8.`,
-    starterCode: `public class Solution {
-    public int fib(int n) {
-
-    }
-}`,
   },
 
   4: {
@@ -56,13 +38,6 @@ public class Solution {
     sampleInput: `s = "()[]{}"`,
     sampleOutput: `true`,
     explanation: `Each opening bracket has a matching closing bracket in the correct order.`,
-    starterCode: `import java.util.*;
-
-public class Solution {
-    public boolean isValid(String s) {
-
-    }
-}`,
   },
 
   5: {
@@ -71,11 +46,6 @@ public class Solution {
     sampleInput: `nums = [-1, 0, 3, 5, 9, 12]\ntarget = 9`,
     sampleOutput: `4`,
     explanation: `9 exists in nums at index 4, so return 4.`,
-    starterCode: `public class Solution {
-    public int search(int[] nums, int target) {
-
-    }
-}`,
   },
 
   6: {
@@ -84,11 +54,6 @@ public class Solution {
     sampleInput: `nums1 = [1,2,3,0,0,0], m = 3\nnums2 = [2,5,6],       n = 3`,
     sampleOutput: `[1, 2, 2, 3, 5, 6]`,
     explanation: `Merge from the back to avoid overwriting elements still to be processed.`,
-    starterCode: `public class Solution {
-    public void merge(int[] nums1, int m, int[] nums2, int n) {
-
-    }
-}`,
   },
 
   7: {
@@ -97,11 +62,6 @@ public class Solution {
     sampleInput: `nums = [-2, 1, -3, 4, -1, 2, 1, -5, 4]`,
     sampleOutput: `6`,
     explanation: `The subarray [4, -1, 2, 1] has the largest sum = 6.`,
-    starterCode: `public class Solution {
-    public int maxSubArray(int[] nums) {
-
-    }
-}`,
   },
 
   8: {
@@ -111,11 +71,6 @@ public class Solution {
     sampleInput: `head = [3, 2, 0, -4], pos = 1`,
     sampleOutput: `true`,
     explanation: `There is a cycle — the tail connects back to the node at index 1.`,
-    starterCode: `public class Solution {
-    public boolean hasCycle(ListNode head) {
-
-    }
-}`,
   },
 
   9: {
@@ -124,11 +79,6 @@ public class Solution {
     sampleInput: `s = "anagram"\nt = "nagaram"`,
     sampleOutput: `true`,
     explanation: `Both strings contain the same characters with the same frequencies.`,
-    starterCode: `public class Solution {
-    public boolean isAnagram(String s, String t) {
-
-    }
-}`,
   },
 
   10: {
@@ -137,11 +87,6 @@ public class Solution {
     sampleInput: `n = 10`,
     sampleOutput: `4`,
     explanation: `Primes less than 10 are 2, 3, 5, and 7 — four in total.`,
-    starterCode: `public class Solution {
-    public int countPrimes(int n) {
-
-    }
-}`,
   },
 
   11: {
@@ -150,10 +95,6 @@ public class Solution {
     sampleInput: `n = 5`,
     sampleOutput: `["1", "2", "Fizz", "4", "Buzz"]`,
     explanation: `3 is divisible by 3 → "Fizz". 5 is divisible by 5 → "Buzz".`,
-    starterCode: `def fizzBuzz(n: int) -> list[str]:
-    result = []
-
-    return result`,
   },
 
   12: {
@@ -162,8 +103,6 @@ public class Solution {
     sampleInput: `s = "Hello World"`,
     sampleOutput: `3`,
     explanation: `The vowels are 'e', 'o', and 'o' — three in total.`,
-    starterCode: `def countVowels(s: str) -> int:
-    pass`,
   },
 
   13: {
@@ -173,8 +112,6 @@ public class Solution {
     sampleInput: `nums = [4, 3, 2, 7, 8, 2, 3, 1]`,
     sampleOutput: `[2, 3]`,
     explanation: `2 appears at indices 2 and 5. 3 appears at indices 1 and 6.`,
-    starterCode: `def findDuplicates(nums: list[int]) -> list[int]:
-    pass`,
   },
 
   14: {
@@ -183,8 +120,6 @@ public class Solution {
     sampleInput: `n = 16`,
     sampleOutput: `true`,
     explanation: `16 = 2⁴, so it is a power of two.`,
-    starterCode: `def isPowerOfTwo(n: int) -> bool:
-    pass`,
   },
 
   15: {
@@ -193,8 +128,6 @@ public class Solution {
     sampleInput: `s = "{[()]}"`,
     sampleOutput: `True`,
     explanation: `All brackets close in the correct nested order.`,
-    starterCode: `def isBalanced(s: str) -> bool:
-    pass`,
   },
 
   16: {
@@ -203,8 +136,6 @@ public class Solution {
     sampleInput: `mat = [[1,2,3],\n       [4,5,6],\n       [7,8,9]]`,
     sampleOutput: `25`,
     explanation: `Primary diagonal: 1+5+9=15. Anti-diagonal: 3+5+7=15. Center 5 counted once → 15+15-5=25.`,
-    starterCode: `def diagonalSum(mat: list[list[int]]) -> int:
-    pass`,
   },
 
   17: {
@@ -213,8 +144,6 @@ public class Solution {
     sampleInput: `s = "babad"`,
     sampleOutput: `"bab"`,
     explanation: `"bab" is a valid palindromic substring (so is "aba"). Either is an acceptable answer.`,
-    starterCode: `def longestPalindrome(s: str) -> str:
-    pass`,
   },
 
   18: {
@@ -223,8 +152,6 @@ public class Solution {
     sampleInput: `coins = [1, 5, 11]\namount = 15`,
     sampleOutput: `3`,
     explanation: `15 = 5 + 5 + 5. Three coins of denomination 5 is optimal.`,
-    starterCode: `def coinChange(coins: list[int], amount: int) -> int:
-    pass`,
   },
 
   19: {
@@ -233,8 +160,6 @@ public class Solution {
     sampleInput: `grid = [["1","1","0","0","0"],\n        ["1","1","0","0","0"],\n        ["0","0","1","0","0"],\n        ["0","0","0","1","1"]]`,
     sampleOutput: `3`,
     explanation: `There are three distinct groups of connected land cells, each forming one island.`,
-    starterCode: `def numIslands(grid: list[list[str]]) -> int:
-    pass`,
   },
 
   20: {
@@ -243,7 +168,5 @@ public class Solution {
     sampleInput: `board = [["A","B","C","E"],\n         ["S","F","C","S"],\n         ["A","D","E","E"]]\nword = "ABCCED"`,
     sampleOutput: `True`,
     explanation: `The word "ABCCED" can be traced through the board following adjacent cells.`,
-    starterCode: `def wordSearch(board: list[list[str]], word: str) -> bool:
-    pass`,
   },
 };

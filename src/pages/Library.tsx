@@ -6,6 +6,7 @@ import {
   ALL_PROBLEMS, TOPICS, DIFFICULTIES, LANGUAGES, DIFFICULTY_COLOR,
   type Difficulty, type Language,
 } from '../data/problems';
+import { getSolvedIds } from '../utils/progress';
 
 function shuffleArray<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -15,8 +16,6 @@ function shuffleArray<T>(arr: T[]): T[] {
   }
   return a;
 }
-
-// ─── Icons ────────────────────────────────────────────────────────────────────
 
 const SearchIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
@@ -40,8 +39,6 @@ const ShuffleIcon = () => (
     <line x1="15" y1="15" x2="21" y2="21" />
   </svg>
 );
-
-// ─── Small components ─────────────────────────────────────────────────────────
 
 function IconBtn({
   onClick, active = false, title, dot = false, children,
@@ -108,8 +105,6 @@ const COL_HEADER: React.CSSProperties = {
   userSelect: 'none',
 };
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
 export default function Library() {
   const [search, setSearch]             = useState('');
   const [difficulty, setDifficulty]     = useState<'All' | Difficulty>('All');
@@ -118,7 +113,7 @@ export default function Library() {
   const [shuffleCount, setShuffleCount] = useState(0);
   const [isShuffled, setIsShuffled]     = useState(false);
   const [filterOpen, setFilterOpen]     = useState(false);
-  const [solved]                        = useState<Set<number>>(new Set());
+  const [solved]                        = useState<Set<number>>(getSolvedIds);
   const navigate = useNavigate();
 
   const filterWrapRef = useRef<HTMLDivElement>(null);
@@ -152,7 +147,6 @@ export default function Library() {
   const handleShuffle = () => { setShuffleCount(c => c + 1); setIsShuffled(true); };
   const handleUnshuffle = () => setIsShuffled(false);
 
-  // columns: [52px #] [title flex-3] [language flex-1] [acceptance flex-1] [difficulty flex-1]
   const GRID = '52px 3fr 1fr 1fr 1fr';
 
   return (
@@ -161,10 +155,8 @@ export default function Library() {
 
       <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', width: '100%', padding: '0 1.5rem' }}>
 
-        {/* ── Top bar ── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '1.25rem 0', flexShrink: 0 }}>
 
-          {/* Search */}
           <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center' }}>
             <span style={{ position: 'absolute', left: 14, color: '#444', display: 'flex', pointerEvents: 'none' }}>
               <SearchIcon />
@@ -190,7 +182,6 @@ export default function Library() {
             />
           </div>
 
-          {/* Filter button + popup */}
           <div ref={filterWrapRef} style={{ position: 'relative' }}>
             <IconBtn
               onClick={() => setFilterOpen(o => !o)}
@@ -217,7 +208,6 @@ export default function Library() {
                 flexDirection: 'column',
                 gap: '1.25rem',
               }}>
-                {/* Difficulty */}
                 <div>
                   <div style={{ ...COL_HEADER, marginBottom: '0.5rem' }}>Difficulty</div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
@@ -227,7 +217,6 @@ export default function Library() {
                   </div>
                 </div>
 
-                {/* Language */}
                 <div>
                   <div style={{ ...COL_HEADER, marginBottom: '0.5rem' }}>Language</div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
@@ -237,7 +226,6 @@ export default function Library() {
                   </div>
                 </div>
 
-                {/* Topic */}
                 <div>
                   <div style={{ ...COL_HEADER, marginBottom: '0.5rem' }}>Topic</div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
@@ -247,7 +235,6 @@ export default function Library() {
                   </div>
                 </div>
 
-                {/* Clear */}
                 {hasActiveFilter && (
                   <button
                     onClick={() => { setDifficulty('All'); setLanguage('All'); setTopic('All'); }}
@@ -264,15 +251,12 @@ export default function Library() {
             )}
           </div>
 
-          {/* Spacer */}
           <div style={{ flex: 1 }} />
 
-          {/* Solved count */}
           <Body style={{ fontSize: '0.9rem', color: '#3a3a3a', whiteSpace: 'nowrap' }}>
             {solved.size}/{filtered.length} solved
           </Body>
 
-          {/* Shuffle */}
           <IconBtn
             onClick={isShuffled ? handleUnshuffle : handleShuffle}
             active={isShuffled}
@@ -282,10 +266,8 @@ export default function Library() {
           </IconBtn>
         </div>
 
-        {/* ── Problem table ── */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)', overflow: 'hidden' }}>
 
-          {/* Header */}
           <div style={{
             display: 'grid',
             gridTemplateColumns: GRID,
@@ -302,7 +284,6 @@ export default function Library() {
             <span style={{ ...COL_HEADER, textAlign: 'right' }}>Difficulty</span>
           </div>
 
-          {/* Rows */}
           {filtered.length === 0 ? (
             <div style={{ padding: '5rem', textAlign: 'center', background: '#0a0a0a' }}>
               <Body style={{ color: '#2e2e2e' }}>No problems match your filters.</Body>
@@ -323,12 +304,10 @@ export default function Library() {
                     cursor: 'pointer',
                   }}
                 >
-                  {/* Number */}
-                  <span style={{ fontFamily: 'Inter', fontSize: '0.95rem', color: '#444', fontWeight: 500, letterSpacing: '-0.02em' }}>
-                    {p.id}
+                  <span style={{ fontFamily: 'Inter', fontSize: '0.95rem', color: solved.has(p.id) ? '#4ade80' : '#444', fontWeight: 500, letterSpacing: '-0.02em' }}>
+                    {solved.has(p.id) ? '✓' : p.id}
                   </span>
 
-                  {/* Title */}
                   <span style={{
                     fontFamily: 'Inter', fontSize: '0.95rem', color: '#fff',
                     fontWeight: 500, letterSpacing: '-0.02em',
@@ -337,7 +316,6 @@ export default function Library() {
                     {p.title}
                   </span>
 
-                  {/* Language */}
                   <span style={{
                     fontFamily: 'Inter', fontSize: '0.95rem', color: '#fff',
                     fontWeight: 500, letterSpacing: '-0.02em',
@@ -345,7 +323,6 @@ export default function Library() {
                     {p.language}
                   </span>
 
-                  {/* Acceptance */}
                   <span style={{
                     fontFamily: 'Inter', fontSize: '0.95rem', color: '#fff',
                     fontWeight: 500, letterSpacing: '-0.02em',
@@ -354,7 +331,6 @@ export default function Library() {
                     {p.acceptance.toFixed(1)}%
                   </span>
 
-                  {/* Difficulty */}
                   <span style={{
                     fontFamily: 'Inter', fontSize: '0.95rem', fontWeight: 600,
                     color: DIFFICULTY_COLOR[p.difficulty],

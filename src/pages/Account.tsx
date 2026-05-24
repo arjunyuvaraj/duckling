@@ -38,7 +38,7 @@ export default function Account() {
                 <span className="terminal-dot terminal-dot-yellow" />
                 <span className="terminal-dot terminal-dot-green" />
               </div>
-              <span>duckling.codes/account</span>
+              <span>ducklings.dev/account</span>
             </div>
             <span>status: local session</span>
           </div>

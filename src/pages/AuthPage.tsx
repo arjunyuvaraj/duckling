@@ -21,6 +21,7 @@ interface AuthResponse {
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000';
+const AUTH_API_ENABLED = import.meta.env.VITE_ENABLE_AUTH_API === 'true';
 
 const duck = String.raw`    __
   <(o )___
@@ -78,7 +79,6 @@ export default function AuthPage({ mode }: AuthPageProps) {
     () =>
       isRegister
         ? {
-            title: 'Register for Duckling',
             eyebrow: 'new account',
             body: 'One account works for students solving problems and teachers building classes.',
             button: 'Create account',
@@ -87,7 +87,6 @@ export default function AuthPage({ mode }: AuthPageProps) {
             switchTo: '/login',
           }
         : {
-            title: 'Log in',
             eyebrow: 'welcome back',
             body: 'Jump back into your practice, classes, and problem sets.',
             button: 'Log in',
@@ -110,6 +109,10 @@ export default function AuthPage({ mode }: AuthPageProps) {
     return () => observer.disconnect();
   }, []);
 
+  function storeLocalUser(user: { id: string; username: string; email: string }) {
+    localStorage.setItem('duckling_user', JSON.stringify(user));
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setStatus('loading');
@@ -117,6 +120,25 @@ export default function AuthPage({ mode }: AuthPageProps) {
 
     const endpoint = isRegister ? '/auth/signup' : '/auth/login';
     const payload = isRegister ? { email, username, password } : { email, password };
+
+    if (!AUTH_API_ENABLED) {
+      const fallbackUsername =
+        (isRegister ? username : email.split('@')[0])?.trim() || 'duckling-user';
+
+      storeLocalUser({
+        id: `local-${Date.now()}`,
+        username: fallbackUsername,
+        email,
+      });
+      setStatus('success');
+      setMessage(
+        isRegister
+          ? 'Account created locally for UI preview.'
+          : 'Logged in locally for UI preview.',
+      );
+      navigate('/library', { replace: true });
+      return;
+    }
 
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -130,20 +152,21 @@ export default function AuthPage({ mode }: AuthPageProps) {
         throw new Error(data.detail ?? data.message ?? 'Something went wrong. Please try again.');
       }
 
-      localStorage.setItem(
-        'duckling_user',
-        JSON.stringify({
-          id: data.user_id,
-          username: data.username,
-          email: data.email,
-        }),
-      );
+      storeLocalUser({
+        id: data.user_id ?? `remote-${Date.now()}`,
+        username: data.username ?? email.split('@')[0] ?? 'duckling-user',
+        email: data.email ?? email,
+      });
       setStatus('success');
       setMessage(data.message ?? (isRegister ? 'Account created successfully.' : 'Logged in successfully.'));
-      navigate('/account', { replace: true });
+      navigate('/library', { replace: true });
     } catch (error) {
       setStatus('error');
-      setMessage(error instanceof Error ? error.message : 'Something went wrong. Please try again.');
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : 'Something went wrong. Please try again.',
+      );
     }
   }
 
@@ -163,7 +186,7 @@ export default function AuthPage({ mode }: AuthPageProps) {
                   <span className="terminal-dot terminal-dot-yellow" />
                   <span className="terminal-dot terminal-dot-green" />
                 </div>
-                <span>duckling.codes/auth</span>
+                <span>ducklings.dev/auth</span>
               </div>
               <span>{mode}</span>
             </div>

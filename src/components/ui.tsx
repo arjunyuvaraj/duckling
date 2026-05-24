@@ -1,7 +1,5 @@
 import React from 'react';
 
-// ─── Typography ───────────────────────────────────────────────────────────────
-
 interface TextProps {
   children: React.ReactNode;
   style?: React.CSSProperties;
@@ -85,8 +83,6 @@ export function Body({ children, style, className }: TextProps) {
   );
 }
 
-// ─── Panel (card) ─────────────────────────────────────────────────────────────
-
 export const CARD_RADIUS = '10px';
 export const CARD_BG = '#1E1E1E';
 
@@ -111,8 +107,6 @@ export function Panel({ children, style, className }: PanelProps) {
     </div>
   );
 }
-
-// ─── Buttons ──────────────────────────────────────────────────────────────────
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;

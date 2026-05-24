@@ -65,7 +65,6 @@ export default function Navbar({ showHome = false }: NavbarProps) {
         flexShrink: 0,
       }}
     >
-      {/* Logo */}
       <Link
         to="/"
         style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', textDecoration: 'none' }}
@@ -95,19 +94,16 @@ export default function Navbar({ showHome = false }: NavbarProps) {
             marginTop: '3px'
           }}
         >
-          duckling.codes
+          ducklings.dev
         </span>
       </Link>
 
-      {/* Right */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
         {isLanding ? (
           <>
-            {/* Log In styled like the secondary (Learn More) button */}
             <Link to="/login" style={secondaryBtn} className="nav-secondary-btn">
               Log In
             </Link>
-            {/* Get Started styled like the primary button */}
             <Link to="/register" style={primaryBtn} className="nav-primary-btn">
               Register
             </Link>

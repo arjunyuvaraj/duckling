@@ -257,7 +257,6 @@ export default function Home() {
     <div className="grid-backdrop page-flow-enter" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
 
-      {/* Hero section */}
       <section
         style={{
           position: 'relative',
@@ -281,7 +280,6 @@ export default function Home() {
           }}
           className="home-hero-grid"
         >
-          {/* Left info column */}
           <div className="hero-copy-flow">
             <pre className="home-duck-ascii" aria-label="ASCII duck logo">{duckAscii}</pre>
             <div className="home-terminal-kicker">
@@ -373,14 +371,12 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Right mock terminal column */}
           <div className="hero-preview-flow" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <PracticePreview />
           </div>
         </div>
       </section>
 
-      {/* Built for classrooms section */}
       <section
         className="home-terminal-section"
         style={{
@@ -422,7 +418,6 @@ export default function Home() {
         </p>
       </section>
 
-      {/* Workflow steps section */}
       <section style={{ padding: '3rem 2.5rem 8rem', maxWidth: '1440px', margin: '0 auto', width: '100%' }}>
         <div style={{ marginBottom: '3.5rem' }}>
           <div className="terminal-line">
@@ -443,7 +438,6 @@ export default function Home() {
           </h2>
         </div>
 
-        {/* Diagonal style modern terminal grid */}
         <div
           style={{
             display: 'grid',

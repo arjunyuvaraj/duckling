@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
+import { readStoredUser, gradientFromId } from '../utils/user';
 
 const NAV_LINKS = [
   { label: 'Home',      path: '/'          },
@@ -8,6 +9,8 @@ const NAV_LINKS = [
 
 export default function AppNavbar() {
   const { pathname } = useLocation();
+  const user = readStoredUser();
+  const avatarGradient = user ? gradientFromId(user.id) : 'linear-gradient(135deg, #6366f1, #a855f7)';
 
   return (
     <nav style={{
@@ -57,15 +60,15 @@ export default function AppNavbar() {
         })}
       </div>
 
-      {/* Profile chip */}
-      <div style={{
-        width: 34,
-        height: 34,
-        borderRadius: '50%',
-        background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
-        flexShrink: 0,
-        cursor: 'pointer',
-      }} />
+      <Link to="/account" style={{ textDecoration: 'none', flexShrink: 0 }}>
+        <div style={{
+          width: 34,
+          height: 34,
+          borderRadius: '50%',
+          background: avatarGradient,
+          cursor: 'pointer',
+        }} />
+      </Link>
     </nav>
   );
 }

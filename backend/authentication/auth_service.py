@@ -1,3 +1,4 @@
+import os
 import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Optional
@@ -10,19 +11,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.user import User
 from app.utils.redis import get_redis
 
-# Constants (pull from config in real app)
 JWT_SECRET = os.getenv("JWT_SECRET")
 JWT_ALGORITHM = "HS256"
 ACCESS_TOKEN_TTL = timedelta(minutes=15)
 REFRESH_TOKEN_TTL = timedelta(days=7)
 RESET_TOKEN_TTL = timedelta(hours=1)
 
-# Redis key prefixes
 _REFRESH_PREFIX = "auth:refresh:"
 _RESET_PREFIX   = "auth:reset:"
 _BLACKLIST_PREFIX = "auth:blacklist:"
 
-# Internal helpers
 def _hash_password(plain: str) -> str:
     return bcrypt.hashpw(plain.encode(), bcrypt.gensalt()).decode()
 
@@ -114,7 +112,6 @@ def _decode_jti(token: str) -> str:
     return payload["jti"]
 
 
-# AuthService
 class AuthError(Exception):
     """Raised for expected auth failures; routes convert to HTTP responses."""
     def __init__(self, message: str, status_code: int = 400):
@@ -127,7 +124,6 @@ class AuthService:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    # ── Registration ──────────────────────────
     async def register(
         self,
         email: str,
@@ -142,11 +138,9 @@ class AuthService:
           - duplicate email
           - duplicate username
         """
-        # Duplicate email check
         if await self._find_by_email(email):
             raise AuthError("Email is already registered", status_code=409)
 
-        # Duplicate username check
         if await self._find_by_username(username):
             raise AuthError("Username is already taken", status_code=409)
 
@@ -161,7 +155,6 @@ class AuthService:
         await self.db.refresh(user)
         return user
 
-    # ── Login ─────────────────────────────────
     async def login(self, email: str, password: str) -> dict:
         """
         Authenticate a user and return access + refresh tokens.
@@ -183,7 +176,6 @@ class AuthService:
 
         return await self._issue_tokens(user)
 
-    # ── Logout ────────────────────────────────
     async def logout(self, access_token: str, refresh_token: Optional[str] = None) -> None:
         """
         Invalidate the session.
@@ -194,7 +186,6 @@ class AuthService:
         if refresh_token:
             await _revoke_refresh_token(refresh_token)
 
-    # ── Token refresh ─────────────────────────
     async def refresh(self, refresh_token: str) -> dict:
         """
         Exchange a valid refresh token for a new access + refresh token pair.
@@ -216,7 +207,6 @@ class AuthService:
         await _revoke_refresh_token(refresh_token)
         return await self._issue_tokens(user)
 
-    # ── Password reset ────────────────────────
     async def request_password_reset(self, email: str) -> Optional[str]:
         """
         Generate a one-time password-reset token and store it in Redis.
@@ -231,7 +221,6 @@ class AuthService:
         token = secrets.token_urlsafe(32)
         redis = await get_redis()
         key = f"{_RESET_PREFIX}{token}"
-        # Store user ID; delete on use
         await redis.setex(key, int(RESET_TOKEN_TTL.total_seconds()), str(user.id))
         return token
 
@@ -254,7 +243,7 @@ class AuthService:
             raise AuthError("User not found", status_code=404)
 
         user.password_hash = _hash_password(new_password)
-        user.updated_at = datetime.utcnow()
+        user.updated_at = datetime.now(timezone.utc)
 
         # Consume token — can only be used once
         await redis.delete(key)
@@ -262,8 +251,6 @@ class AuthService:
         await self.db.commit()
         await self.db.refresh(user)
         return user
-
-    # ── Token validation (used by auth middleware) ──
 
     async def validate_access_token(self, token: str) -> Optional[User]:
         """
@@ -285,15 +272,11 @@ class AuthService:
 
         return user
 
-    # ── Get current user ──────────────────────
-
     async def get_me(self, user_id: int) -> User:
         user = await self._find_by_id(user_id)
         if not user or user.deleted_at is not None:
             raise AuthError("User not found", status_code=404)
         return user
-
-    # ── Private helpers ───────────────────────
 
     async def _find_by_email(self, email: str) -> Optional[User]:
         result = await self.db.execute(
