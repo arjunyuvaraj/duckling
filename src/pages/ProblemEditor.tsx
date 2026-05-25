@@ -3,13 +3,13 @@ import { Link, useParams } from 'react-router-dom';
 import Editor, { type OnMount } from '@monaco-editor/react';
 import { Panel, CARD_BG, DefaultButton } from '../components/ui';
 import { ALL_PROBLEMS, type Difficulty, type Language } from '../data/problems';
-import { PROBLEM_DETAILS } from '../data/problemDetails';
+import { getProblemDetail } from '../data/problemDetails';
 import { EDITOR_LANGUAGES, getStarterCode } from '../data/problemStarterCode';
-import { readStoredUser, gradientFromId } from '../utils/user';
+import { readStoredUser } from '../utils/user';
 import { markSolved } from '../utils/progress';
 
-const PAGE_BG  = '#141414';
-const TAB_BG   = '#181818';
+const PAGE_BG  = '#050505';
+const TAB_BG   = '#0a0a0a';
 const PILL_CLR = '#4D4D4D';
 const GAP      = 10;
 
@@ -21,7 +21,7 @@ const MONO: React.CSSProperties = {
 
 const TEXT: React.CSSProperties = {
   fontFamily: 'Inter, sans-serif',
-  letterSpacing: '-0.015em',
+  letterSpacing: 0,
 };
 
 const DIFF_PILL: Record<Difficulty, { bg: string; border: string; color: string }> = {
@@ -122,13 +122,13 @@ interface RunResult {
 export default function ProblemEditor() {
   const { id }  = useParams<{ id: string }>();
   const problem = ALL_PROBLEMS.find(p => p.id === Number(id));
-  const detail  = PROBLEM_DETAILS[Number(id)];
+  const detail  = problem ? getProblemDetail(problem) : null;
 
-  const storedUser     = readStoredUser();
-  const avatarGradient = storedUser ? gradientFromId(storedUser.id) : 'linear-gradient(135deg, #6366f1, #a855f7)';
+  const storedUser = readStoredUser();
+  const initials = storedUser?.username?.slice(0, 2).toUpperCase() ?? '>_';
 
   const [activeLanguage, setActiveLanguage] = useState<Language>(problem?.language ?? 'Java');
-  const [code, setCode]           = useState(problem ? getStarterCode(problem.id, problem.language) : '// Start coding here');
+  const [code, setCode]           = useState(problem ? getStarterCode(problem.id, problem.language, problem) : '// Start coding here');
   const [runResult, setRunResult] = useState<RunResult | null>(null);
   const [running, setRunning]     = useState(false);
   const [cursorPos, setCursorPos] = useState({ line: 1, col: 1 });
@@ -178,9 +178,12 @@ export default function ProblemEditor() {
 
   useEffect(() => {
     if (!problem) return;
-    setActiveLanguage(problem.language);
-    setCode(getStarterCode(problem.id, problem.language));
-    setRunResult(null);
+    const timeout = setTimeout(() => {
+      setActiveLanguage(problem.language);
+      setCode(getStarterCode(problem.id, problem.language, problem));
+      setRunResult(null);
+    }, 0);
+    return () => clearTimeout(timeout);
   }, [problem]);
 
   useEffect(() => {
@@ -220,15 +223,15 @@ export default function ProblemEditor() {
         { token: 'predefined', foreground: '569CD6' },
       ],
       colors: {
-        'editor.background': '#1f1f1f',
-        'editor.foreground': '#d4d4d4',
+        'editor.background': '#0f0f0f',
+        'editor.foreground': '#e6e6e6',
         'editorLineNumber.foreground': '#4b4b4b',
-        'editorLineNumber.activeForeground': '#8b8b8b',
+        'editorLineNumber.activeForeground': '#fbbf24',
         'editorCursor.foreground': '#FFC91A',
-        'editor.selectionBackground': '#264f78',
-        'editor.inactiveSelectionBackground': '#3a3d41',
+        'editor.selectionBackground': '#3f3414',
+        'editor.inactiveSelectionBackground': '#2a2618',
         'editorIndentGuide.background1': '#2a2a2a',
-        'editor.lineHighlightBackground': '#252526',
+        'editor.lineHighlightBackground': '#151515',
         'editorBracketMatch.background': '#3a3d41',
         'editorBracketMatch.border': '#7a7a7a',
         'scrollbarSlider.background': '#3f3f4660',
@@ -330,19 +333,30 @@ export default function ProblemEditor() {
         display: 'flex', alignItems: 'center',
         padding: '0 0.5rem', gap: '0.75rem',
       }}>
-        <Link to="/" style={{ textDecoration: 'none' }}>
-          <span style={{ fontFamily: "'Jersey 10', sans-serif", fontSize: '1.15rem', color: '#fff', letterSpacing: '0.02em' }}>
+        <Link to="/home" style={{ textDecoration: 'none' }}>
+          <span style={{ fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace", fontSize: '0.92rem', fontWeight: 800, color: '#fff', letterSpacing: 0 }}>
             ducklings.dev
           </span>
         </Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', minWidth: 0 }}>
+          <span style={{ color: '#3f3f3f', fontFamily: "'JetBrains Mono', ui-monospace, monospace" }}>/</span>
+          <span style={{ ...MONO, color: '#f8e7ad', fontSize: '0.74rem', whiteSpace: 'nowrap' }}>
+            solve problem-{problem.id}
+          </span>
+          <span style={{ ...TEXT, color: '#777', fontSize: '0.78rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {problem.title}
+          </span>
+        </div>
         <div style={{ flex: 1 }} />
         <Link to="/library" style={{ textDecoration: 'none' }}>
-          <DefaultButton style={{ height: 34, fontSize: '0.875rem', padding: '0 1rem', letterSpacing: '-0.01em' }}>
+          <DefaultButton style={{ height: 34, fontSize: '0.875rem', padding: '0 1rem', letterSpacing: 0 }}>
             Library
           </DefaultButton>
         </Link>
         <Link to="/account" style={{ textDecoration: 'none', flexShrink: 0 }}>
-          <div style={{ width: 32, height: 32, borderRadius: '50%', background: avatarGradient, cursor: 'pointer' }} />
+          <div style={{ width: 32, height: 32, borderRadius: 8, background: '#080808', border: '1px solid rgba(251,191,36,0.45)', color: '#fbbf24', display: 'grid', placeItems: 'center', fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace", fontSize: '0.72rem', fontWeight: 900, cursor: 'pointer' }}>
+            {initials}
+          </div>
         </Link>
       </div>
 
@@ -368,15 +382,29 @@ export default function ProblemEditor() {
                 </h1>
 
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
-                  <span style={{ ...TEXT, fontSize: '0.75rem', fontWeight: 600, padding: '3px 10px', borderRadius: '20px', background: pill.bg, border: `1px solid ${pill.border}`, color: pill.color }}>
+                  <span style={{ ...TEXT, fontSize: '0.75rem', fontWeight: 700, padding: '4px 10px', borderRadius: '6px', background: pill.bg, border: `1px solid ${pill.border}`, color: pill.color }}>
                     {problem.difficulty}
                   </span>
-                  <span style={{ ...TEXT, fontSize: '0.75rem', fontWeight: 500, padding: '3px 10px', borderRadius: '20px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)' }}>
+                  <span style={{ ...TEXT, fontSize: '0.75rem', fontWeight: 600, padding: '4px 10px', borderRadius: '6px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.58)' }}>
                     {problem.topic}
                   </span>
-                  <span style={{ ...TEXT, fontSize: '0.75rem', fontWeight: 500, padding: '3px 10px', borderRadius: '20px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)' }}>
+                  <span style={{ ...TEXT, fontSize: '0.75rem', fontWeight: 600, padding: '4px 10px', borderRadius: '6px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.58)' }}>
                     {activeLanguage}
                   </span>
+                  <span style={{ ...TEXT, fontSize: '0.75rem', fontWeight: 600, padding: '4px 10px', borderRadius: '6px', background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.14)', color: '#f8e7ad' }}>
+                    {problem.set}
+                  </span>
+                  <span style={{ ...TEXT, fontSize: '0.75rem', fontWeight: 600, padding: '4px 10px', borderRadius: '6px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)', color: 'rgba(255,255,255,0.5)' }}>
+                    {problem.batch}
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '1.5rem' }}>
+                  {problem.tags.map((tag) => (
+                    <span key={tag} style={{ ...MONO, fontSize: '0.68rem', lineHeight: 1, color: '#777', padding: '5px 7px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.08)', background: '#080808' }}>
+                      #{tag}
+                    </span>
+                  ))}
                 </div>
 
                 <p style={{ ...TEXT, fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.8, margin: '0 0 1.5rem' }}>
@@ -417,7 +445,7 @@ export default function ProblemEditor() {
               </>
             ) : (
               <p style={{ ...TEXT, fontSize: '0.875rem', color: 'rgba(255,255,255,0.25)', lineHeight: 1.7 }}>
-                No hints available yet for this problem.
+                Try writing down the input shape, the return value, and one simple example before you code. The best first move is usually smaller than it feels.
               </p>
             )}
           </div>
@@ -479,7 +507,7 @@ export default function ProblemEditor() {
                         type="button"
                         onClick={() => {
                           setActiveLanguage(language);
-                          setCode(getStarterCode(problem.id, language));
+                          setCode(getStarterCode(problem.id, language, problem));
                           setRunResult(null);
                           setLanguageMenuOpen(false);
                         }}
@@ -506,12 +534,13 @@ export default function ProblemEditor() {
               <button onClick={handleRun} disabled={running} style={{
                 ...TEXT, fontSize: '0.85rem', fontWeight: 600,
                 height: 30, padding: '0 1.25rem',
-                background: running ? 'rgba(255,255,255,0.08)' : '#fff',
-                color: running ? 'rgba(255,255,255,0.35)' : '#000',
-                border: 'none', borderRadius: '7px',
+                background: running ? 'rgba(255,255,255,0.08)' : '#fbbf24',
+                color: running ? 'rgba(255,255,255,0.35)' : '#171100',
+                border: running ? '1px solid rgba(255,255,255,0.08)' : '1px solid #fbbf24',
+                borderRadius: '7px',
                 cursor: running ? 'default' : 'pointer', outline: 'none',
               }}>
-                {running ? 'Running…' : 'Run'}
+                {running ? 'Running...' : 'Run tests'}
               </button>
             </div>
 
@@ -585,10 +614,10 @@ export default function ProblemEditor() {
                   </p>
                 </div>
               ) : running ? (
-                <span style={{ ...TEXT, fontSize: '0.875rem', color: 'rgba(255,255,255,0.3)' }}>Running…</span>
+                <span style={{ ...TEXT, fontSize: '0.875rem', color: 'rgba(255,255,255,0.3)' }}>Running...</span>
               ) : runResult ? (
                 <div>
-                  <div style={{ ...TEXT, fontSize: '0.95rem', fontWeight: 700, color: runResult.status === 'Accepted' ? '#4ade80' : runResult.status === 'Error' ? '#f87171' : '#FFC91A', letterSpacing: '-0.02em', marginBottom: '0.875rem' }}>
+                  <div style={{ ...TEXT, fontSize: '0.95rem', fontWeight: 700, color: runResult.status === 'Accepted' ? '#4ade80' : runResult.status === 'Error' ? '#f87171' : '#FFC91A', letterSpacing: 0, marginBottom: '0.875rem' }}>
                     {runResult.status}
                   </div>
                   {(runResult.time || runResult.memory) && (

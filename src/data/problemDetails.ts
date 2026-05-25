@@ -1,3 +1,5 @@
+import type { Problem } from './problems';
+
 export interface ProblemDetail {
   description: string;
   note?: string;
@@ -170,3 +172,33 @@ export const PROBLEM_DETAILS: Record<number, ProblemDetail> = {
     explanation: `The word "ABCCED" can be traced through the board following adjacent cells.`,
   },
 };
+
+function articleFor(word: string): string {
+  return /^[aeiou]/i.test(word) ? 'an' : 'a';
+}
+
+export function getProblemDetail(problem: Problem): ProblemDetail {
+  const existing = PROBLEM_DETAILS[problem.id];
+  if (existing) return existing;
+
+  const tagList = problem.tags.length > 0 ? problem.tags.join(', ') : problem.topic.toLowerCase();
+  const article = articleFor(problem.topic);
+
+  return {
+    description: `Build a solution for "${problem.title}", ${article} ${problem.topic.toLowerCase()} practice problem from the ${problem.batch} batch. Focus on writing clear ${problem.language} code, handling edge cases, and explaining the main idea in a few sentences.`,
+    note: problem.set === 'AP Computer Science A'
+      ? 'This problem is part of the AP Computer Science A track and is designed to match the style of skills practiced across the College Board course units.'
+      : `This problem belongs to the ${problem.set} set.`,
+    constraints: [
+      `Primary topic: ${problem.topic}`,
+      `Tags: ${tagList}`,
+      `Expected level: ${problem.difficulty}`,
+      'Write a method or function with clear names and test it against small edge cases first.',
+    ],
+    sampleInput: problem.language === 'Java'
+      ? `// Example values will depend on your method design.\ninput = sample case for "${problem.title}"`
+      : `input = "sample case for ${problem.title}"`,
+    sampleOutput: problem.difficulty === 'Hard' ? `optimized result` : `expected result`,
+    explanation: `Use the ${problem.topic.toLowerCase()} idea from this batch, then walk through the sample step by step. A strong solution should be readable before it is clever.`,
+  };
+}

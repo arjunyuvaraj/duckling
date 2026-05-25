@@ -2,13 +2,51 @@ import asyncio
 import logging
 import uuid
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Header, HTTPException
 from app.db.supabase import supabase
-from app.core.security import hash_password, verify_password
+from app.core.security import ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, decode_access_token, hash_password, verify_password
 from models.authentication.auth_requests import SignupRequest, LoginRequest
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+
+def session_payload(user: dict):
+    token = create_access_token({
+        "sub": user["id"],
+        "email": user["email"],
+        "username": user["username"],
+    })
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "expires_in": ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+    }
+
+
+async def user_from_authorization(authorization: str | None):
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(status_code=401, detail="Missing bearer token")
+
+    token = authorization.split(" ", 1)[1].strip()
+    payload = decode_access_token(token)
+    if not payload or not payload.get("sub"):
+        raise HTTPException(status_code=401, detail="Invalid or expired session")
+
+    result = await asyncio.to_thread(
+        lambda: supabase.table("users").select(
+            "id, email, username, deleted_at"
+        ).eq("id", payload["sub"]).execute()
+    )
+
+    if not result.data:
+        raise HTTPException(status_code=401, detail="User not found")
+
+    user = result.data[0]
+    if user.get("deleted_at"):
+        raise HTTPException(status_code=401, detail="Account has been deleted")
+
+    return user
 
 
 @router.post("/signup")
@@ -38,12 +76,14 @@ async def signup(req: SignupRequest):
         )
 
         logger.info(f"User created: {req.username} ({user_id})")
+        user = {"id": user_id, "username": req.username, "email": req.email}
         return {
             "status": "success",
             "user_id": user_id,
             "username": req.username,
             "email": req.email,
             "message": "Account created successfully",
+            **session_payload(user),
         }
 
     except HTTPException:
@@ -89,6 +129,7 @@ async def login(req: LoginRequest):
             "username": user["username"],
             "email": user["email"],
             "message": "Logged in successfully",
+            **session_payload(user),
         }
 
     except HTTPException:
@@ -96,3 +137,19 @@ async def login(req: LoginRequest):
     except Exception as e:
         logger.error(f"Login error for {req.email}: {type(e).__name__}: {str(e)}")
         raise HTTPException(status_code=500, detail="Login failed")
+
+
+@router.get("/me")
+async def me(authorization: str | None = Header(default=None)):
+    user = await user_from_authorization(authorization)
+    return {
+        "status": "success",
+        "user_id": user["id"],
+        "username": user["username"],
+        "email": user["email"],
+    }
+
+
+@router.post("/logout")
+async def logout():
+    return {"status": "success", "message": "Logged out"}

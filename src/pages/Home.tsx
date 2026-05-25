@@ -4,10 +4,7 @@ import Typewriter from '../components/Typewriter';
 import { useState, useEffect } from 'react';
 
 const primaryYellow = '#fbbf24';
-const duckAscii = String.raw`    __
-  <(o )___
-   ( ._> /
-~~~~` + '`---' + String.raw`~~~~`;
+const duckAscii = "    __\n  <(o )___\n   ( ._> /\n~~~~`---'~~~~";
 
 function PracticePreview() {
   const [stage, setStage] = useState<'typing_cmd' | 'showing_problem' | 'typing_code' | 'running_tests' | 'success'>('typing_cmd');
@@ -293,7 +290,7 @@ export default function Home() {
                 color: '#fff',
                 marginBottom: '1.25rem',
                 lineHeight: 0.95,
-                letterSpacing: '-1.5px',
+                letterSpacing: 0,
               }}
             >
               Practice code.
@@ -330,13 +327,13 @@ export default function Home() {
                   fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, monospace",
                   borderRadius: '8px',
                   textDecoration: 'none',
-                  letterSpacing: '-0.2px',
+                  letterSpacing: 0,
                   whiteSpace: 'nowrap',
                   boxShadow: '0 0 10px rgba(251, 191, 36, 0.15)',
                   transition: 'all 0.15s ease',
                 }}
               >
-                Register Free
+                Start Practicing
               </Link>
               <Link
                 to="/login"
@@ -354,7 +351,7 @@ export default function Home() {
                   borderRadius: '8px',
                   cursor: 'pointer',
                   fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, monospace",
-                  letterSpacing: '-0.2px',
+                  letterSpacing: 0,
                   whiteSpace: 'nowrap',
                   textDecoration: 'none',
                   transition: 'all 0.15s ease',
@@ -398,7 +395,7 @@ export default function Home() {
             lineHeight: 1.05,
             marginBottom: '1.25rem',
             maxWidth: 850,
-            letterSpacing: '-0.8px',
+            letterSpacing: 0,
           }}
         >
           A practice workspace that works for both sides of the classroom.
@@ -431,7 +428,7 @@ export default function Home() {
               color: '#fff',
               lineHeight: 1.05,
               marginTop: '0.75rem',
-              letterSpacing: '-0.8px',
+              letterSpacing: 0,
             }}
           >
             Focused practice, classroom ready.
@@ -480,7 +477,7 @@ export default function Home() {
                     <span className="terminal-dot terminal-dot-yellow" />
                     <span className="terminal-dot terminal-dot-green" />
                   </div>
-                  <span style={{ fontSize: '0.72rem', color: '#666' }}>DIAGNOSTIC_MODULE_{step.n}.EXE</span>
+                  <span style={{ fontSize: '0.72rem', color: '#666' }}>workflow/{step.n}</span>
                 </div>
               </div>
               <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>

@@ -11,12 +11,12 @@ export function Title({ children, style, className }: TextProps) {
     <div
       className={className}
       style={{
-        fontFamily: "'Jersey 10', sans-serif",
+        fontFamily: "'Inter', system-ui, sans-serif",
         fontSize: 'clamp(2.8rem, 4.2vw, 5rem)',
         color: '#fff',
-        lineHeight: 0.75,
-        letterSpacing: '-0.025em',
-        fontWeight: 100,
+        lineHeight: 0.95,
+        letterSpacing: 0,
+        fontWeight: 850,
         ...style,
       }}
     >
@@ -35,7 +35,7 @@ export function H1({ children, style, className }: TextProps) {
         color: '#fff',
         fontWeight: 700,
         lineHeight: 1.1,
-        letterSpacing: '-0.025em',
+        letterSpacing: 0,
         ...style,
       }}
     >
@@ -54,7 +54,7 @@ export function H2({ children, style, className }: TextProps) {
         color: '#fff',
         fontWeight: 600,
         lineHeight: 1.1,
-        letterSpacing: '-0.02em',
+        letterSpacing: 0,
         ...style,
       }}
     >
@@ -72,7 +72,7 @@ export function Body({ children, style, className }: TextProps) {
         fontSize: '1.5rem',
         color: '#fff',
         lineHeight: 1.1,
-        letterSpacing: '-0.02em',
+        letterSpacing: 0,
         fontWeight: 500,
         margin: 0,
         ...style,
@@ -83,8 +83,8 @@ export function Body({ children, style, className }: TextProps) {
   );
 }
 
-export const CARD_RADIUS = '10px';
-export const CARD_BG = '#1E1E1E';
+export const CARD_RADIUS = '8px';
+export const CARD_BG = '#0d0d0d';
 
 interface PanelProps {
   children: React.ReactNode;
@@ -98,6 +98,7 @@ export function Panel({ children, style, className }: PanelProps) {
       className={className}
       style={{
         background: CARD_BG,
+        border: '1px solid rgba(255,255,255,0.08)',
         borderRadius: CARD_RADIUS,
         overflow: 'hidden',
         ...style,
@@ -122,8 +123,8 @@ const btnBase: React.CSSProperties = {
   fontFamily: 'Inter, sans-serif',
   fontSize: '1rem',
   fontWeight: 600,
-  letterSpacing: '-0.015em',
-  borderRadius: '9px',
+  letterSpacing: 0,
+  borderRadius: '8px',
   cursor: 'pointer',
   whiteSpace: 'nowrap',
   lineHeight: 1,
@@ -137,9 +138,9 @@ export function MainButton({ children, style, ...props }: ButtonProps) {
       {...props}
       style={{
         ...btnBase,
-        background: '#fff',
-        color: '#000',
-        border: 'none',
+        background: '#fbbf24',
+        color: '#171100',
+        border: '1px solid #fbbf24',
         ...style,
       }}
     >
@@ -154,9 +155,9 @@ export function SubButton({ children, style, ...props }: ButtonProps) {
       {...props}
       style={{
         ...btnBase,
-        background: '#1E1E1E',
+        background: '#101010',
         color: '#e0e0e0',
-        border: '2px solid #4D4D4D',
+        border: '1px solid rgba(255,255,255,0.16)',
         ...style,
       }}
     >
@@ -171,9 +172,9 @@ export function DefaultButton({ children, style, ...props }: ButtonProps) {
       {...props}
       style={{
         ...btnBase,
-        background: '#1E1E1E',
+        background: '#101010',
         color: '#e0e0e0',
-        border: 'none',
+        border: '1px solid rgba(255,255,255,0.14)',
         ...style,
       }}
     >

@@ -25,7 +25,7 @@ export default function Navbar({ showHome = false }: NavbarProps) {
     fontFamily: "'JetBrains Mono', ui-monospace, monospace",
     fontSize: '0.86rem',
     fontWeight: 700,
-    letterSpacing: '-0.2px',
+    letterSpacing: 0,
     borderRadius: '6px',
     textDecoration: 'none',
     cursor: 'pointer',

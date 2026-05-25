@@ -233,6 +233,22 @@ html, body, #root {
 .hero-cta-primary:hover { background: #ffd45a !important; }
 .hero-cta-secondary:hover { border-color: rgba(251,191,36,0.45) !important; color: #fff7d6 !important; }
 
+.library-problem-row {
+  transition: background 0.14s ease, box-shadow 0.14s ease;
+}
+
+.library-problem-row:hover {
+  background: #151515 !important;
+  box-shadow: inset 3px 0 0 var(--yellow);
+}
+
+@media (max-width: 860px) {
+  .dashboard-hero-grid,
+  .dashboard-lower-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 .page-flow-enter {
   animation: page-flow-in 0.34s ease both;
 }
@@ -548,6 +564,7 @@ html, body, #root {
   max-height: 0;
   opacity: 0;
   overflow: hidden;
+  pointer-events: none;
   transform: translateY(-6px);
   transition: max-height 0.32s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.22s ease, transform 0.32s ease;
 }
@@ -555,6 +572,7 @@ html, body, #root {
 .auth-field-slot-open {
   max-height: 98px;
   opacity: 1;
+  pointer-events: auto;
   transform: translateY(0);
 }
 
@@ -911,12 +929,13 @@ select:focus {
 
 /* ─── Retro pixel logo font style ─── */
 .logo-pixel {
-  font-family: 'Jersey 10', 'JetBrains Mono', monospace;
-  font-size: 1.65rem;
-  letter-spacing: 0.5px;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0;
 }
 .jersey-header {
-  font-family: 'Jersey 10', 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 /* ─── Glow Effects ─── */

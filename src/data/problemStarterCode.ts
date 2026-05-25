@@ -1,4 +1,4 @@
-import type { Language } from './problems';
+import type { Language, Problem } from './problems';
 
 export const EDITOR_LANGUAGES: Language[] = ['Java', 'Python'];
 
@@ -149,6 +149,47 @@ export const STARTER_CODE_BY_LANGUAGE: StarterCodeMap = {
   },
 };
 
-export function getStarterCode(problemId: number, language: Language) {
-  return STARTER_CODE_BY_LANGUAGE[problemId]?.[language] ?? '// Starter code unavailable.';
+function toMethodName(title: string): string {
+  const words = title
+    .replace(/[^a-zA-Z0-9 ]/g, ' ')
+    .trim()
+    .split(/\s+/);
+
+  if (words.length === 0) return 'solve';
+
+  return words
+    .map((word, index) => {
+      const lower = word.toLowerCase();
+      return index === 0 ? lower : `${lower.charAt(0).toUpperCase()}${lower.slice(1)}`;
+    })
+    .join('');
+}
+
+function starterFor(problem: Problem, language: Language): string {
+  const methodName = toMethodName(problem.title);
+
+  if (language === 'Python') {
+    return `def ${methodName}():
+    """${problem.title}
+
+    Topic: ${problem.topic}
+    Tags: ${problem.tags.join(', ')}
+    """
+    pass`;
+  }
+
+  if (problem.topic === 'Classes' || problem.topic === 'Inheritance') {
+    return `public class ${methodName.charAt(0).toUpperCase()}${methodName.slice(1)} {
+    // TODO: add fields, constructors, and methods for ${problem.title}.
+}`;
+  }
+
+  return `public Object ${methodName}() {
+    // TODO: solve ${problem.title}.
+    return null;
+}`;
+}
+
+export function getStarterCode(problemId: number, language: Language, problem?: Problem) {
+  return STARTER_CODE_BY_LANGUAGE[problemId]?.[language] ?? (problem ? starterFor(problem, language) : '// Starter code unavailable.');
 }

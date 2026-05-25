@@ -1,9 +1,8 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppNavbar from '../components/AppNavbar';
-import { Body } from '../components/ui';
 import {
-  ALL_PROBLEMS, TOPICS, DIFFICULTIES, LANGUAGES, DIFFICULTY_COLOR,
+  ALL_PROBLEMS, TOPICS, DIFFICULTIES, LANGUAGES, PROBLEM_SETS, BATCHES, TAGS, DIFFICULTY_COLOR,
   type Difficulty, type Language,
 } from '../data/problems';
 import { getSolvedIds } from '../utils/progress';
@@ -56,7 +55,7 @@ function IconBtn({
         flexShrink: 0,
         background: active ? '#1c1c1c' : '#111',
         border: `1px solid ${active ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.07)'}`,
-        borderRadius: '10px',
+        borderRadius: '8px',
         cursor: 'pointer',
         color: '#fff',
         outline: 'none',
@@ -110,6 +109,9 @@ export default function Library() {
   const [difficulty, setDifficulty]     = useState<'All' | Difficulty>('All');
   const [language, setLanguage]         = useState<'All' | Language>('All');
   const [topic, setTopic]               = useState('All');
+  const [problemSet, setProblemSet]     = useState('All');
+  const [batch, setBatch]               = useState('All');
+  const [tag, setTag]                   = useState('All');
   const [shuffleCount, setShuffleCount] = useState(0);
   const [isShuffled, setIsShuffled]     = useState(false);
   const [filterOpen, setFilterOpen]     = useState(false);
@@ -129,31 +131,64 @@ export default function Library() {
     return () => document.removeEventListener('mousedown', onOutside);
   }, [filterOpen]);
 
-  const hasActiveFilter = difficulty !== 'All' || language !== 'All' || topic !== 'All';
+  const hasActiveFilter =
+    difficulty !== 'All' ||
+    language !== 'All' ||
+    topic !== 'All' ||
+    problemSet !== 'All' ||
+    batch !== 'All' ||
+    tag !== 'All';
 
   const filtered = useMemo(() => {
     let list = ALL_PROBLEMS.filter(p => {
       if (difficulty !== 'All' && p.difficulty !== difficulty) return false;
       if (language !== 'All' && p.language !== language) return false;
       if (topic !== 'All' && p.topic !== topic) return false;
-      if (search && !p.title.toLowerCase().includes(search.toLowerCase())) return false;
+      if (problemSet !== 'All' && p.set !== problemSet) return false;
+      if (batch !== 'All' && p.batch !== batch) return false;
+      if (tag !== 'All' && !p.tags.includes(tag)) return false;
+      if (search) {
+        const haystack = [p.title, p.topic, p.set, p.batch, p.language, p.difficulty, ...p.tags].join(' ').toLowerCase();
+        if (!haystack.includes(search.toLowerCase())) return false;
+      }
       return true;
     });
     if (isShuffled) list = shuffleArray(list);
     return list;
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, difficulty, language, topic, isShuffled, shuffleCount]);
+  }, [search, difficulty, language, topic, problemSet, batch, tag, isShuffled, shuffleCount]);
 
   const handleShuffle = () => { setShuffleCount(c => c + 1); setIsShuffled(true); };
   const handleUnshuffle = () => setIsShuffled(false);
 
-  const GRID = '52px 3fr 1fr 1fr 1fr';
+  const GRID = '52px minmax(220px, 2.4fr) minmax(140px, 1fr) minmax(180px, 1.25fr) 92px 104px';
 
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#000', overflow: 'hidden' }}>
+    <div className="grid-backdrop" style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#000', overflow: 'hidden' }}>
       <AppNavbar />
 
       <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', width: '100%', padding: '0 1.5rem' }}>
+
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '1.5rem', padding: '1.35rem 0 0.25rem', flexShrink: 0 }}>
+          <div>
+            <div style={{ fontFamily: "'JetBrains Mono', ui-monospace, monospace", color: '#f8e7ad', fontSize: '0.82rem', fontWeight: 800, marginBottom: '0.45rem' }}>
+              <span style={{ color: '#fbbf24' }}>$</span> duckling library --practice
+            </div>
+            <h1 style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#fff', fontSize: 'clamp(1.8rem, 3vw, 2.65rem)', lineHeight: 1, fontWeight: 850, letterSpacing: 0, margin: 0 }}>
+              Choose your next problem.
+            </h1>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(92px, 1fr))', gap: '0.65rem', flexShrink: 0 }}>
+            <div style={{ border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, background: '#080808', padding: '0.7rem 0.85rem' }}>
+              <div style={{ fontFamily: "'JetBrains Mono', ui-monospace, monospace", color: '#777', fontSize: '0.68rem', marginBottom: '0.25rem' }}>solved</div>
+              <div style={{ fontFamily: "'JetBrains Mono', ui-monospace, monospace", color: '#fff', fontSize: '1rem', fontWeight: 900 }}>{solved.size}/{ALL_PROBLEMS.length}</div>
+            </div>
+            <div style={{ border: '1px solid rgba(251,191,36,0.18)', borderRadius: 8, background: 'rgba(251,191,36,0.06)', padding: '0.7rem 0.85rem' }}>
+              <div style={{ fontFamily: "'JetBrains Mono', ui-monospace, monospace", color: '#b99b41', fontSize: '0.68rem', marginBottom: '0.25rem' }}>showing</div>
+              <div style={{ fontFamily: "'JetBrains Mono', ui-monospace, monospace", color: '#fbbf24', fontSize: '1rem', fontWeight: 900 }}>{filtered.length}</div>
+            </div>
+          </div>
+        </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', padding: '1.25rem 0', flexShrink: 0 }}>
 
@@ -170,7 +205,7 @@ export default function Library() {
                 width: '100%',
                 background: '#0d0d0d',
                 border: '1px solid rgba(255,255,255,0.07)',
-                borderRadius: '10px',
+                borderRadius: '8px',
                 padding: '0 1rem 0 2.5rem',
                 height: 44,
                 color: '#e0e0e0',
@@ -200,7 +235,7 @@ export default function Library() {
                 zIndex: 100,
                 background: '#0f0f0f',
                 border: '1px solid rgba(255,255,255,0.09)',
-                borderRadius: '14px',
+                borderRadius: '8px',
                 padding: '1.25rem',
                 width: 320,
                 boxShadow: '0 16px 48px rgba(0,0,0,0.7)',
@@ -208,6 +243,24 @@ export default function Library() {
                 flexDirection: 'column',
                 gap: '1.25rem',
               }}>
+                <div>
+                  <div style={{ ...COL_HEADER, marginBottom: '0.5rem' }}>Set</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+                    {PROBLEM_SETS.map(s => (
+                      <FilterChip key={s} label={s} active={problemSet === s} onClick={() => setProblemSet(s)} />
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ ...COL_HEADER, marginBottom: '0.5rem' }}>Batch</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', maxHeight: 112, overflow: 'auto' }}>
+                    {BATCHES.map(b => (
+                      <FilterChip key={b} label={b} active={batch === b} onClick={() => setBatch(b)} />
+                    ))}
+                  </div>
+                </div>
+
                 <div>
                   <div style={{ ...COL_HEADER, marginBottom: '0.5rem' }}>Difficulty</div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
@@ -227,6 +280,15 @@ export default function Library() {
                 </div>
 
                 <div>
+                  <div style={{ ...COL_HEADER, marginBottom: '0.5rem' }}>Tag</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', maxHeight: 112, overflow: 'auto' }}>
+                    {TAGS.map(t => (
+                      <FilterChip key={t} label={t} active={tag === t} onClick={() => setTag(t)} />
+                    ))}
+                  </div>
+                </div>
+
+                <div>
                   <div style={{ ...COL_HEADER, marginBottom: '0.5rem' }}>Topic</div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
                     {TOPICS.map(t => (
@@ -237,7 +299,14 @@ export default function Library() {
 
                 {hasActiveFilter && (
                   <button
-                    onClick={() => { setDifficulty('All'); setLanguage('All'); setTopic('All'); }}
+                    onClick={() => {
+                      setDifficulty('All');
+                      setLanguage('All');
+                      setTopic('All');
+                      setProblemSet('All');
+                      setBatch('All');
+                      setTag('All');
+                    }}
                     style={{
                       fontFamily: 'Inter', fontSize: '0.8rem', fontWeight: 600,
                       color: '#FFC91A', background: 'transparent', border: 'none',
@@ -251,12 +320,6 @@ export default function Library() {
             )}
           </div>
 
-          <div style={{ flex: 1 }} />
-
-          <Body style={{ fontSize: '0.9rem', color: '#3a3a3a', whiteSpace: 'nowrap' }}>
-            {solved.size}/{filtered.length} solved
-          </Body>
-
           <IconBtn
             onClick={isShuffled ? handleUnshuffle : handleShuffle}
             active={isShuffled}
@@ -266,7 +329,7 @@ export default function Library() {
           </IconBtn>
         </div>
 
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.09)', overflow: 'hidden', background: '#080808' }}>
 
           <div style={{
             display: 'grid',
@@ -279,20 +342,24 @@ export default function Library() {
           }}>
             <span style={COL_HEADER}>#</span>
             <span style={COL_HEADER}>Title</span>
+            <span style={COL_HEADER}>Set</span>
+            <span style={COL_HEADER}>Batch</span>
             <span style={COL_HEADER}>Language</span>
-            <span style={{ ...COL_HEADER, textAlign: 'right' }}>Acceptance</span>
             <span style={{ ...COL_HEADER, textAlign: 'right' }}>Difficulty</span>
           </div>
 
           {filtered.length === 0 ? (
             <div style={{ padding: '5rem', textAlign: 'center', background: '#0a0a0a' }}>
-              <Body style={{ color: '#2e2e2e' }}>No problems match your filters.</Body>
+              <div style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#777', fontSize: '1.05rem', fontWeight: 650 }}>
+                No problems match your filters.
+              </div>
             </div>
           ) : (
             <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto' }}>
               {filtered.map((p, i) => (
                 <div
                   key={p.id}
+                  className="library-problem-row"
                   onClick={() => navigate(`/problem/${p.id}`)}
                   style={{
                     display: 'grid',
@@ -300,41 +367,49 @@ export default function Library() {
                     alignItems: 'center',
                     padding: '0 1.5rem',
                     height: 58,
-                    background: i % 2 === 0 ? '#131313' : '#0a0a0a',
+                    background: i % 2 === 0 ? '#101010' : '#0a0a0a',
                     cursor: 'pointer',
                   }}
                 >
-                  <span style={{ fontFamily: 'Inter', fontSize: '0.95rem', color: solved.has(p.id) ? '#4ade80' : '#444', fontWeight: 500, letterSpacing: '-0.02em' }}>
+                  <span style={{ fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: '0.88rem', color: solved.has(p.id) ? '#4ade80' : '#555', fontWeight: 800, letterSpacing: 0 }}>
                     {solved.has(p.id) ? '✓' : p.id}
                   </span>
 
                   <span style={{
                     fontFamily: 'Inter', fontSize: '0.95rem', color: '#fff',
-                    fontWeight: 500, letterSpacing: '-0.02em',
+                    fontWeight: 650, letterSpacing: 0,
                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                   }}>
                     {p.title}
                   </span>
 
                   <span style={{
-                    fontFamily: 'Inter', fontSize: '0.95rem', color: '#fff',
-                    fontWeight: 500, letterSpacing: '-0.02em',
+                    fontFamily: 'Inter', fontSize: '0.82rem', color: '#bbb',
+                    fontWeight: 650, letterSpacing: 0,
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                  }}>
+                    {p.set}
+                  </span>
+
+                  <span style={{
+                    fontFamily: 'Inter', fontSize: '0.82rem', color: '#777',
+                    fontWeight: 600, letterSpacing: 0,
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                  }}>
+                    {p.batch}
+                  </span>
+
+                  <span style={{
+                    fontFamily: 'Inter', fontSize: '0.95rem', color: '#ddd',
+                    fontWeight: 500, letterSpacing: 0,
                   }}>
                     {p.language}
                   </span>
 
                   <span style={{
-                    fontFamily: 'Inter', fontSize: '0.95rem', color: '#fff',
-                    fontWeight: 500, letterSpacing: '-0.02em',
-                    textAlign: 'right',
-                  }}>
-                    {p.acceptance.toFixed(1)}%
-                  </span>
-
-                  <span style={{
                     fontFamily: 'Inter', fontSize: '0.95rem', fontWeight: 600,
                     color: DIFFICULTY_COLOR[p.difficulty],
-                    letterSpacing: '-0.02em',
+                    letterSpacing: 0,
                     textAlign: 'right',
                   }}>
                     {p.difficulty}

@@ -1,8 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
-import { readStoredUser, gradientFromId } from '../utils/user';
+import { readStoredUser } from '../utils/user';
 
 const NAV_LINKS = [
-  { label: 'Home',      path: '/'          },
+  { label: 'Home',      path: '/home'      },
   { label: 'Classroom', path: '/classroom' },
   { label: 'Library',   path: '/library'   },
 ];
@@ -10,7 +10,7 @@ const NAV_LINKS = [
 export default function AppNavbar() {
   const { pathname } = useLocation();
   const user = readStoredUser();
-  const avatarGradient = user ? gradientFromId(user.id) : 'linear-gradient(135deg, #6366f1, #a855f7)';
+  const initials = user?.username?.slice(0, 2).toUpperCase() ?? '>_';
 
   return (
     <nav style={{
@@ -18,16 +18,17 @@ export default function AppNavbar() {
       display: 'flex',
       alignItems: 'center',
       padding: '0 2rem',
-      background: '#080808',
-      borderBottom: '1px solid rgba(255,255,255,0.06)',
+      background: '#000',
+      borderBottom: '1px solid rgba(255,255,255,0.1)',
       flexShrink: 0,
     }}>
-      <Link to="/" style={{ textDecoration: 'none', marginRight: '2rem' }}>
+      <Link to="/home" style={{ textDecoration: 'none', marginRight: '2rem' }}>
         <span style={{
-          fontFamily: "'Jersey 10', sans-serif",
-          fontSize: '1.15rem',
+          fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+          fontSize: '0.92rem',
+          fontWeight: 800,
           color: '#e0e0e0',
-          letterSpacing: '0.02em',
+          letterSpacing: 0,
         }}>
           ducklings.dev
         </span>
@@ -41,17 +42,17 @@ export default function AppNavbar() {
               key={path}
               to={path}
               style={{
-                fontFamily: 'Inter',
-                fontSize: '0.92rem',
-                fontWeight: 500,
-                color: active ? '#fff' : '#505050',
+                fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+                fontSize: '0.82rem',
+                fontWeight: 700,
+                color: active ? '#fbbf24' : '#666',
                 textDecoration: 'none',
                 padding: '0 1.1rem',
                 height: 56,
                 display: 'flex',
                 alignItems: 'center',
-                borderBottom: `2px solid ${active ? '#FFC91A' : 'transparent'}`,
-                letterSpacing: '-0.01em',
+                borderBottom: `2px solid ${active ? '#fbbf24' : 'transparent'}`,
+                letterSpacing: 0,
               }}
             >
               {label}
@@ -64,10 +65,19 @@ export default function AppNavbar() {
         <div style={{
           width: 34,
           height: 34,
-          borderRadius: '50%',
-          background: avatarGradient,
+          borderRadius: 8,
+          background: '#080808',
+          border: '1px solid rgba(251,191,36,0.45)',
+          color: '#fbbf24',
+          display: 'grid',
+          placeItems: 'center',
+          fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+          fontSize: '0.78rem',
+          fontWeight: 900,
           cursor: 'pointer',
-        }} />
+        }}>
+          {initials}
+        </div>
       </Link>
     </nav>
   );

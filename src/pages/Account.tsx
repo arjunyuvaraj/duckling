@@ -1,28 +1,15 @@
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Typewriter from '../components/Typewriter';
-
-interface StoredUser {
-  id?: string;
-  username?: string;
-  email?: string;
-}
-
-function readUser(): StoredUser | null {
-  try {
-    const raw = localStorage.getItem('duckling_user');
-    return raw ? (JSON.parse(raw) as StoredUser) : null;
-  } catch {
-    return null;
-  }
-}
+import { clearSession, readSession } from '../utils/user';
 
 export default function Account() {
   const navigate = useNavigate();
-  const user = readUser();
+  const session = readSession();
+  const user = session?.user;
 
   function logout() {
-    localStorage.removeItem('duckling_user');
+    clearSession();
     navigate('/login');
   }
 
@@ -62,9 +49,13 @@ export default function Account() {
                   <span>user_id</span>
                   <strong>{user.id ?? 'unknown'}</strong>
                 </div>
+                <div>
+                  <span>expires</span>
+                  <strong>{session ? new Date(session.expiresAt).toLocaleString() : 'unknown'}</strong>
+                </div>
               </div>
               <div className="account-actions">
-                <Link to="/" className="terminal-button terminal-button-primary">
+                <Link to="/home" className="terminal-button terminal-button-primary">
                   Go to main page
                 </Link>
                 <button className="terminal-button" onClick={logout}>

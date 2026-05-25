@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Typewriter from '../components/Typewriter';
+import { saveUserSession } from '../utils/user';
 
 type AuthMode = 'login' | 'register';
 type AuthStatus = 'idle' | 'loading' | 'success' | 'error';
@@ -18,15 +19,15 @@ interface AuthResponse {
   email?: string;
   message?: string;
   detail?: string;
+  access_token?: string;
+  token_type?: string;
+  expires_in?: number;
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000';
-const AUTH_API_ENABLED = import.meta.env.VITE_ENABLE_AUTH_API === 'true';
+const AUTH_API_ENABLED = import.meta.env.VITE_ENABLE_AUTH_API !== 'false';
 
-const duck = String.raw`    __
-  <(o )___
-   ( ._> /
-~~~~` + '`---' + String.raw`~~~~`;
+const duck = "    __\n  <(o )___\n   ( ._> /\n~~~~`---'~~~~";
 
 function Field({
   label,
@@ -37,6 +38,7 @@ function Field({
   autoComplete,
   onChange,
   required = true,
+  disabled = false,
 }: {
   label: string;
   name: string;
@@ -46,6 +48,7 @@ function Field({
   autoComplete: string;
   onChange: (value: string) => void;
   required?: boolean;
+  disabled?: boolean;
 }) {
   return (
     <label className="auth-field" htmlFor={name}>
@@ -59,6 +62,7 @@ function Field({
         autoComplete={autoComplete}
         onChange={(event) => onChange(event.target.value)}
         required={required}
+        disabled={disabled}
       />
     </label>
   );
@@ -109,10 +113,6 @@ export default function AuthPage({ mode }: AuthPageProps) {
     return () => observer.disconnect();
   }, []);
 
-  function storeLocalUser(user: { id: string; username: string; email: string }) {
-    localStorage.setItem('duckling_user', JSON.stringify(user));
-  }
-
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setStatus('loading');
@@ -125,10 +125,14 @@ export default function AuthPage({ mode }: AuthPageProps) {
       const fallbackUsername =
         (isRegister ? username : email.split('@')[0])?.trim() || 'duckling-user';
 
-      storeLocalUser({
-        id: `local-${Date.now()}`,
-        username: fallbackUsername,
-        email,
+      saveUserSession({
+        user: {
+          id: `local-${Date.now()}`,
+          username: fallbackUsername,
+          email,
+        },
+        accessToken: `local-${crypto.randomUUID()}`,
+        expiresIn: 60 * 60 * 24 * 7,
       });
       setStatus('success');
       setMessage(
@@ -136,7 +140,7 @@ export default function AuthPage({ mode }: AuthPageProps) {
           ? 'Account created locally for UI preview.'
           : 'Logged in locally for UI preview.',
       );
-      navigate('/library', { replace: true });
+      navigate('/home', { replace: true });
       return;
     }
 
@@ -152,14 +156,22 @@ export default function AuthPage({ mode }: AuthPageProps) {
         throw new Error(data.detail ?? data.message ?? 'Something went wrong. Please try again.');
       }
 
-      storeLocalUser({
-        id: data.user_id ?? `remote-${Date.now()}`,
-        username: data.username ?? email.split('@')[0] ?? 'duckling-user',
-        email: data.email ?? email,
+      if (!data.access_token) {
+        throw new Error('Login succeeded, but no session token was returned.');
+      }
+
+      saveUserSession({
+        user: {
+          id: data.user_id ?? `remote-${Date.now()}`,
+          username: data.username ?? email.split('@')[0] ?? 'duckling-user',
+          email: data.email ?? email,
+        },
+        accessToken: data.access_token,
+        expiresIn: data.expires_in ?? 60 * 60,
       });
       setStatus('success');
       setMessage(data.message ?? (isRegister ? 'Account created successfully.' : 'Logged in successfully.'));
-      navigate('/library', { replace: true });
+      navigate('/home', { replace: true });
     } catch (error) {
       setStatus('error');
       setMessage(
@@ -214,6 +226,7 @@ export default function AuthPage({ mode }: AuthPageProps) {
                   autoComplete="username"
                   onChange={setUsername}
                   required={isRegister}
+                  disabled={!isRegister}
                 />
               </div>
               <Field
