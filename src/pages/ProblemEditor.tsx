@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Editor, { type OnMount } from '@monaco-editor/react';
-import { Panel, CARD_BG, DefaultButton } from '../components/ui';
+import { Panel, CARD_BG, DefaultButton, GridCorner } from '../components/ui';
 import { ALL_PROBLEMS, type Difficulty, type Language } from '../data/problems';
 import { getProblemDetail } from '../data/problemDetails';
 import { EDITOR_LANGUAGES, getStarterCode } from '../data/problemStarterCode';
@@ -50,7 +50,7 @@ function TabBar<T extends string>({
             background: 'transparent', border: 'none',
             height: 42, padding: '0 0.75rem',
             cursor: 'pointer', outline: 'none',
-            borderBottom: `2px solid ${on ? '#FFC91A' : 'transparent'}`,
+            borderBottom: `2px solid ${on ? '#fa5d19' : 'transparent'}`,
             marginBottom: -1,
           }}>
             {t}
@@ -226,10 +226,10 @@ export default function ProblemEditor() {
         'editor.background': '#0f0f0f',
         'editor.foreground': '#e6e6e6',
         'editorLineNumber.foreground': '#4b4b4b',
-        'editorLineNumber.activeForeground': '#fbbf24',
-        'editorCursor.foreground': '#FFC91A',
-        'editor.selectionBackground': '#3f3414',
-        'editor.inactiveSelectionBackground': '#2a2618',
+        'editorLineNumber.activeForeground': '#fa5d19',
+        'editorCursor.foreground': '#fa5d19',
+        'editor.selectionBackground': '#3f1c0e',
+        'editor.inactiveSelectionBackground': '#2d1a10',
         'editorIndentGuide.background1': '#2a2a2a',
         'editor.lineHighlightBackground': '#151515',
         'editorBracketMatch.background': '#3a3d41',
@@ -354,7 +354,7 @@ export default function ProblemEditor() {
           </DefaultButton>
         </Link>
         <Link to="/account" style={{ textDecoration: 'none', flexShrink: 0 }}>
-          <div style={{ width: 32, height: 32, borderRadius: 8, background: '#080808', border: '1px solid rgba(251,191,36,0.45)', color: '#fbbf24', display: 'grid', placeItems: 'center', fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace", fontSize: '0.72rem', fontWeight: 900, cursor: 'pointer' }}>
+          <div style={{ width: 32, height: 32, borderRadius: 8, background: '#080808', border: '1px solid rgba(250,93,25,0.45)', color: '#fa5d19', display: 'grid', placeItems: 'center', fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace", fontSize: '0.72rem', fontWeight: 900, cursor: 'pointer' }}>
             {initials}
           </div>
         </Link>
@@ -370,8 +370,14 @@ export default function ProblemEditor() {
             width: `${hSplit * 100}%`, flexShrink: 0,
             display: 'flex', flexDirection: 'column',
             pointerEvents: isDragging ? 'none' : undefined,
+            overflow: 'visible',
+            position: 'relative',
           }}
         >
+          <GridCorner position="top-left" />
+          <GridCorner position="top-right" />
+          <GridCorner position="bottom-left" />
+          <GridCorner position="bottom-right" />
           <TabBar tabs={LEFT_TABS} active={leftTab} onSelect={setLeftTab} />
 
           <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '1.5rem 1.75rem 3rem' }}>
@@ -391,7 +397,7 @@ export default function ProblemEditor() {
                   <span style={{ ...TEXT, fontSize: '0.75rem', fontWeight: 600, padding: '4px 10px', borderRadius: '6px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.58)' }}>
                     {activeLanguage}
                   </span>
-                  <span style={{ ...TEXT, fontSize: '0.75rem', fontWeight: 600, padding: '4px 10px', borderRadius: '6px', background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.14)', color: '#f8e7ad' }}>
+                  <span style={{ ...TEXT, fontSize: '0.75rem', fontWeight: 600, padding: '4px 10px', borderRadius: '6px', background: 'rgba(250,93,25,0.06)', border: '1px solid rgba(250,93,25,0.14)', color: '#fbe7de' }}>
                     {problem.set}
                   </span>
                   <span style={{ ...TEXT, fontSize: '0.75rem', fontWeight: 600, padding: '4px 10px', borderRadius: '6px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)', color: 'rgba(255,255,255,0.5)' }}>
@@ -462,7 +468,11 @@ export default function ProblemEditor() {
           }}
         >
 
-          <Panel style={{ flex: vSplit * 100, display: 'flex', flexDirection: 'column', minHeight: 0, background: CARD_BG }}>
+          <Panel style={{ flex: vSplit * 100, display: 'flex', flexDirection: 'column', minHeight: 0, background: CARD_BG, overflow: 'visible', position: 'relative' }}>
+            <GridCorner position="top-left" />
+            <GridCorner position="top-right" />
+            <GridCorner position="bottom-left" />
+            <GridCorner position="bottom-right" />
 
             <div style={{
               height: 46, flexShrink: 0,
@@ -515,8 +525,8 @@ export default function ProblemEditor() {
                           width: '100%',
                           textAlign: 'left',
                           padding: '0.7rem 0.85rem',
-                          background: language === activeLanguage ? 'rgba(255,201,26,0.08)' : '#111',
-                          color: language === activeLanguage ? '#FFC91A' : '#E8E8E8',
+                          background: language === activeLanguage ? 'rgba(250,93,25,0.08)' : '#111',
+                          color: language === activeLanguage ? '#fa5d19' : '#E8E8E8',
                           border: 'none',
                           borderBottom: language === EDITOR_LANGUAGES[EDITOR_LANGUAGES.length - 1] ? 'none' : '1px solid rgba(255,255,255,0.06)',
                           cursor: 'pointer',
@@ -534,12 +544,12 @@ export default function ProblemEditor() {
               <button onClick={handleRun} disabled={running} style={{
                 ...TEXT, fontSize: '0.85rem', fontWeight: 600,
                 height: 30, padding: '0 1.25rem',
-                background: running ? 'rgba(255,255,255,0.08)' : '#fbbf24',
-                color: running ? 'rgba(255,255,255,0.35)' : '#171100',
-                border: running ? '1px solid rgba(255,255,255,0.08)' : '1px solid #fbbf24',
+                background: running ? 'rgba(255,255,255,0.08)' : '#fa5d19',
+                color: running ? 'rgba(255,255,255,0.35)' : '#fff',
+                border: running ? '1px solid rgba(255,255,255,0.08)' : '1px solid #fa5d19',
                 borderRadius: '7px',
                 cursor: running ? 'default' : 'pointer', outline: 'none',
-              }}>
+              }} className="glow-orange-hover">
                 {running ? 'Running...' : 'Run tests'}
               </button>
             </div>
@@ -595,7 +605,11 @@ export default function ProblemEditor() {
 
           <VPillDivider onMouseDown={onVMouseDown} active={draggingV} />
 
-          <Panel style={{ flex: (1 - vSplit) * 100, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+          <Panel style={{ flex: (1 - vSplit) * 100, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'visible', position: 'relative' }}>
+            <GridCorner position="top-left" />
+            <GridCorner position="top-right" />
+            <GridCorner position="bottom-left" />
+            <GridCorner position="bottom-right" />
             <TabBar tabs={BOT_TABS} active={botTab} onSelect={setBotTab} />
 
             <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '1rem 1.25rem' }}>
@@ -617,7 +631,7 @@ export default function ProblemEditor() {
                 <span style={{ ...TEXT, fontSize: '0.875rem', color: 'rgba(255,255,255,0.3)' }}>Running...</span>
               ) : runResult ? (
                 <div>
-                  <div style={{ ...TEXT, fontSize: '0.95rem', fontWeight: 700, color: runResult.status === 'Accepted' ? '#4ade80' : runResult.status === 'Error' ? '#f87171' : '#FFC91A', letterSpacing: 0, marginBottom: '0.875rem' }}>
+                  <div style={{ ...TEXT, fontSize: '0.95rem', fontWeight: 700, color: runResult.status === 'Accepted' ? '#4ade80' : runResult.status === 'Error' ? '#f87171' : '#fa5d19', letterSpacing: 0, marginBottom: '0.875rem' }}>
                     {runResult.status}
                   </div>
                   {(runResult.time || runResult.memory) && (

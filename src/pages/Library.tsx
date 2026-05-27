@@ -6,6 +6,7 @@ import {
   type Difficulty, type Language,
 } from '../data/problems';
 import { getSolvedIds } from '../utils/progress';
+import { GridCorner } from '../components/ui';
 
 function shuffleArray<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -66,7 +67,7 @@ function IconBtn({
         <span style={{
           position: 'absolute', top: 7, right: 7,
           width: 6, height: 6, borderRadius: '50%',
-          background: '#FFC91A',
+          background: '#fa5d19',
         }} />
       )}
     </button>
@@ -164,15 +165,15 @@ export default function Library() {
   const GRID = '52px minmax(220px, 2.4fr) minmax(140px, 1fr) minmax(180px, 1.25fr) 92px 104px';
 
   return (
-    <div className="grid-backdrop" style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#000', overflow: 'hidden' }}>
+    <div className="grid-backdrop" style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg)', overflow: 'hidden' }}>
       <AppNavbar />
 
       <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', width: '100%', padding: '0 1.5rem' }}>
 
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '1.5rem', padding: '1.35rem 0 0.25rem', flexShrink: 0 }}>
           <div>
-            <div style={{ fontFamily: "'JetBrains Mono', ui-monospace, monospace", color: '#f8e7ad', fontSize: '0.82rem', fontWeight: 800, marginBottom: '0.45rem' }}>
-              <span style={{ color: '#fbbf24' }}>$</span> duckling library --practice
+            <div style={{ fontFamily: "'JetBrains Mono', ui-monospace, monospace", color: '#fa5d19', fontSize: '0.82rem', fontWeight: 800, marginBottom: '0.45rem' }}>
+              <span style={{ color: '#fa5d19' }}>$</span> duckling library --practice
             </div>
             <h1 style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#fff', fontSize: 'clamp(1.8rem, 3vw, 2.65rem)', lineHeight: 1, fontWeight: 850, letterSpacing: 0, margin: 0 }}>
               Choose your next problem.
@@ -183,9 +184,9 @@ export default function Library() {
               <div style={{ fontFamily: "'JetBrains Mono', ui-monospace, monospace", color: '#777', fontSize: '0.68rem', marginBottom: '0.25rem' }}>solved</div>
               <div style={{ fontFamily: "'JetBrains Mono', ui-monospace, monospace", color: '#fff', fontSize: '1rem', fontWeight: 900 }}>{solved.size}/{ALL_PROBLEMS.length}</div>
             </div>
-            <div style={{ border: '1px solid rgba(251,191,36,0.18)', borderRadius: 8, background: 'rgba(251,191,36,0.06)', padding: '0.7rem 0.85rem' }}>
-              <div style={{ fontFamily: "'JetBrains Mono', ui-monospace, monospace", color: '#b99b41', fontSize: '0.68rem', marginBottom: '0.25rem' }}>showing</div>
-              <div style={{ fontFamily: "'JetBrains Mono', ui-monospace, monospace", color: '#fbbf24', fontSize: '1rem', fontWeight: 900 }}>{filtered.length}</div>
+            <div style={{ border: '1px solid rgba(250,93,25,0.18)', borderRadius: 8, background: 'rgba(250,93,25,0.06)', padding: '0.7rem 0.85rem' }}>
+              <div style={{ fontFamily: "'JetBrains Mono', ui-monospace, monospace", color: '#c44810', fontSize: '0.68rem', marginBottom: '0.25rem' }}>showing</div>
+              <div style={{ fontFamily: "'JetBrains Mono', ui-monospace, monospace", color: '#fa5d19', fontSize: '1rem', fontWeight: 900 }}>{filtered.length}</div>
             </div>
           </div>
         </div>
@@ -212,7 +213,7 @@ export default function Library() {
                 fontFamily: 'Inter',
                 fontSize: '0.95rem',
                 outline: 'none',
-                caretColor: '#FFC91A',
+                caretColor: '#fa5d19',
               }}
             />
           </div>
@@ -309,7 +310,7 @@ export default function Library() {
                     }}
                     style={{
                       fontFamily: 'Inter', fontSize: '0.8rem', fontWeight: 600,
-                      color: '#FFC91A', background: 'transparent', border: 'none',
+                      color: '#fa5d19', background: 'transparent', border: 'none',
                       cursor: 'pointer', outline: 'none', textAlign: 'left', padding: 0,
                     }}
                   >
@@ -329,7 +330,11 @@ export default function Library() {
           </IconBtn>
         </div>
 
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.09)', overflow: 'hidden', background: '#080808' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.09)', background: '#080808', position: 'relative' }}>
+          <GridCorner position="top-left" />
+          <GridCorner position="top-right" />
+          <GridCorner position="bottom-left" />
+          <GridCorner position="bottom-right" />
 
           <div style={{
             display: 'grid',

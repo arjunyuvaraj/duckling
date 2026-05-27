@@ -84,7 +84,7 @@ export function Body({ children, style, className }: TextProps) {
 }
 
 export const CARD_RADIUS = '8px';
-export const CARD_BG = '#0d0d0d';
+export const CARD_BG = 'var(--surface, #0d0d0d)';
 
 interface PanelProps {
   children: React.ReactNode;
@@ -138,11 +138,13 @@ export function MainButton({ children, style, ...props }: ButtonProps) {
       {...props}
       style={{
         ...btnBase,
-        background: '#fbbf24',
-        color: '#171100',
-        border: '1px solid #fbbf24',
+        background: '#fa5d19',
+        color: '#fff',
+        border: '1px solid #fa5d19',
+        boxShadow: '0 0 10px rgba(250, 93, 25, 0.15)',
         ...style,
       }}
+      className={`glow-orange-hover ${props.className || ''}`}
     >
       {children}
     </button>
@@ -182,3 +184,34 @@ export function DefaultButton({ children, style, ...props }: ButtonProps) {
     </button>
   );
 }
+
+export function GridCorner({ position = 'top-left' }: { position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' }) {
+  const styles: Record<string, React.CSSProperties> = {
+    'top-left': { top: -10.5, left: -11 },
+    'top-right': { top: -10.5, right: -11 },
+    'bottom-left': { bottom: -10.5, left: -11 },
+    'bottom-right': { bottom: -10.5, right: -11 },
+  };
+
+  return (
+    <svg
+      fill="none"
+      height="21"
+      viewBox="0 0 22 21"
+      width="22"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{
+        position: 'absolute',
+        pointerEvents: 'none',
+        zIndex: 10,
+        ...styles[position],
+      }}
+    >
+      <path
+        d="M10.5 4C10.5 7.31371 7.81371 10 4.5 10H0.5V11H4.5C7.81371 11 10.5 13.6863 10.5 17V21H11.5V17C11.5 13.6863 14.1863 11 17.5 11H21.5V10H17.5C14.1863 10 11.5 7.31371 11.5 4V0H10.5V4Z"
+        fill="var(--border)"
+      />
+    </svg>
+  );
+}
+

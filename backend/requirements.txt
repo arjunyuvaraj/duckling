@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+python-dotenv
+python-jose[cryptography]
+passlib[bcrypt]
+bcrypt==3.2.2
+supabase
+psycopg2-binary

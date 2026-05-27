@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { readStoredUser } from '../utils/user';
+import { GridCorner } from './ui';
 
 const NAV_LINKS = [
   { label: 'Home',      path: '/home'      },
@@ -18,10 +19,14 @@ export default function AppNavbar() {
       display: 'flex',
       alignItems: 'center',
       padding: '0 2rem',
-      background: '#000',
+      background: 'var(--bg)',
       borderBottom: '1px solid rgba(255,255,255,0.1)',
       flexShrink: 0,
+      position: 'relative',
     }}>
+      <GridCorner position="bottom-left" />
+      <GridCorner position="bottom-right" />
+
       <Link to="/home" style={{ textDecoration: 'none', marginRight: '2rem' }}>
         <span style={{
           fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
@@ -45,13 +50,13 @@ export default function AppNavbar() {
                 fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
                 fontSize: '0.82rem',
                 fontWeight: 700,
-                color: active ? '#fbbf24' : '#666',
+                color: active ? '#fa5d19' : '#666',
                 textDecoration: 'none',
                 padding: '0 1.1rem',
                 height: 56,
                 display: 'flex',
                 alignItems: 'center',
-                borderBottom: `2px solid ${active ? '#fbbf24' : 'transparent'}`,
+                borderBottom: `2px solid ${active ? '#fa5d19' : 'transparent'}`,
                 letterSpacing: 0,
               }}
             >
@@ -67,8 +72,8 @@ export default function AppNavbar() {
           height: 34,
           borderRadius: 8,
           background: '#080808',
-          border: '1px solid rgba(251,191,36,0.45)',
-          color: '#fbbf24',
+          border: '1px solid rgba(250,93,25,0.45)',
+          color: '#fa5d19',
           display: 'grid',
           placeItems: 'center',
           fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",

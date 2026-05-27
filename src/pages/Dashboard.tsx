@@ -4,6 +4,7 @@ import AppNavbar from '../components/AppNavbar';
 import { ALL_PROBLEMS, DIFFICULTY_COLOR } from '../data/problems';
 import { getSolvedIds } from '../utils/progress';
 import { readStoredUser } from '../utils/user';
+import { GridCorner } from '../components/ui';
 
 const duckAscii = "    __\n  <(o )___\n   ( ._> /\n~~~~`---'~~~~";
 
@@ -11,6 +12,7 @@ const cardStyle: React.CSSProperties = {
   border: '1px solid rgba(255,255,255,0.09)',
   borderRadius: 8,
   background: '#080808',
+  position: 'relative',
 };
 
 const mono: React.CSSProperties = {
@@ -32,7 +34,7 @@ export default function Dashboard() {
   const percent = Math.round((solvedCount / ALL_PROBLEMS.length) * 100);
 
   return (
-    <div className="grid-backdrop page-flow-enter" style={{ minHeight: '100vh', background: '#000', color: '#fff' }}>
+    <div className="grid-backdrop page-flow-enter" style={{ minHeight: '100vh', background: 'var(--bg)', color: '#fff' }}>
       <AppNavbar />
       <main style={{ width: 'min(1180px, calc(100% - 3rem))', margin: '0 auto', padding: '2rem 0 4rem' }}>
         <section
@@ -45,12 +47,16 @@ export default function Dashboard() {
           className="dashboard-hero-grid"
         >
           <div style={{ ...cardStyle, padding: '1.5rem', minHeight: 300, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <GridCorner position="top-left" />
+            <GridCorner position="top-right" />
+            <GridCorner position="bottom-left" />
+            <GridCorner position="bottom-right" />
             <div>
-              <pre style={{ ...mono, color: '#fbbf24', fontSize: '0.95rem', lineHeight: 1.05, margin: '0 0 1.15rem' }} aria-label="ASCII duck logo">
+              <pre style={{ ...mono, color: '#fa5d19', fontSize: '0.95rem', lineHeight: 1.05, margin: '0 0 1.15rem' }} aria-label="ASCII duck logo">
                 {duckAscii}
               </pre>
-              <div style={{ ...mono, color: '#f8e7ad', fontSize: '0.82rem', fontWeight: 800, marginBottom: '0.75rem' }}>
-                <span style={{ color: '#fbbf24' }}>$</span> duckling home --today
+              <div style={{ ...mono, color: '#fbe7de', fontSize: '0.82rem', fontWeight: 800, marginBottom: '0.75rem' }}>
+                <span style={{ color: '#fa5d19' }}>$</span> duckling home --today
               </div>
               <h1 style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 'clamp(2.4rem, 5vw, 4.4rem)', lineHeight: 0.95, letterSpacing: 0, margin: 0, fontWeight: 850 }}>
                 Welcome back{user?.username ? `, ${user.username.split('.')[0]}` : ''}.
@@ -61,7 +67,7 @@ export default function Dashboard() {
             </div>
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '1.5rem' }}>
-              <Link className="hero-cta-primary" to={`/problem/${nextProblem.id}`} style={{ ...mono, display: 'inline-flex', alignItems: 'center', minHeight: 46, padding: '0 1.2rem', borderRadius: 8, background: '#fbbf24', color: '#171100', fontWeight: 900, textDecoration: 'none' }}>
+              <Link className="hero-cta-primary glow-orange-hover" to={`/problem/${nextProblem.id}`} style={{ ...mono, display: 'inline-flex', alignItems: 'center', minHeight: 46, padding: '0 1.2rem', borderRadius: 8, background: '#fa5d19', color: '#fff', fontWeight: 900, textDecoration: 'none' }}>
                 Continue practice
               </Link>
               <Link className="hero-cta-secondary" to="/library" style={{ ...mono, display: 'inline-flex', alignItems: 'center', minHeight: 46, padding: '0 1.2rem', borderRadius: 8, background: '#101010', color: '#e8e8e8', border: '1px solid rgba(255,255,255,0.14)', fontWeight: 800, textDecoration: 'none' }}>
@@ -74,18 +80,22 @@ export default function Dashboard() {
           </div>
 
           <aside style={{ ...cardStyle, padding: '1.25rem', display: 'grid', gap: '1rem' }}>
+            <GridCorner position="top-left" />
+            <GridCorner position="top-right" />
+            <GridCorner position="bottom-left" />
+            <GridCorner position="bottom-right" />
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
               <div>
                 <div style={{ ...mono, color: '#777', fontSize: '0.72rem', marginBottom: '0.35rem' }}>progress</div>
                 <strong style={{ ...mono, color: '#fff', fontSize: '2.2rem', lineHeight: 1 }}>{percent}%</strong>
               </div>
-              <div style={{ width: 88, height: 88, borderRadius: 8, border: '1px solid rgba(251,191,36,0.28)', background: 'rgba(251,191,36,0.06)', display: 'grid', placeItems: 'center' }}>
-                <span style={{ ...mono, color: '#fbbf24', fontWeight: 900 }}>{solvedCount}/{ALL_PROBLEMS.length}</span>
+              <div style={{ width: 88, height: 88, borderRadius: 8, border: '1px solid rgba(250,93,25,0.28)', background: 'rgba(250,93,25,0.06)', display: 'grid', placeItems: 'center' }}>
+                <span style={{ ...mono, color: '#fa5d19', fontWeight: 900 }}>{solvedCount}/{ALL_PROBLEMS.length}</span>
               </div>
             </div>
 
             <div style={{ height: 8, borderRadius: 999, background: '#151515', overflow: 'hidden' }}>
-              <div style={{ width: `${percent}%`, height: '100%', background: '#fbbf24' }} />
+              <div style={{ width: `${percent}%`, height: '100%', background: '#fa5d19' }} />
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.65rem' }}>
@@ -104,7 +114,11 @@ export default function Dashboard() {
         </section>
 
         <section style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(280px, 0.55fr)', gap: '1rem', marginTop: '1rem' }} className="dashboard-lower-grid">
-          <div style={{ ...cardStyle, overflow: 'hidden' }}>
+          <div style={{ ...cardStyle }}>
+            <GridCorner position="top-left" />
+            <GridCorner position="top-right" />
+            <GridCorner position="bottom-left" />
+            <GridCorner position="bottom-right" />
             <div style={{ ...mono, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '0 1rem', color: '#777', fontSize: '0.75rem' }}>
               <span>next up</span>
               <span>{nextProblem.topic}</span>
@@ -124,13 +138,17 @@ export default function Dashboard() {
               <p style={{ color: '#8b8b8b', lineHeight: 1.6, margin: '0.75rem 0 1.2rem' }}>
                 A focused problem is queued up for you. Open it, run the tests, and keep the feedback loop tight.
               </p>
-              <Link to={`/problem/${nextProblem.id}`} style={{ ...mono, color: '#fbbf24', fontWeight: 900, textDecoration: 'none' }}>
+              <Link to={`/problem/${nextProblem.id}`} style={{ ...mono, color: '#fa5d19', fontWeight: 900, textDecoration: 'none' }}>
                 open problem →
               </Link>
             </div>
           </div>
 
           <div style={{ ...cardStyle, padding: '1.25rem' }}>
+            <GridCorner position="top-left" />
+            <GridCorner position="top-right" />
+            <GridCorner position="bottom-left" />
+            <GridCorner position="bottom-right" />
             <div style={{ ...mono, color: '#777', fontSize: '0.75rem', marginBottom: '1rem' }}>quick actions</div>
             <div style={{ display: 'grid', gap: '0.7rem' }}>
               {[
@@ -140,7 +158,7 @@ export default function Dashboard() {
               ].map(([label, path]) => (
                 <Link key={path} to={path} style={{ ...mono, display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 44, border: '1px solid rgba(255,255,255,0.09)', borderRadius: 8, color: '#e8e8e8', background: '#0d0d0d', textDecoration: 'none', padding: '0 0.85rem', fontWeight: 800 }}>
                   <span>{label}</span>
-                  <span style={{ color: '#fbbf24' }}>↗</span>
+                  <span style={{ color: '#fa5d19' }}>↗</span>
                 </Link>
               ))}
             </div>

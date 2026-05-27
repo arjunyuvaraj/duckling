@@ -1,120 +1,45 @@
 import { Link, useLocation } from 'react-router-dom';
-import { useEffect, useState } from 'react';
 
 interface NavbarProps {
   showHome?: boolean;
 }
 
 export default function Navbar({ showHome = false }: NavbarProps) {
-  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
-
-  useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handler);
-    return () => window.removeEventListener('scroll', handler);
-  }, []);
-
   const isLanding = location.pathname === '/';
 
-  const btnBase: React.CSSProperties = {
-    display: 'inline-flex',
-    alignItems: 'center',
-    height: '42px',
-    padding: '0 1.25rem',
-    fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-    fontSize: '0.86rem',
-    fontWeight: 700,
-    letterSpacing: 0,
-    borderRadius: '6px',
-    textDecoration: 'none',
-    cursor: 'pointer',
-    whiteSpace: 'nowrap',
-    lineHeight: 1,
-    transition: 'all 0.15s ease',
-  };
-
-  const primaryBtn: React.CSSProperties = {
-    ...btnBase,
-    background: '#fbbf24',
-    color: '#171100',
-    border: '1px solid #fbbf24',
-  };
-
-  const secondaryBtn: React.CSSProperties = {
-    ...btnBase,
-    background: '#080808',
-    color: '#e0e0e0',
-    border: '1px solid rgba(255,255,255,0.16)',
-  };
-
   return (
-    <nav
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '0 2.5rem',
-        height: '64px',
-        background: '#000',
-        borderBottom: scrolled ? '1px solid rgba(255,255,255,0.14)' : '1px solid rgba(255,255,255,0.08)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 50,
-        transition: 'all 0.25s ease',
-        flexShrink: 0,
-      }}
-    >
-      <Link
-        to="/"
-        style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', textDecoration: 'none' }}
-      >
-        <div
-          style={{
-            width: 28,
-            height: 28,
-            background: '#080808',
-            border: '1px solid rgba(251,191,36,0.55)',
-            borderRadius: '6px',
-            flexShrink: 0,
-            display: 'grid',
-            placeItems: 'center',
-            color: '#fbbf24',
-            fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-            fontSize: '0.72rem',
-            fontWeight: 800,
-          }}
-        >
-          &gt;_
-        </div>
-        <span
-          className="logo-pixel"
-          style={{
-            color: '#e8e8e8',
-            marginTop: '3px'
-          }}
-        >
-          ducklings.dev
-        </span>
-      </Link>
+    <nav className="lp-nav">
+      <div className="lp-nav-inner">
+        <Link to="/" className="lp-logo">
+          <div className="lp-logo-icon">
+            <svg viewBox="0 0 1514 1514" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path d="M862.5 304C985.616 304 1087.39 395.37 1103.71 514H1208.99C1208.67 590.681 1151.68 653.171 1080.13 656.829C1062.64 691.577 1037.08 721.561 1005.9 744.316C1092.38 781.22 1153 867.03 1153 967C1153 1100.65 1044.65 1209 911 1209H548C414.347 1209 306 1100.65 306 967C306 963.283 306.084 959.585 306.25 955.908V580.613L532.977 725.46C537.945 725.156 542.955 725 548 725H695.809C648.529 680.583 619 617.49 619 547.5C619 413.019 728.019 304 862.5 304Z"/>
+            </svg>
+          </div>
+          <span className="lp-logo-name">ducklings.dev</span>
+        </Link>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-        {isLanding ? (
-          <>
-            <Link to="/login" style={secondaryBtn} className="nav-secondary-btn">
-              Log In
-            </Link>
-            <Link to="/register" style={primaryBtn} className="nav-primary-btn">
-              Register
-            </Link>
-          </>
-        ) : (
-          showHome && (
-            <Link to="/" style={secondaryBtn} className="nav-secondary-btn">
-              ← Home
-            </Link>
-          )
+        {isLanding && (
+          <div className="lp-nav-links">
+            <Link to="/library" className="lp-nav-link">Library</Link>
+            <Link to="/get-started" className="lp-nav-link">Get Started</Link>
+            <Link to="/login" className="lp-nav-link">Dashboard</Link>
+          </div>
         )}
+
+        <div className="lp-nav-right">
+          {isLanding ? (
+            <>
+              <Link to="/login" className="lp-nav-ghost">Log In</Link>
+              <Link to="/register" className="lp-nav-cta">Register</Link>
+            </>
+          ) : (
+            showHome && (
+              <Link to="/" className="lp-nav-ghost">← Back</Link>
+            )
+          )}
+        </div>
       </div>
     </nav>
   );
