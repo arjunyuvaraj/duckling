@@ -29,7 +29,14 @@
       "Bash(node -e \"const h = require\\('/Users/Aayush/duckling.codes/duckling/node_modules/@hugeicons/react/dist/cjs/index.js'\\); const keys = Object.keys\\(h\\); console.log\\('total:', keys.length\\); console.log\\(keys.filter\\(k => /keyboard/i.test\\(k\\)\\).join\\('\\\\n'\\)\\); console.log\\('---'\\); console.log\\(keys.filter\\(k => /lightbulb|bulb/i.test\\(k\\)\\).slice\\(0,6\\).join\\('\\\\n'\\)\\); console.log\\('---'\\); console.log\\(keys.filter\\(k => /graduation/i.test\\(k\\)\\).slice\\(0,6\\).join\\('\\\\n'\\)\\); console.log\\('---'\\); console.log\\(keys.filter\\(k => /^Code/i.test\\(k\\)\\).slice\\(0,6\\).join\\('\\\\n'\\)\\);\")",
       "Bash(node -e \"const h = require\\('/Users/Aayush/duckling.codes/duckling/node_modules/@hugeicons/react/dist/cjs/index.js'\\); console.log\\(JSON.stringify\\(Object.keys\\(h\\)\\)\\);\")",
       "Bash(sed -i '' \"s/padding: 'clamp\\(3rem,6vw,5rem\\) 1.5rem 2rem'/padding: 'clamp\\(3rem,6vw,5rem\\) 2rem 2rem'/g\" /Users/Aayush/duckling.codes/duckling/src/pages/Home.tsx)",
-      "Bash(sed -i '' \"s/padding: 'clamp\\(3rem,6vw,5rem\\) 1.5rem 0'/padding: 'clamp\\(3rem,6vw,5rem\\) 2rem 0'/g\" /Users/Aayush/duckling.codes/duckling/src/pages/Home.tsx)"
+      "Bash(sed -i '' \"s/padding: 'clamp\\(3rem,6vw,5rem\\) 1.5rem 0'/padding: 'clamp\\(3rem,6vw,5rem\\) 2rem 0'/g\" /Users/Aayush/duckling.codes/duckling/src/pages/Home.tsx)",
+      "Bash(xargs sed -i '' 's/#fa5d19/#FFA100/gI')",
+      "Bash(xargs sed -i '' 's/#FF5500/#FFA100/g')",
+      "Bash(xargs sed -i '' 's/#FF6B1A/#FFB833/g')",
+      "Bash(xargs sed -i '' 's/rgba\\(250,93,25,/rgba\\(255,161,0,/g')",
+      "Bash(xargs sed -i '' 's/rgba\\(255,85,0,/rgba\\(255,161,0,/g')",
+      "Bash(xargs sed -i '' 's/#fbe7de/#FFF5D6/g')",
+      "Bash(xargs sed -i '' 's/#ffebe3/#FFF5D6/g')"
     ]
   }
 }

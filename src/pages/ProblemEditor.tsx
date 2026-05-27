@@ -46,11 +46,11 @@ function TabBar<T extends string>({
         return (
           <button key={t} onClick={() => onSelect(t)} style={{
             ...TEXT, fontSize: '0.875rem', fontWeight: 500,
-            color: on ? '#fff' : '#505050',
+            color: on ? '#fff' : '#c0c0c0',
             background: 'transparent', border: 'none',
             height: 42, padding: '0 0.75rem',
             cursor: 'pointer', outline: 'none',
-            borderBottom: `2px solid ${on ? '#fa5d19' : 'transparent'}`,
+            borderBottom: `2px solid ${on ? '#FFA100' : 'transparent'}`,
             marginBottom: -1,
           }}>
             {t}
@@ -226,8 +226,8 @@ export default function ProblemEditor() {
         'editor.background': '#0f0f0f',
         'editor.foreground': '#e6e6e6',
         'editorLineNumber.foreground': '#4b4b4b',
-        'editorLineNumber.activeForeground': '#fa5d19',
-        'editorCursor.foreground': '#fa5d19',
+        'editorLineNumber.activeForeground': '#FFA100',
+        'editorCursor.foreground': '#FFA100',
         'editor.selectionBackground': '#3f1c0e',
         'editor.inactiveSelectionBackground': '#2d1a10',
         'editorIndentGuide.background1': '#2a2a2a',
@@ -303,7 +303,7 @@ export default function ProblemEditor() {
   if (!problem || !detail) {
     return (
       <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: PAGE_BG }}>
-        <span style={{ ...TEXT, color: '#555', fontSize: '0.95rem' }}>Problem not found.</span>
+        <span style={{ ...TEXT, color: '#888', fontSize: '0.95rem' }}>Problem not found.</span>
       </div>
     );
   }
@@ -334,12 +334,12 @@ export default function ProblemEditor() {
         padding: '0 0.5rem', gap: '0.75rem',
       }}>
         <Link to="/home" style={{ textDecoration: 'none' }}>
-          <span style={{ fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace", fontSize: '0.92rem', fontWeight: 800, color: '#fff', letterSpacing: 0 }}>
+          <span style={{ fontFamily: "'Stack', 'Geist', 'Inter', sans-serif", fontSize: '0.92rem', fontWeight: 400, color: '#e2e2e2', letterSpacing: '-0.01em' }}>
             ducklings.dev
           </span>
         </Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', minWidth: 0 }}>
-          <span style={{ color: '#3f3f3f', fontFamily: "'JetBrains Mono', ui-monospace, monospace" }}>/</span>
+          <span style={{ color: '#666', fontFamily: "'JetBrains Mono', ui-monospace, monospace" }}>/</span>
           <span style={{ ...MONO, color: '#f8e7ad', fontSize: '0.74rem', whiteSpace: 'nowrap' }}>
             solve problem-{problem.id}
           </span>
@@ -354,7 +354,7 @@ export default function ProblemEditor() {
           </DefaultButton>
         </Link>
         <Link to="/account" style={{ textDecoration: 'none', flexShrink: 0 }}>
-          <div style={{ width: 32, height: 32, borderRadius: 8, background: '#080808', border: '1px solid rgba(250,93,25,0.45)', color: '#fa5d19', display: 'grid', placeItems: 'center', fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace", fontSize: '0.72rem', fontWeight: 900, cursor: 'pointer' }}>
+          <div style={{ width: 32, height: 32, borderRadius: 8, background: '#080808', border: '1px solid rgba(255,161,0,0.45)', color: '#FFA100', display: 'grid', placeItems: 'center', fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace", fontSize: '0.72rem', fontWeight: 900, cursor: 'pointer' }}>
             {initials}
           </div>
         </Link>
@@ -397,7 +397,7 @@ export default function ProblemEditor() {
                   <span style={{ ...TEXT, fontSize: '0.75rem', fontWeight: 600, padding: '4px 10px', borderRadius: '6px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.58)' }}>
                     {activeLanguage}
                   </span>
-                  <span style={{ ...TEXT, fontSize: '0.75rem', fontWeight: 600, padding: '4px 10px', borderRadius: '6px', background: 'rgba(250,93,25,0.06)', border: '1px solid rgba(250,93,25,0.14)', color: '#fbe7de' }}>
+                  <span style={{ ...TEXT, fontSize: '0.75rem', fontWeight: 600, padding: '4px 10px', borderRadius: '6px', background: 'rgba(255,161,0,0.06)', border: '1px solid rgba(255,161,0,0.14)', color: '#FFF5D6' }}>
                     {problem.set}
                   </span>
                   <span style={{ ...TEXT, fontSize: '0.75rem', fontWeight: 600, padding: '4px 10px', borderRadius: '6px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)', color: 'rgba(255,255,255,0.5)' }}>
@@ -525,8 +525,8 @@ export default function ProblemEditor() {
                           width: '100%',
                           textAlign: 'left',
                           padding: '0.7rem 0.85rem',
-                          background: language === activeLanguage ? 'rgba(250,93,25,0.08)' : '#111',
-                          color: language === activeLanguage ? '#fa5d19' : '#E8E8E8',
+                          background: language === activeLanguage ? 'rgba(255,161,0,0.08)' : '#111',
+                          color: language === activeLanguage ? '#FFA100' : '#E8E8E8',
                           border: 'none',
                           borderBottom: language === EDITOR_LANGUAGES[EDITOR_LANGUAGES.length - 1] ? 'none' : '1px solid rgba(255,255,255,0.06)',
                           cursor: 'pointer',
@@ -544,9 +544,9 @@ export default function ProblemEditor() {
               <button onClick={handleRun} disabled={running} style={{
                 ...TEXT, fontSize: '0.85rem', fontWeight: 600,
                 height: 30, padding: '0 1.25rem',
-                background: running ? 'rgba(255,255,255,0.08)' : '#fa5d19',
+                background: running ? 'rgba(255,255,255,0.08)' : '#FFA100',
                 color: running ? 'rgba(255,255,255,0.35)' : '#fff',
-                border: running ? '1px solid rgba(255,255,255,0.08)' : '1px solid #fa5d19',
+                border: running ? '1px solid rgba(255,255,255,0.08)' : '1px solid #FFA100',
                 borderRadius: '7px',
                 cursor: running ? 'default' : 'pointer', outline: 'none',
               }} className="glow-orange-hover">
@@ -631,7 +631,7 @@ export default function ProblemEditor() {
                 <span style={{ ...TEXT, fontSize: '0.875rem', color: 'rgba(255,255,255,0.3)' }}>Running...</span>
               ) : runResult ? (
                 <div>
-                  <div style={{ ...TEXT, fontSize: '0.95rem', fontWeight: 700, color: runResult.status === 'Accepted' ? '#4ade80' : runResult.status === 'Error' ? '#f87171' : '#fa5d19', letterSpacing: 0, marginBottom: '0.875rem' }}>
+                  <div style={{ ...TEXT, fontSize: '0.95rem', fontWeight: 700, color: runResult.status === 'Accepted' ? '#4ade80' : runResult.status === 'Error' ? '#f87171' : '#FFA100', letterSpacing: 0, marginBottom: '0.875rem' }}>
                     {runResult.status}
                   </div>
                   {(runResult.time || runResult.memory) && (

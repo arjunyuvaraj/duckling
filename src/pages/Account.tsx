@@ -1,351 +1,252 @@
+import { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
-import Typewriter from '../components/Typewriter';
+import AppSidebar from '../components/AppSidebar';
 import { clearSession, readSession } from '../utils/user';
-import { GridCorner } from '../components/ui';
+
+const SUB_TABS = ['Profile', 'Security'] as const;
+type SubTab = typeof SUB_TABS[number];
+
+const ITEM_H  = 38;  // button height in px
+const ITEM_GAP = 2;  // gap between buttons in px
+const PAD = 6;       // container padding in px
+
+const FieldRow = ({ label, description, value }: { label: string; description: string; value: string }) => (
+  <div style={{
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '1.5rem',
+    alignItems: 'center',
+    padding: '1.25rem 1.5rem',
+    borderBottom: '1px solid rgba(255,255,255,0.07)',
+  }}>
+    <div>
+      <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.9rem', fontWeight: 500, color: '#e8e8e8', marginBottom: '0.2rem' }}>
+        {label}
+      </div>
+      <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.82rem', color: '#888' }}>
+        {description}
+      </div>
+    </div>
+    <div style={{
+      fontFamily: "'JetBrains Mono', monospace",
+      fontSize: '0.83rem',
+      color: '#c8c8c8',
+      background: '#0a0a0a',
+      border: '1px solid rgba(255,255,255,0.09)',
+      borderRadius: 8,
+      padding: '0.65rem 0.9rem',
+      overflowWrap: 'anywhere',
+    }}>
+      {value}
+    </div>
+  </div>
+);
 
 export default function Account() {
   const navigate = useNavigate();
   const session = readSession();
   const user = session?.user;
 
+  const [activeTab, setActiveTab] = useState<SubTab>('Profile');
+  const [slideDir, setSlideDir] = useState<'right' | 'left'>('right');
+  const prevTabRef = useRef<SubTab>('Profile');
+
+  function switchTab(tab: SubTab) {
+    if (tab === activeTab) return;
+    const prevIdx = SUB_TABS.indexOf(prevTabRef.current);
+    const newIdx  = SUB_TABS.indexOf(tab);
+    setSlideDir(newIdx > prevIdx ? 'right' : 'left');
+    prevTabRef.current = tab;
+    setActiveTab(tab);
+  }
+
   function logout() {
     clearSession();
     navigate('/login');
   }
 
-  const fields = user
-    ? [
-        { key: 'username', value: user.username ?? 'unknown' },
-        { key: 'email', value: user.email ?? 'unknown' },
-        { key: 'user_id', value: user.id ?? 'unknown' },
-        {
-          key: 'session_expires',
-          value: session ? new Date(session.expiresAt).toLocaleString() : 'unknown',
-        },
-      ]
-    : [];
+  const activeIdx = SUB_TABS.indexOf(activeTab);
+  const pillTop = PAD + activeIdx * (ITEM_H + ITEM_GAP);
 
   return (
-    <div
-      className="page-flow-enter"
-      style={{
-        minHeight: '100vh',
-        background: 'var(--bg)',
-        display: 'flex',
-        flexDirection: 'column',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
-      <div
-        aria-hidden
-        style={{
-          position: 'fixed',
-          inset: 0,
-          backgroundImage: 'none',
-          backgroundSize: '40px 40px',
-          pointerEvents: 'none',
-          zIndex: 0,
-        }}
-      />
+    <div className="page-flow-enter" style={{ display: 'flex', height: '100vh', background: 'var(--bg)', overflow: 'hidden' }}>
+      <AppSidebar />
 
-      <div
-        aria-hidden
-        style={{
-          position: 'fixed',
-          top: '15%',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '900px',
-          height: '600px',
-          background: 'transparent',
-          pointerEvents: 'none',
-          zIndex: 0,
-        }}
-      />
+      <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto' }}>
+        <main style={{ width: 'min(860px, calc(100% - 3rem))', margin: '0 auto', padding: '2.5rem 0 4rem' }}>
 
-      <Navbar showHome />
+          {/* Page header */}
+          <div style={{ marginBottom: '2rem' }}>
+            <h1 style={{ fontFamily: "'Stack', 'Geist', 'Inter', sans-serif", fontSize: 'clamp(1.8rem, 3vw, 2.5rem)', fontWeight: 400, color: '#fff', margin: '0 0 0.4rem', lineHeight: 1.1, letterSpacing: '-0.01em' }}>
+              Account
+            </h1>
+            <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.95rem', color: '#888', margin: 0, lineHeight: 1.5 }}>
+              {user ? 'Manage your profile and session settings.' : 'Log in to manage your account.'}
+            </p>
+          </div>
 
-      <main
-        style={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '4rem 1.5rem 7rem',
-          position: 'relative',
-          zIndex: 1,
-        }}
-      >
-        <div
-          className="hero-copy-flow"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '0.32rem 0.9rem',
-            borderRadius: '999px',
-            border: '1px solid rgba(250,93,25,0.28)',
-            background: 'rgba(250,93,25,0.07)',
-            marginBottom: '1.5rem',
-          }}
-        >
-          <span
-            style={{
-              width: 6,
-              height: 6,
-              borderRadius: '50%',
-              background: 'var(--orange)',
-              flexShrink: 0,
-              display: 'inline-block',
-            }}
-          />
-          <span
-            style={{
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: '0.7rem',
-              color: 'rgba(250,93,25,0.9)',
-              fontWeight: 700,
-              letterSpacing: '0.04em',
-            }}
-          >
-            duckling.dev / account
-          </span>
-        </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '190px 1fr', gap: '1.25rem', alignItems: 'start' }}>
 
-        <h1
-          className="hero-copy-flow"
-          style={{
-            fontFamily: "'Inter', sans-serif",
-            fontSize: 'clamp(2rem, 4.5vw, 3.4rem)',
-            fontWeight: 860,
-            lineHeight: 1,
-            textAlign: 'center',
-            marginBottom: '0.6rem',
-            color: '#ffffff',
-          }}
-        >
-          {user ? (user.username ?? 'Account') : 'No account loaded'}
-        </h1>
-
-        <p
-          className="hero-actions-flow"
-          style={{
-            color: 'var(--text-muted)',
-            fontSize: '0.97rem',
-            marginBottom: '2.75rem',
-            textAlign: 'center',
-            lineHeight: 1.5,
-          }}
-        >
-          {user
-            ? 'Your session is active and secure.'
-            : 'Log in or register to see your account details.'}
-        </p>
-
-        <div
-          className="hero-preview-flow"
-          style={{ width: '100%', maxWidth: '580px', position: 'relative' }}
-        >
-          <div
-            style={{
+            {/* Left sub-nav with sliding pill */}
+            <div style={{
               position: 'relative',
-              borderRadius: '13px',
-              padding: '1px',
-              background: 'var(--border)',
-            }}
-          >
-            <div
-              style={{
-                background: 'var(--surface)',
-                borderRadius: '12px',
-                overflow: 'hidden',
-                position: 'relative',
-              }}
-            >
-              <GridCorner position="top-left" />
-              <GridCorner position="top-right" />
-              <GridCorner position="bottom-left" />
-              <GridCorner position="bottom-right" />
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: 10,
+              background: '#080808',
+              padding: `${PAD}px`,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: `${ITEM_GAP}px`,
+            }}>
+              {/* Sliding pill indicator */}
+              <div style={{
+                position: 'absolute',
+                left: PAD,
+                right: PAD,
+                height: ITEM_H,
+                background: 'rgba(255,161,0,0.1)',
+                border: '1px solid rgba(255,161,0,0.18)',
+                borderRadius: 7,
+                top: pillTop,
+                transition: 'top 0.22s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                pointerEvents: 'none',
+              }} />
 
-              <div
-                style={{
-                  padding: '0.7rem 1.2rem',
-                  borderBottom: '1px solid var(--border)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  background: 'rgba(255,255,255,0.015)',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <div style={{ display: 'flex', gap: '5px' }}>
-                    <span
-                      style={{
-                        width: 9,
-                        height: 9,
-                        borderRadius: '50%',
-                        background: '#ff5f56',
-                        display: 'inline-block',
-                      }}
-                    />
-                    <span
-                      style={{
-                        width: 9,
-                        height: 9,
-                        borderRadius: '50%',
-                        background: '#ffbd2e',
-                        display: 'inline-block',
-                      }}
-                    />
-                    <span
-                      style={{
-                        width: 9,
-                        height: 9,
-                        borderRadius: '50%',
-                        background: '#27c93f',
-                        display: 'inline-block',
-                      }}
-                    />
-                  </div>
-                  <span
+              {SUB_TABS.map(tab => {
+                const isActive = tab === activeTab;
+                return (
+                  <button
+                    key={tab}
+                    onClick={() => switchTab(tab)}
                     style={{
-                      fontFamily: "'JetBrains Mono', monospace",
-                      fontSize: '0.72rem',
-                      color: 'var(--text-muted)',
+                      position: 'relative',
+                      zIndex: 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      height: ITEM_H,
+                      padding: '0 0.85rem',
+                      borderRadius: 7,
+                      border: 'none',
+                      background: 'transparent',
+                      color: isActive ? '#FFA100' : '#c0c0c0',
+                      fontFamily: 'Inter, system-ui, sans-serif',
+                      fontSize: '0.875rem',
+                      fontWeight: isActive ? 600 : 400,
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition: 'color 0.18s ease',
                     }}
                   >
-                    session.json
-                  </span>
+                    {tab}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Right content — keyed so it remounts on tab switch, sliding from direction */}
+            <div
+              key={activeTab}
+              className={slideDir === 'right' ? 'slide-from-right' : 'slide-from-left'}
+              style={{
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: 10,
+                background: '#080808',
+                overflow: 'hidden',
+              }}
+            >
+              {!user ? (
+                <div style={{ padding: '2.5rem 1.5rem', textAlign: 'center' }}>
+                  <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.95rem', color: '#888', marginBottom: '1.5rem', lineHeight: 1.6 }}>
+                    Log in or register to view your account details.
+                  </p>
+                  <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                    <Link to="/login" className="fc-btn-primary">Log in</Link>
+                    <Link to="/register" className="fc-btn-ghost">Register</Link>
+                  </div>
                 </div>
-
-                <span
-                  style={{
-                    fontFamily: "'JetBrains Mono', monospace",
-                    fontSize: '0.68rem',
-                    color: user ? '#4ade80' : 'var(--text-subtle)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '5px',
-                  }}
-                >
-                  <span
-                    style={{
-                      width: 5,
-                      height: 5,
-                      borderRadius: '50%',
-                      background: user ? '#4ade80' : 'var(--text-subtle)',
-                      display: 'inline-block',
-                      boxShadow: user ? '0 0 5px #4ade80' : 'none',
-                    }}
-                  />
-                  {user ? 'authenticated' : 'no session'}
-                </span>
-              </div>
-
-              <div style={{ padding: '1.75rem' }}>
-                <div
-                  style={{
-                    fontFamily: "'JetBrains Mono', monospace",
-                    fontSize: '0.78rem',
-                    color: 'rgba(250,93,25,0.65)',
-                    marginBottom: '1.4rem',
-                  }}
-                >
-                  <span style={{ color: 'var(--orange)', fontWeight: 800 }}>$</span>{' '}
-                  <Typewriter text="duckling account --view" speed={30} delay={200} cursor={false} />
-                </div>
-
-                {user ? (
-                  <>
-                    <div
-                      style={{
-                        border: '1px solid var(--border)',
-                        borderRadius: '8px',
-                        overflow: 'hidden',
-                      }}
-                    >
-                      {fields.map(({ key, value }, i) => (
-                        <div
-                          key={key}
-                          className="fc-row"
-                          style={{
-                            display: 'grid',
-                            gridTemplateColumns: '148px 1fr',
-                            padding: '0.85rem 1rem',
-                            borderBottom:
-                              i < fields.length - 1 ? '1px solid var(--border)' : 'none',
-                          }}
-                        >
-                          <span
-                            style={{
-                              fontFamily: "'JetBrains Mono', monospace",
-                              fontSize: '0.75rem',
-                              color: 'var(--orange)',
-                              fontWeight: 700,
-                            }}
-                          >
-                            {key}
-                          </span>
-                          <span
-                            style={{
-                              fontFamily: "'JetBrains Mono', monospace",
-                              fontSize: '0.8rem',
-                              color: '#e0e0e0',
-                              overflowWrap: 'anywhere',
-                            }}
-                          >
-                            {value}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div
-                      style={{
-                        display: 'flex',
-                        gap: '0.75rem',
-                        marginTop: '1.5rem',
-                        flexWrap: 'wrap',
-                      }}
-                    >
-                      <Link to="/home" className="fc-btn-primary">
-                        Go to main page
-                      </Link>
-                      <button className="fc-btn-ghost" onClick={logout}>
-                        Log out
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <p
-                      style={{
-                        color: 'var(--text-muted)',
-                        fontSize: '0.95rem',
-                        lineHeight: 1.65,
-                        marginBottom: '1.5rem',
-                      }}
-                    >
-                      Log in or register to see your account details here.
+              ) : activeTab === 'Profile' ? (
+                <>
+                  <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+                    <h2 style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '1rem', fontWeight: 600, color: '#fff', margin: '0 0 0.2rem' }}>
+                      Profile
+                    </h2>
+                    <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.85rem', color: '#888', margin: 0 }}>
+                      Your account information.
                     </p>
-                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                      <Link to="/login" className="fc-btn-primary">
-                        Log in
-                      </Link>
-                      <Link to="/register" className="fc-btn-ghost">
-                        Register
-                      </Link>
+                  </div>
+
+                  <FieldRow label="Username" description="Your display name on ducklings.dev." value={user.username ?? 'unknown'} />
+                  <FieldRow label="Email" description="The email address linked to your account." value={user.email ?? 'unknown'} />
+
+                  <div style={{ padding: '1.25rem 1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+                    <Link to="/home" style={{
+                      fontFamily: 'Inter, system-ui, sans-serif',
+                      fontSize: '0.875rem',
+                      fontWeight: 600,
+                      color: '#fff',
+                      background: '#FFA100',
+                      border: '1px solid #FFA100',
+                      borderRadius: 8,
+                      padding: '0.55rem 1.2rem',
+                      textDecoration: 'none',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                    }}>
+                      Go to dashboard
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+                    <h2 style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '1rem', fontWeight: 600, color: '#fff', margin: '0 0 0.2rem' }}>
+                      Security
+                    </h2>
+                    <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.85rem', color: '#888', margin: 0 }}>
+                      Your active session details.
+                    </p>
+                  </div>
+
+                  <FieldRow label="User ID" description="Your unique account identifier." value={user.id ?? 'unknown'} />
+                  <FieldRow
+                    label="Session Expires"
+                    description="When your current session will end."
+                    value={session ? new Date(session.expiresAt).toLocaleString() : 'unknown'}
+                  />
+
+                  <div style={{ padding: '1.25rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div>
+                      <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.9rem', fontWeight: 500, color: '#e8e8e8', marginBottom: '0.15rem' }}>
+                        Sign out
+                      </div>
+                      <div style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.82rem', color: '#888' }}>
+                        End your current session.
+                      </div>
                     </div>
-                  </>
-                )}
-              </div>
+                    <button
+                      onClick={logout}
+                      style={{
+                        fontFamily: 'Inter, system-ui, sans-serif',
+                        fontSize: '0.875rem',
+                        fontWeight: 600,
+                        color: '#f87171',
+                        background: 'rgba(248,113,113,0.08)',
+                        border: '1px solid rgba(248,113,113,0.25)',
+                        borderRadius: 8,
+                        padding: '0.55rem 1.2rem',
+                        cursor: 'pointer',
+                        transition: 'background 0.15s ease',
+                      }}
+                    >
+                      Sign out
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }

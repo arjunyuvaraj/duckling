@@ -70,7 +70,7 @@ function Field({ label, name, type = 'text', value, placeholder, autoComplete, o
         id={name} name={name} type={type} value={value} placeholder={placeholder}
         autoComplete={autoComplete} onChange={e => onChange(e.target.value)} required
         style={{ width: '100%', height: 42, background: '#181818', border: '1px solid rgba(255,255,255,0.09)', borderRadius: 8, color: '#E2E2E2', fontFamily: "'JetBrains Mono', monospace", fontSize: '0.88rem', padding: '0 0.875rem', outline: 'none', transition: 'border-color 0.15s ease' }}
-        onFocus={e => (e.currentTarget.style.borderColor = '#FF5500')}
+        onFocus={e => (e.currentTarget.style.borderColor = '#FFA100')}
         onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')}
       />
     </label>
@@ -202,7 +202,7 @@ export default function AuthPage({ mode }: AuthPageProps) {
         to="/"
         style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2.5rem', textDecoration: 'none', position: 'relative', zIndex: 3, animation: 'flow-rise 0.4s ease 0.05s both' }}
       >
-        <div style={{ width: 40, height: 40, color: '#FF5500', flexShrink: 0 }}>
+        <div style={{ width: 40, height: 40, color: '#FFA100', flexShrink: 0 }}>
           <svg viewBox="0 0 1514 1514" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
             <path d="M862.5 304C985.616 304 1087.39 395.37 1103.71 514H1208.99C1208.67 590.681 1151.68 653.171 1080.13 656.829C1062.64 691.577 1037.08 721.561 1005.9 744.316C1092.38 781.22 1153 867.03 1153 967C1153 1100.65 1044.65 1209 911 1209H548C414.347 1209 306 1100.65 306 967C306 963.283 306.084 959.585 306.25 955.908V580.613L532.977 725.46C537.945 725.156 542.955 725 548 725H695.809C648.529 680.583 619 617.49 619 547.5C619 413.019 728.019 304 862.5 304Z"/>
           </svg>
@@ -255,9 +255,9 @@ export default function AuthPage({ mode }: AuthPageProps) {
               <button
                 type="submit"
                 disabled={status === 'loading'}
-                style={{ marginTop: '0.25rem', height: 44, border: 'none', borderRadius: 8, background: status === 'loading' ? 'rgba(255,85,0,0.55)' : '#FF5500', color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontSize: '0.88rem', fontWeight: 700, cursor: status === 'loading' ? 'wait' : 'pointer', transition: 'background 0.15s ease', width: '100%' }}
-                onMouseEnter={e => { if (status !== 'loading') e.currentTarget.style.background = '#FF6B1A'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = status === 'loading' ? 'rgba(255,85,0,0.55)' : '#FF5500'; }}
+                style={{ marginTop: '0.25rem', height: 44, border: 'none', borderRadius: 8, background: status === 'loading' ? 'rgba(255,161,0,0.55)' : '#FFA100', color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontSize: '0.88rem', fontWeight: 700, cursor: status === 'loading' ? 'wait' : 'pointer', transition: 'background 0.15s ease', width: '100%' }}
+                onMouseEnter={e => { if (status !== 'loading') e.currentTarget.style.background = '#FFB833'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = status === 'loading' ? 'rgba(255,161,0,0.55)' : '#FFA100'; }}
               >
                 {status === 'loading' ? 'Working...' : copy.button}
               </button>
@@ -275,7 +275,7 @@ export default function AuthPage({ mode }: AuthPageProps) {
 
           <p style={{ marginTop: '1.25rem', color: '#555', fontSize: '0.82rem', textAlign: 'center', animation: 'flow-rise 0.3s ease 0.2s both' }}>
             {copy.switchPrompt}{' '}
-            <Link to={copy.switchTo} style={{ color: '#FF5500', fontWeight: 700, textDecoration: 'none' }}
+            <Link to={copy.switchTo} style={{ color: '#FFA100', fontWeight: 700, textDecoration: 'none' }}
               onMouseEnter={e => (e.currentTarget.style.textDecoration = 'underline')}
               onMouseLeave={e => (e.currentTarget.style.textDecoration = 'none')}
             >
