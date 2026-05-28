@@ -1,0 +1,47 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./venv/bin/pip show *)",
+      "Bash(venv/bin/pip show *)",
+      "Bash(venv/bin/python --version)",
+      "Bash(/Users/Aayush/duckling.codes/duckling/backend/venv/bin/pip show *)",
+      "Bash(/Users/Aayush/duckling.codes/duckling/backend/venv/bin/python -c \"import bcrypt; print\\(bcrypt.__version__\\)\")",
+      "Bash(/Users/Aayush/duckling.codes/duckling/backend/venv/bin/python -c \"import passlib; print\\(passlib.__version__\\)\")",
+      "Bash(/Users/Aayush/duckling.codes/duckling/backend/venv/bin/python -m pip install \"bcrypt==3.2.2\")",
+      "Bash(/Users/Aayush/duckling.codes/duckling/backend/venv/bin/python -m ensurepip)",
+      "Bash(/Users/Aayush/duckling.codes/duckling/backend/venv/bin/python -c \"from passlib.context import CryptContext; ctx = CryptContext\\(schemes=['bcrypt'], deprecated='auto'\\); h = ctx.hash\\('testpassword'\\); print\\('hash ok:', h[:20]\\); print\\('verify ok:', ctx.verify\\('testpassword', h\\)\\)\")",
+      "Bash(npm run *)",
+      "Bash(echo \"PID: $!\")",
+      "Bash(sort -k5 -rn)",
+      "Bash(grep -E '#[0-9a-fA-F]{3,8}')",
+      "Bash(grep -oE '\"[^\"]{0,40}\\(orange|heat|#[0-9a-fA-F]{3,8}|gradient|glow|animation\\)[^\"]{0,40}\"' /Users/Aayush/duckling.codes/duckling/src/code/16l9pevohot7a.js)",
+      "Bash(npx vite *)",
+      "Bash(npx playwright *)",
+      "Bash(curl -s http://localhost:5175/)",
+      "Bash(node -e \"const {chromium} = require\\('playwright'\\); console.log\\('ok'\\)\")",
+      "Bash(node -e \"const {chromium} = require\\('@playwright/test'\\); console.log\\('ok'\\)\")",
+      "Bash(npm init *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5175/)",
+      "Bash(sed -i '' 's/fontWeight: bold ? 800 : 400/fontWeight: bold ? 500 : 400/g' /Users/Aayush/duckling.codes/duckling/src/pages/Home.tsx)",
+      "Bash(sed -i '' 's/fontWeight: 700 }}>\\\\\\\\$ /fontWeight: 500 }}>\\\\\\\\$ /g' /Users/Aayush/duckling.codes/duckling/src/pages/Home.tsx)",
+      "Bash(node -e \"const h = require\\('@hugeicons/react'\\); const keys = Object.keys\\(h\\).filter\\(k => /keyboard|lightbulb|graduation|code|terminal|book|chart|layers/i.test\\(k\\)\\).slice\\(0,20\\); console.log\\(keys.join\\('\\\\n'\\)\\)\")",
+      "Bash(node -e \"const h = require\\('/Users/Aayush/duckling.codes/duckling/node_modules/@hugeicons/react'\\); const keys = Object.keys\\(h\\); console.log\\('total:', keys.length\\); console.log\\(keys.filter\\(k => /keyboard/i.test\\(k\\)\\).join\\('\\\\n'\\)\\); console.log\\('---'\\); console.log\\(keys.filter\\(k => /lightbulb|bulb/i.test\\(k\\)\\).slice\\(0,5\\).join\\('\\\\n'\\)\\); console.log\\('---'\\); console.log\\(keys.filter\\(k => /graduation|diploma/i.test\\(k\\)\\).slice\\(0,5\\).join\\('\\\\n'\\)\\); console.log\\('---'\\); console.log\\(keys.filter\\(k => /python|snake|code/i.test\\(k\\)\\).slice\\(0,5\\).join\\('\\\\n'\\)\\);\")",
+      "Bash(node -e \"const h = require\\('/Users/Aayush/duckling.codes/duckling/node_modules/@hugeicons/react/dist/cjs/index.js'\\); const keys = Object.keys\\(h\\); console.log\\('total:', keys.length\\); console.log\\(keys.filter\\(k => /keyboard/i.test\\(k\\)\\).join\\('\\\\n'\\)\\); console.log\\('---'\\); console.log\\(keys.filter\\(k => /lightbulb|bulb/i.test\\(k\\)\\).slice\\(0,6\\).join\\('\\\\n'\\)\\); console.log\\('---'\\); console.log\\(keys.filter\\(k => /graduation/i.test\\(k\\)\\).slice\\(0,6\\).join\\('\\\\n'\\)\\); console.log\\('---'\\); console.log\\(keys.filter\\(k => /^Code/i.test\\(k\\)\\).slice\\(0,6\\).join\\('\\\\n'\\)\\);\")",
+      "Bash(node -e \"const h = require\\('/Users/Aayush/duckling.codes/duckling/node_modules/@hugeicons/react/dist/cjs/index.js'\\); console.log\\(JSON.stringify\\(Object.keys\\(h\\)\\)\\);\")",
+      "Bash(sed -i '' \"s/padding: 'clamp\\(3rem,6vw,5rem\\) 1.5rem 2rem'/padding: 'clamp\\(3rem,6vw,5rem\\) 2rem 2rem'/g\" /Users/Aayush/duckling.codes/duckling/src/pages/Home.tsx)",
+      "Bash(sed -i '' \"s/padding: 'clamp\\(3rem,6vw,5rem\\) 1.5rem 0'/padding: 'clamp\\(3rem,6vw,5rem\\) 2rem 0'/g\" /Users/Aayush/duckling.codes/duckling/src/pages/Home.tsx)",
+      "Bash(xargs sed -i '' 's/#fa5d19/#FFA100/gI')",
+      "Bash(xargs sed -i '' 's/#FF5500/#FFA100/g')",
+      "Bash(xargs sed -i '' 's/#FF6B1A/#FFB833/g')",
+      "Bash(xargs sed -i '' 's/rgba\\(250,93,25,/rgba\\(255,161,0,/g')",
+      "Bash(xargs sed -i '' 's/rgba\\(255,85,0,/rgba\\(255,161,0,/g')",
+      "Bash(xargs sed -i '' 's/#fbe7de/#FFF5D6/g')",
+      "Bash(xargs sed -i '' 's/#ffebe3/#FFF5D6/g')",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173)",
+      "Bash(npm run dev > /tmp/duckling-dev.log 2>&1 & *)"
+    ],
+    "additionalDirectories": [
+      "/tmp"
+    ]
+  }
+}
