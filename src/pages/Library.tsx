@@ -1,6 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AppSidebar from '../components/AppSidebar';
 import {
   ALL_PROBLEMS, TOPICS, DIFFICULTIES, LANGUAGES, PROBLEM_SETS, BATCHES, TAGS, DIFFICULTY_COLOR,
   type Difficulty, type Language,
@@ -206,10 +205,7 @@ export default function Library() {
   const GRID = '52px minmax(220px, 2.4fr) minmax(140px, 1fr) minmax(180px, 1.25fr) 92px 104px';
 
   return (
-    <div className="page-flow-enter" style={{ display: 'flex', height: '100vh', background: 'var(--bg)', overflow: 'hidden' }}>
-      <AppSidebar />
-
-      <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', padding: '0 1.5rem' }}>
+    <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', padding: '0 1.5rem' }}>
 
         <div style={{ padding: '2.5rem 0 0', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1.5rem' }}>
@@ -469,7 +465,6 @@ export default function Library() {
         </div>
 
         <div style={{ height: '1.25rem', flexShrink: 0 }} />
-      </div>
     </div>
   );
 }

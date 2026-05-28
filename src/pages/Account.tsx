@@ -1,6 +1,5 @@
 import { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import AppSidebar from '../components/AppSidebar';
 import { clearSession, readSession } from '../utils/user';
 
 const SUB_TABS = ['Profile', 'Security'] as const;
@@ -69,10 +68,7 @@ export default function Account() {
   const pillTop = PAD + activeIdx * (ITEM_H + ITEM_GAP);
 
   return (
-    <div className="page-flow-enter" style={{ display: 'flex', height: '100vh', background: 'var(--bg)', overflow: 'hidden' }}>
-      <AppSidebar />
-
-      <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto' }}>
+    <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto' }}>
         <main style={{ width: 'min(860px, calc(100% - 3rem))', margin: '0 auto', padding: '2.5rem 0 4rem' }}>
 
           {/* Page header */}
@@ -246,7 +242,6 @@ export default function Account() {
             </div>
           </div>
         </main>
-      </div>
     </div>
   );
 }

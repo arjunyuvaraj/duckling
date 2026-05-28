@@ -36,7 +36,12 @@
       "Bash(xargs sed -i '' 's/rgba\\(250,93,25,/rgba\\(255,161,0,/g')",
       "Bash(xargs sed -i '' 's/rgba\\(255,85,0,/rgba\\(255,161,0,/g')",
       "Bash(xargs sed -i '' 's/#fbe7de/#FFF5D6/g')",
-      "Bash(xargs sed -i '' 's/#ffebe3/#FFF5D6/g')"
+      "Bash(xargs sed -i '' 's/#ffebe3/#FFF5D6/g')",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173)",
+      "Bash(npm run dev > /tmp/duckling-dev.log 2>&1 & *)"
+    ],
+    "additionalDirectories": [
+      "/tmp"
     ]
   }
 }

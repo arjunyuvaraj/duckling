@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
-import AppSidebar from '../components/AppSidebar';
 import { ALL_PROBLEMS, DIFFICULTY_COLOR } from '../data/problems';
 import { getSolvedIds } from '../utils/progress';
 import { readStoredUser } from '../utils/user';
@@ -27,10 +26,8 @@ export default function Dashboard() {
   const percent = Math.round((solvedCount / ALL_PROBLEMS.length) * 100);
 
   return (
-    <div className="page-flow-enter" style={{ display: 'flex', height: '100vh', background: 'var(--bg)', overflow: 'hidden' }}>
-      <AppSidebar />
-      <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '0 1.5rem' }}>
-        <main style={{ padding: '2.5rem 0 4rem' }}>
+    <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '0 1.5rem' }}>
+      <main style={{ padding: '2.5rem 0 4rem' }}>
 
           {/* Page header */}
           <div style={{ marginBottom: '2rem' }}>
@@ -226,8 +223,7 @@ export default function Dashboard() {
               </div>
             </div>
           </section>
-        </main>
-      </div>
+      </main>
     </div>
   );
 }
