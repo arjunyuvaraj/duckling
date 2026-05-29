@@ -7,7 +7,7 @@ import { getProblemDetail } from '../data/problemDetails';
 import { EDITOR_LANGUAGES, getStarterCode } from '../data/problemStarterCode';
 import { readStoredUser } from '../utils/user';
 import { markSolved } from '../utils/progress';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '../context/theme-core';
 
 const GAP = 10;
 

@@ -1,21 +1,7 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-
-export type ThemePreference = 'light' | 'dark' | 'system';
-type ResolvedTheme = 'light' | 'dark';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { ThemeContext, type ResolvedTheme, type ThemePreference } from './theme-core';
 
 const LS_KEY = 'dk-theme';
-
-interface ThemeCtx {
-  preference: ThemePreference;
-  resolved: ResolvedTheme;
-  setPreference: (p: ThemePreference) => void;
-}
-
-const ThemeContext = createContext<ThemeCtx>({
-  preference: 'dark',
-  resolved: 'dark',
-  setPreference: () => {},
-});
 
 function getSystemTheme(): ResolvedTheme {
   return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
@@ -27,42 +13,35 @@ function getStoredPreference(): ThemePreference {
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [preference, setPreferenceRaw] = useState<ThemePreference>(getStoredPreference);
-
-  const [resolved, setResolved] = useState<ResolvedTheme>(() => {
-    const pref = getStoredPreference();
-    const r: ResolvedTheme = pref === 'system' ? getSystemTheme() : pref;
-    document.documentElement.setAttribute('data-theme', r);
-    return r;
-  });
+  const [systemTheme, setSystemTheme] = useState<ResolvedTheme>(getSystemTheme);
+  const resolved: ResolvedTheme = preference === 'system' ? systemTheme : preference;
 
   useEffect(() => {
-    const next: ResolvedTheme = preference === 'system' ? getSystemTheme() : preference;
-    setResolved(next);
-    document.documentElement.setAttribute('data-theme', next);
-  }, [preference]);
+    document.documentElement.setAttribute('data-theme', resolved);
+  }, [resolved]);
 
   useEffect(() => {
     if (preference !== 'system') return;
     const mq = window.matchMedia('(prefers-color-scheme: light)');
     const handler = () => {
-      const next = getSystemTheme();
-      setResolved(next);
-      document.documentElement.setAttribute('data-theme', next);
+      setSystemTheme(getSystemTheme());
     };
     mq.addEventListener('change', handler);
     return () => mq.removeEventListener('change', handler);
   }, [preference]);
 
   function setPreference(p: ThemePreference) {
-    try { localStorage.setItem(LS_KEY, p); } catch {}
+    try { localStorage.setItem(LS_KEY, p); } catch {
+      // Theme still works when localStorage is unavailable.
+    }
     setPreferenceRaw(p);
   }
 
+  const value = useMemo(() => ({ preference, resolved, setPreference }), [preference, resolved]);
+
   return (
-    <ThemeContext.Provider value={{ preference, resolved, setPreference }}>
+    <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
   );
 }
-
-export const useTheme = () => useContext(ThemeContext);

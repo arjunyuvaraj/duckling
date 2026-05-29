@@ -41,7 +41,7 @@ export default function Compete() {
   const [elapsed, setElapsed]           = useState(0);
 
   useEffect(() => {
-    if (queueState !== 'searching') { setElapsed(0); return; }
+    if (queueState !== 'searching') return;
     const t = setInterval(() => setElapsed(s => s + 1), 1000);
     return () => clearInterval(t);
   }, [queueState]);
@@ -232,7 +232,7 @@ export default function Compete() {
               {/* CTA */}
               <div style={{ padding: '1rem 1.5rem', display: 'flex', alignItems: 'center' }}>
                 <button
-                  onClick={() => setQueueState('searching')}
+                  onClick={() => { setElapsed(0); setQueueState('searching'); }}
                   style={{
                     fontFamily: "'Stack', 'Geist', 'Inter', sans-serif",
                     fontSize: '0.9rem', fontWeight: 500,

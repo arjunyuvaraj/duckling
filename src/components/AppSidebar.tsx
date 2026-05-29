@@ -74,7 +74,9 @@ export default function AppSidebar() {
   const toggle = () =>
     setCollapsed(c => {
       const next = !c;
-      try { localStorage.setItem(LS_KEY, next ? '1' : '0'); } catch {}
+      try { localStorage.setItem(LS_KEY, next ? '1' : '0'); } catch {
+        // Ignore storage failures in private browsing or locked-down environments.
+      }
       return next;
     });
 

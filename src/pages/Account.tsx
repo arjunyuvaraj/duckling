@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { clearSession, readSession } from '../utils/user';
-import { useTheme, type ThemePreference } from '../context/ThemeContext';
+import { useTheme, type ThemePreference } from '../context/theme-core';
 
 const SUB_TABS = ['Profile', 'Appearance', 'Security'] as const;
 type SubTab = typeof SUB_TABS[number];

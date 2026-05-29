@@ -226,7 +226,6 @@ function SavedRow({ p, onEdit, onDelete }: { p: CreatedProblem; onEdit: () => vo
 export default function Create() {
   const [form, setForm]       = useState<CreatedProblem>(emptyProblem);
   const [activeTab, setActiveTab] = useState<Tab>('Problem');
-  const [prevTab, setPrevTab] = useState<Tab>('Problem');
   const [slideDir, setSlideDir] = useState<'right' | 'left'>('right');
   const [saved, setSaved]     = useState<CreatedProblem[]>(getCreatedProblems);
   const [saveMsg, setSaveMsg] = useState('');
@@ -242,7 +241,6 @@ export default function Create() {
     const prev = TABS.indexOf(activeTab);
     const next = TABS.indexOf(t);
     setSlideDir(next > prev ? 'right' : 'left');
-    setPrevTab(activeTab);
     setActiveTab(t);
   }
 

@@ -320,9 +320,9 @@ export default function Library() {
 
                 {/* Sections */}
                 <div className="no-scrollbar" style={{ overflowY: 'auto', flex: 1 }}>
-                  <FilterSection title="Difficulty" items={DIFFICULTIES} active={difficulty} onSelect={setDifficulty} />
+                  <FilterSection title="Difficulty" items={DIFFICULTIES} active={difficulty} onSelect={(value) => setDifficulty(value as Difficulty | 'All')} />
                   <div style={{ height: 1, background: 'var(--border)', margin: '0 1rem' }} />
-                  <FilterSection title="Language" items={LANGUAGES} active={language} onSelect={setLanguage} />
+                  <FilterSection title="Language" items={LANGUAGES} active={language} onSelect={(value) => setLanguage(value as Language | 'All')} />
                   <div style={{ height: 1, background: 'var(--border)', margin: '0 1rem' }} />
                   <FilterSection title="Topic" items={TOPICS} active={topic} onSelect={setTopic} maxVisible={5} />
                   <div style={{ height: 1, background: 'var(--border)', margin: '0 1rem' }} />
