@@ -5,7 +5,9 @@ import { GridCorner } from './ui';
 const NAV_LINKS = [
   { label: 'Home',      path: '/home'      },
   { label: 'Classroom', path: '/classroom' },
+  { label: 'Compete',   path: '/compete'   },
   { label: 'Library',   path: '/library'   },
+  { label: 'Create',    path: '/create'    },
 ];
 
 export default function AppNavbar() {
@@ -20,7 +22,7 @@ export default function AppNavbar() {
       alignItems: 'center',
       padding: '0 2rem',
       background: 'var(--bg)',
-      borderBottom: '1px solid rgba(255,255,255,0.1)',
+      borderBottom: '1px solid var(--border)',
       flexShrink: 0,
       position: 'relative',
     }}>
@@ -32,7 +34,7 @@ export default function AppNavbar() {
           fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
           fontSize: '0.92rem',
           fontWeight: 800,
-          color: '#e0e0e0',
+          color: 'var(--text-primary)',
           letterSpacing: 0,
         }}>
           ducklings.dev
@@ -47,10 +49,10 @@ export default function AppNavbar() {
               key={path}
               to={path}
               style={{
-                fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
-                fontSize: '0.82rem',
-                fontWeight: 700,
-                color: active ? '#FFA100' : '#666',
+                fontFamily: "'Stack', 'Geist', 'Inter', sans-serif",
+                fontSize: '0.9rem',
+                fontWeight: 500,
+                color: active ? '#FFA100' : 'var(--text-muted)',
                 textDecoration: 'none',
                 padding: '0 1.1rem',
                 height: 56,
@@ -71,7 +73,7 @@ export default function AppNavbar() {
           width: 34,
           height: 34,
           borderRadius: 8,
-          background: '#080808',
+          background: 'var(--surface)',
           border: '1px solid rgba(255,161,0,0.45)',
           color: '#FFA100',
           display: 'grid',

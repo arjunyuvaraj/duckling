@@ -2,7 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { useRef } from 'react';
 import AppSidebar from './AppSidebar';
 
-const PAGE_ORDER = ['/home', '/library', '/classroom', '/account'];
+const PAGE_ORDER = ['/home', '/library', '/classroom', '/compete', '/create', '/account'];
 
 export default function AppLayout() {
   const location = useLocation();
