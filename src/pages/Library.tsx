@@ -1,10 +1,11 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  ALL_PROBLEMS, TOPICS, DIFFICULTIES, LANGUAGES, PROBLEM_SETS, BATCHES, TAGS, DIFFICULTY_COLOR,
-  type Difficulty, type Language,
+  TOPICS, DIFFICULTIES, LANGUAGES, PROBLEM_SETS, BATCHES, TAGS, DIFFICULTY_COLOR,
+  type Difficulty, type Language, type Problem,
 } from '../data/problems';
 import { getSolvedIds } from '../utils/progress';
+import { apiFetch } from '../utils/api';
 
 function shuffleArray<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -143,6 +144,8 @@ export default function Library() {
   const [problemSet, setProblemSet]     = useState('All');
   const [batch, setBatch]               = useState('All');
   const [tag, setTag]                   = useState('All');
+  const [remoteProblems, setRemoteProblems] = useState<Problem[]>([]);
+  const [catalogError, setCatalogError] = useState('');
   const [shuffleCount, setShuffleCount] = useState(0);
   const [isShuffled, setIsShuffled]     = useState(false);
   const [filterOpen, setFilterOpen]     = useState(false);
@@ -150,6 +153,25 @@ export default function Library() {
   const navigate = useNavigate();
 
   const filterWrapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    apiFetch<{ problems: Problem[] }>('/problems')
+      .then((data) => {
+        if (cancelled) return;
+        setRemoteProblems(data.problems);
+        setCatalogError('');
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        setRemoteProblems([]);
+        setCatalogError(error instanceof Error ? error.message : 'Could not load problems from the backend.');
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (!filterOpen) return;
@@ -171,7 +193,7 @@ export default function Library() {
     tag !== 'All';
 
   const filtered = useMemo(() => {
-    let list = ALL_PROBLEMS.filter(p => {
+    let list = remoteProblems.filter(p => {
       if (difficulty !== 'All' && p.difficulty !== difficulty) return false;
       if (language !== 'All' && p.language !== language) return false;
       if (topic !== 'All' && p.topic !== topic) return false;
@@ -187,7 +209,7 @@ export default function Library() {
     if (isShuffled) list = shuffleArray(list);
     return list;
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, difficulty, language, topic, problemSet, batch, tag, isShuffled, shuffleCount]);
+  }, [remoteProblems, search, difficulty, language, topic, problemSet, batch, tag, isShuffled, shuffleCount]);
 
   const handleShuffle   = () => { setShuffleCount(c => c + 1); setIsShuffled(true); };
   const handleUnshuffle = () => setIsShuffled(false);
@@ -220,16 +242,27 @@ export default function Library() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexShrink: 0, paddingTop: '0.2rem' }}>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#888', fontSize: '0.72rem', fontWeight: 500, marginBottom: '0.2rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Solved</div>
-                <div style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#fff', fontSize: '1.1rem', fontWeight: 700 }}>{solved.size}<span style={{ color: '#888', fontWeight: 400 }}>/{ALL_PROBLEMS.length}</span></div>
+                <div style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#fff', fontSize: '1.1rem', fontWeight: 700 }}>{solved.size}<span style={{ color: '#888', fontWeight: 400 }}>/{remoteProblems.length}</span></div>
               </div>
               <div style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.07)' }} />
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#888', fontSize: '0.72rem', fontWeight: 500, marginBottom: '0.2rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Showing</div>
                 <div style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#FFA100', fontSize: '1.1rem', fontWeight: 700 }}>{filtered.length}</div>
               </div>
+              <div style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.07)' }} />
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#888', fontSize: '0.72rem', fontWeight: 500, marginBottom: '0.2rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Source</div>
+                <div style={{ fontFamily: 'Inter, system-ui, sans-serif', color: catalogError ? '#f87171' : '#4ade80', fontSize: '1.1rem', fontWeight: 700 }}>{catalogError ? 'error' : 'backend'}</div>
+              </div>
             </div>
           </div>
         </div>
+
+        {catalogError && (
+          <div style={{ border: '1px solid rgba(248,113,113,0.22)', borderRadius: 8, background: 'rgba(248,113,113,0.06)', color: '#fca5a5', padding: '0.85rem 1rem', marginTop: '1rem' }}>
+            {catalogError}
+          </div>
+        )}
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '1.25rem 0 1rem', flexShrink: 0 }}>
 
@@ -330,9 +363,9 @@ export default function Library() {
 
                 {/* Sections */}
                 <div className="no-scrollbar" style={{ overflowY: 'auto', flex: 1 }}>
-                  <FilterSection title="Difficulty" items={DIFFICULTIES} active={difficulty} onSelect={setDifficulty} />
+                  <FilterSection title="Difficulty" items={DIFFICULTIES} active={difficulty} onSelect={(value) => setDifficulty(value as 'All' | Difficulty)} />
                   <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '0 1rem' }} />
-                  <FilterSection title="Language" items={LANGUAGES} active={language} onSelect={setLanguage} />
+                  <FilterSection title="Language" items={LANGUAGES} active={language} onSelect={(value) => setLanguage(value as 'All' | Language)} />
                   <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '0 1rem' }} />
                   <FilterSection title="Topic" items={TOPICS} active={topic} onSelect={setTopic} maxVisible={5} />
                   <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '0 1rem' }} />

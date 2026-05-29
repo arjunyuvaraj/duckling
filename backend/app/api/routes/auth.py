@@ -34,9 +34,7 @@ async def user_from_authorization(authorization: str | None):
         raise HTTPException(status_code=401, detail="Invalid or expired session")
 
     result = await asyncio.to_thread(
-        lambda: supabase.table("users").select(
-            "id, email, username, deleted_at"
-        ).eq("id", payload["sub"]).execute()
+        lambda: supabase.table("users").select("*").eq("id", payload["sub"]).execute()
     )
 
     if not result.data:

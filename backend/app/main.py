@@ -3,7 +3,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config.logging import setup_logging
-from app.api.routes import auth
+from app.api.routes import account, auth, classes, problems
 
 setup_logging()
 
@@ -20,6 +20,9 @@ app.add_middleware(
 )
 
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
+app.include_router(account.router, prefix="/account", tags=["account"])
+app.include_router(problems.router, prefix="/problems", tags=["problems"])
+app.include_router(classes.router, prefix="/classes", tags=["classes"])
 
 
 @app.get("/health")

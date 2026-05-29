@@ -2485,6 +2485,29 @@ select:focus  { outline: none; border-color: var(--orange); }
 }
 .animate-dropdown-in { animation: dropdownSlideIn 0.14s cubic-bezier(0.16,1,0.3,1) both; }
 
+/* ─── Classroom responsive polish ─── */
+@media (max-width: 980px) {
+  .classroom-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .classroom-sidebar {
+    position: static !important;
+  }
+
+  .classroom-main-columns {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .classroom-page-header,
+  .classroom-banner {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+}
+
 /* ─── No-scrollbar utility ─── */
 .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }

@@ -2,6 +2,10 @@ export interface StoredUser {
   id: string;
   username: string;
   email: string;
+  display_name?: string;
+  role?: 'student' | 'teacher' | 'student-teacher' | string;
+  school_name?: string;
+  bio?: string;
 }
 
 export interface StoredSession {
@@ -34,6 +38,12 @@ export function saveSession(session: StoredSession): void {
   localStorage.setItem(LEGACY_USER_KEY, JSON.stringify(session.user));
 }
 
+export function updateStoredUser(user: StoredUser): void {
+  const session = readSession();
+  if (!session) return;
+  saveSession({ ...session, user });
+}
+
 export function saveUserSession({
   user,
   accessToken,
@@ -58,24 +68,11 @@ export function clearSession(): void {
 
 export function readSession(): StoredSession | null {
   const session = parseSession(localStorage.getItem(SESSION_KEY));
-  if (session) return session;
-
-  try {
-    const rawUser = localStorage.getItem(LEGACY_USER_KEY);
-    if (!rawUser) return null;
-    const user = JSON.parse(rawUser) as StoredUser;
-    if (!user?.id || !user.email || !user.username) return null;
-    const fallbackSession: StoredSession = {
-      user,
-      accessToken: `local-${user.id}`,
-      tokenType: 'bearer',
-      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7).toISOString(),
-    };
-    saveSession(fallbackSession);
-    return fallbackSession;
-  } catch {
+  if (session?.accessToken.startsWith('local-')) {
+    clearSession();
     return null;
   }
+  return session;
 }
 
 export function readStoredUser(): StoredUser | null {

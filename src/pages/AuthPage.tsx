@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useRef, useLayoutEffect, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { saveUserSession } from '../utils/user';
+import { API_BASE_URL } from '../utils/api';
 
 type AuthMode = 'login' | 'register';
 type AuthStatus = 'idle' | 'loading' | 'success' | 'error';
@@ -10,9 +11,6 @@ interface AuthResponse {
   message?: string; detail?: string; access_token?: string;
   token_type?: string; expires_in?: number;
 }
-
-const API_BASE_URL     = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000';
-const AUTH_API_ENABLED = import.meta.env.VITE_ENABLE_AUTH_API !== 'false';
 
 interface LineGeom {
   cardLeft: number; cardRight: number;
@@ -109,12 +107,6 @@ export default function AuthPage({ mode }: AuthPageProps) {
     setMessage('');
     const derivedUsername = email.split('@')[0]?.trim() || 'duckling-user';
 
-    if (!AUTH_API_ENABLED) {
-      saveUserSession({ user: { id: `local-${Date.now()}`, username: derivedUsername, email }, accessToken: `local-${crypto.randomUUID()}`, expiresIn: 60 * 60 * 24 * 7 });
-      setStatus('success');
-      navigate('/home', { replace: true });
-      return;
-    }
     try {
       const endpoint = isRegister ? '/auth/signup' : '/auth/login';
       const payload  = isRegister ? { email, username: derivedUsername, password } : { email, password };

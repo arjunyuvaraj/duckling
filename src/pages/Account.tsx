@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { clearSession, readSession } from '../utils/user';
+import { clearSession, readSession, updateStoredUser, type StoredUser } from '../utils/user';
+import { apiFetch } from '../utils/api';
 
 const SUB_TABS = ['Profile', 'Security'] as const;
 type SubTab = typeof SUB_TABS[number];
@@ -41,6 +42,27 @@ const FieldRow = ({ label, description, value }: { label: string; description: s
   </div>
 );
 
+const profileLabel: React.CSSProperties = {
+  display: 'grid',
+  gap: '0.45rem',
+  color: '#e8e8e8',
+  fontFamily: 'Inter, system-ui, sans-serif',
+  fontSize: '0.86rem',
+  fontWeight: 600,
+};
+
+const profileInput: React.CSSProperties = {
+  minHeight: 40,
+  background: '#0a0a0a',
+  border: '1px solid rgba(255,255,255,0.1)',
+  borderRadius: 8,
+  color: '#fff',
+  padding: '0 0.75rem',
+  outline: 'none',
+  font: 'inherit',
+  fontWeight: 500,
+};
+
 export default function Account() {
   const navigate = useNavigate();
   const session = readSession();
@@ -48,6 +70,14 @@ export default function Account() {
 
   const [activeTab, setActiveTab] = useState<SubTab>('Profile');
   const [slideDir, setSlideDir] = useState<'right' | 'left'>('right');
+  const [profile, setProfile] = useState({
+    username: user?.username ?? '',
+    display_name: user?.display_name ?? user?.username ?? '',
+    role: user?.role ?? 'student',
+    school_name: user?.school_name ?? '',
+    bio: user?.bio ?? '',
+  });
+  const [message, setMessage] = useState('');
   const prevTabRef = useRef<SubTab>('Profile');
 
   function switchTab(tab: SubTab) {
@@ -62,6 +92,22 @@ export default function Account() {
   function logout() {
     clearSession();
     navigate('/login');
+  }
+
+  async function saveProfile(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!user) return;
+
+    try {
+      const data = await apiFetch<{ user: StoredUser }>('/account/me', {
+        method: 'PATCH',
+        body: JSON.stringify(profile),
+      });
+      updateStoredUser(data.user);
+      setMessage('Profile saved to the database.');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Profile update failed.');
+    }
   }
 
   const activeIdx = SUB_TABS.indexOf(activeTab);
@@ -79,6 +125,11 @@ export default function Account() {
             <p style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.95rem', color: '#888', margin: 0, lineHeight: 1.5 }}>
               {user ? 'Manage your profile and session settings.' : 'Log in to manage your account.'}
             </p>
+            {message && (
+              <div style={{ marginTop: '1rem', border: '1px solid rgba(255,161,0,0.18)', borderRadius: 8, background: 'rgba(255,161,0,0.06)', color: '#f8e7ad', padding: '0.75rem 0.9rem' }}>
+                {message}
+              </div>
+            )}
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '190px 1fr', gap: '1.25rem', alignItems: 'start' }}>
@@ -171,7 +222,36 @@ export default function Account() {
                     </p>
                   </div>
 
-                  <FieldRow label="Username" description="Your display name on ducklings.dev." value={user.username ?? 'unknown'} />
+                  <form onSubmit={saveProfile} style={{ padding: '1.25rem 1.5rem', display: 'grid', gap: '0.9rem', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+                    <label style={profileLabel}>
+                      Username
+                      <input value={profile.username} onChange={(event) => setProfile({ ...profile, username: event.target.value })} style={profileInput} />
+                    </label>
+                    <label style={profileLabel}>
+                      Display name
+                      <input value={profile.display_name} onChange={(event) => setProfile({ ...profile, display_name: event.target.value })} style={profileInput} />
+                    </label>
+                    <label style={profileLabel}>
+                      Role
+                      <select value={profile.role} onChange={(event) => setProfile({ ...profile, role: event.target.value })} style={profileInput}>
+                        <option value="student">Student</option>
+                        <option value="teacher">Teacher</option>
+                        <option value="student-teacher">Student + teacher</option>
+                      </select>
+                    </label>
+                    <label style={profileLabel}>
+                      School
+                      <input value={profile.school_name} onChange={(event) => setProfile({ ...profile, school_name: event.target.value })} style={profileInput} />
+                    </label>
+                    <label style={profileLabel}>
+                      Bio
+                      <textarea value={profile.bio} onChange={(event) => setProfile({ ...profile, bio: event.target.value })} style={{ ...profileInput, minHeight: 84, paddingTop: '0.65rem' }} />
+                    </label>
+                    <button style={{ justifySelf: 'start', background: '#FFA100', color: '#171100', border: '1px solid #FFA100', borderRadius: 8, padding: '0.58rem 1rem', fontWeight: 800, cursor: 'pointer' }}>
+                      Save profile
+                    </button>
+                  </form>
+
                   <FieldRow label="Email" description="The email address linked to your account." value={user.email ?? 'unknown'} />
 
                   <div style={{ padding: '1.25rem 1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
