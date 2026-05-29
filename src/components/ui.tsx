@@ -98,7 +98,7 @@ export function Panel({ children, style, className }: PanelProps) {
       className={className}
       style={{
         background: CARD_BG,
-        border: '1px solid rgba(255,255,255,0.08)',
+        border: '1px solid var(--border)',
         borderRadius: CARD_RADIUS,
         overflow: 'hidden',
         ...style,
@@ -157,9 +157,9 @@ export function SubButton({ children, style, ...props }: ButtonProps) {
       {...props}
       style={{
         ...btnBase,
-        background: '#101010',
-        color: '#e0e0e0',
-        border: '1px solid rgba(255,255,255,0.16)',
+        background: 'var(--surface-2)',
+        color: 'var(--text-primary)',
+        border: '1px solid var(--border)',
         ...style,
       }}
     >
@@ -174,9 +174,9 @@ export function DefaultButton({ children, style, ...props }: ButtonProps) {
       {...props}
       style={{
         ...btnBase,
-        background: '#101010',
-        color: '#e0e0e0',
-        border: '1px solid rgba(255,255,255,0.14)',
+        background: 'var(--surface-2)',
+        color: 'var(--text-primary)',
+        border: '1px solid var(--border)',
         ...style,
       }}
     >

@@ -6,9 +6,10 @@ const EXPANDED_W  = 220;
 const COLLAPSED_W = 52;
 const LS_KEY      = 'dk-sidebar-collapsed';
 
-const ITEM_H  = 40;  // nav item height px
-const ITEM_VM = 2;   // total vertical margin per item (1px top + 1px bottom)
-const NAV_PAD = 8;   // nav wrapper top/bottom padding px
+const ITEM_H  = 40;
+const ITEM_VM = 2;
+const NAV_PAD = 8;
+const PILL_STEP = ITEM_H + ITEM_VM - 0.5; // slight correction for sub-pixel drift
 
 const IconHome = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -30,6 +31,22 @@ const IconClassroom = () => (
     <path d="M22 9v4"/>
   </svg>
 );
+const IconCompete = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+    <path d="M4 22h16"/>
+    <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+    <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+    <path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/>
+  </svg>
+);
+const IconCreate = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+  </svg>
+);
 const IconChevronLeft = () => (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="15 18 9 12 15 6"/>
@@ -40,6 +57,8 @@ const NAV_ITEMS = [
   { label: 'Home',      path: '/home',      Icon: IconHome      },
   { label: 'Library',   path: '/library',   Icon: IconLibrary   },
   { label: 'Classroom', path: '/classroom', Icon: IconClassroom },
+  { label: 'Compete',   path: '/compete',   Icon: IconCompete   },
+  { label: 'Create',    path: '/create',    Icon: IconCreate    },
 ];
 
 export default function AppSidebar() {
@@ -61,22 +80,18 @@ export default function AppSidebar() {
 
   const w = collapsed ? COLLAPSED_W : EXPANDED_W;
 
-  // Text fades out fast when collapsing, fades in with a delay when expanding
   const labelFade = collapsed ? 'opacity 0.08s ease' : 'opacity 0.15s ease 0.12s';
 
-  // Active nav item index (–1 when on a page not in the main nav)
   const activeIdx = NAV_ITEMS.findIndex(item => item.path === pathname);
-
-  // Pill top offset: pad + index × (height + vertical-margin) + 1px top-margin
-  const pillTop = NAV_PAD + activeIdx * (ITEM_H + ITEM_VM) + 1;
+  const pillTop = NAV_PAD + activeIdx * PILL_STEP + 1;
 
   return (
     <nav style={{
       width: w,
       minWidth: w,
       height: '100vh',
-      background: '#040404',
-      borderRight: '1px solid rgba(255,255,255,0.07)',
+      background: 'var(--sidebar-bg)',
+      borderRight: '1px solid var(--border)',
       display: 'flex',
       flexDirection: 'column',
       flexShrink: 0,
@@ -92,7 +107,7 @@ export default function AppSidebar() {
         height: 68,
         padding: '0 16px',
         textDecoration: 'none',
-        borderBottom: '1px solid rgba(255,255,255,0.07)',
+        borderBottom: '1px solid var(--border)',
         flexShrink: 0,
         overflow: 'hidden',
       }}>
@@ -105,7 +120,7 @@ export default function AppSidebar() {
           fontFamily: "'Stack', 'Geist', 'Inter', sans-serif",
           fontSize: '1.05rem',
           fontWeight: 600,
-          color: '#e2e2e2',
+          color: 'var(--text-primary)',
           whiteSpace: 'nowrap',
           letterSpacing: '-0.02em',
           opacity: collapsed ? 0 : 1,
@@ -116,12 +131,11 @@ export default function AppSidebar() {
         </span>
       </Link>
 
-      {/* Nav — position:relative so the pill can be absolutely placed */}
+      {/* Nav */}
       <div
         className="no-scrollbar"
         style={{ flex: 1, overflowY: 'auto', padding: `${NAV_PAD}px 0`, position: 'relative' }}
       >
-        {/* Sliding pill — only shown when a main-nav page is active */}
         {activeIdx >= 0 && (
           <div style={{
             position: 'absolute',
@@ -145,7 +159,7 @@ export default function AppSidebar() {
               key={path}
               to={path}
               title={collapsed ? label : undefined}
-              className="sidebar-item"
+              className={`sidebar-item${active ? ' sidebar-item-active' : ''}`}
               style={{
                 position: 'relative',
                 zIndex: 1,
@@ -159,15 +173,15 @@ export default function AppSidebar() {
                 borderRadius: 6,
                 textDecoration: 'none',
                 background: 'transparent',
-                color: active ? '#FFA100' : '#c0c0c0',
+                color: active ? '#FFA100' : 'var(--text-muted)',
                 transition: 'color 0.18s ease',
               }}
             >
               <span style={{ flexShrink: 0, display: 'inline-flex' }}><Icon /></span>
               <span style={{
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: '0.85rem',
-                fontWeight: active ? 700 : 500,
+                fontFamily: "'Stack', 'Geist', 'Inter', sans-serif",
+                fontSize: '0.9rem',
+                fontWeight: active ? 500 : 400,
                 whiteSpace: 'nowrap',
                 opacity: collapsed ? 0 : 1,
                 transition: labelFade,
@@ -180,7 +194,7 @@ export default function AppSidebar() {
       </div>
 
       {/* Footer */}
-      <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', padding: '6px' }}>
+      <div style={{ borderTop: '1px solid var(--border)', padding: '6px' }}>
         <Link
           to="/account"
           className="sidebar-item"
@@ -193,7 +207,7 @@ export default function AppSidebar() {
             justifyContent: collapsed ? 'center' : 'flex-start',
             borderRadius: 6,
             textDecoration: 'none',
-            color: pathname === '/account' ? '#FFA100' : '#c0c0c0',
+            color: pathname === '/account' ? '#FFA100' : 'var(--text-muted)',
             transition: 'background 0.12s ease, color 0.18s ease',
           }}
         >
@@ -201,7 +215,7 @@ export default function AppSidebar() {
             width: 22,
             height: 22,
             borderRadius: 5,
-            background: '#0d0d0d',
+            background: 'var(--surface-2)',
             border: `1px solid ${pathname === '/account' ? 'rgba(255,161,0,0.5)' : 'rgba(255,161,0,0.35)'}`,
             color: '#FFA100',
             display: 'grid',
@@ -218,7 +232,7 @@ export default function AppSidebar() {
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: '0.75rem',
             fontWeight: 600,
-            color: pathname === '/account' ? '#FFA100' : '#999',
+            color: pathname === '/account' ? '#FFA100' : 'var(--text-subtle)',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
@@ -244,7 +258,7 @@ export default function AppSidebar() {
             borderRadius: 6,
             background: 'transparent',
             border: 'none',
-            color: '#777',
+            color: 'var(--text-muted)',
             cursor: 'pointer',
             transition: 'background 0.12s ease, color 0.12s ease',
           }}
@@ -261,7 +275,7 @@ export default function AppSidebar() {
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: '0.75rem',
             fontWeight: 500,
-            color: '#777',
+            color: 'var(--text-muted)',
             whiteSpace: 'nowrap',
             opacity: collapsed ? 0 : 1,
             transition: labelFade,

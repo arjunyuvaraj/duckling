@@ -7,7 +7,10 @@ import Account from './pages/Account';
 import Library from './pages/Library';
 import ProblemEditor from './pages/ProblemEditor';
 import Classroom from './pages/Classroom';
+import Compete from './pages/Compete';
+import Create from './pages/Create';
 import AppLayout from './components/AppLayout';
+import { ThemeProvider } from './context/ThemeContext';
 import { readSession } from './utils/user';
 
 function ProtectedAppLayout() {
@@ -22,6 +25,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
+    <ThemeProvider>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
@@ -29,6 +33,8 @@ export default function App() {
           <Route path="/home" element={<Dashboard />} />
           <Route path="/library" element={<Library />} />
           <Route path="/classroom" element={<Classroom />} />
+          <Route path="/compete" element={<Compete />} />
+          <Route path="/create" element={<Create />} />
           <Route path="/account" element={<Account />} />
         </Route>
         <Route path="/get-started" element={<GetStarted />} />
@@ -37,5 +43,6 @@ export default function App() {
         <Route path="/problem/:id" element={<ProtectedRoute><ProblemEditor /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
+    </ThemeProvider>
   );
 }

@@ -69,11 +69,11 @@ function IconBtn({
         width: 36, height: 36,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         flexShrink: 0,
-        background: active ? '#161616' : 'transparent',
-        border: `1px solid ${active ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.08)'}`,
+        background: active ? 'var(--surface-3)' : 'transparent',
+        border: `1px solid var(--border)`,
         borderRadius: '8px',
         cursor: 'pointer',
-        color: active ? '#fff' : '#888',
+        color: active ? 'var(--text-primary)' : 'var(--text-muted)',
         outline: 'none',
         transition: 'background 0.12s ease, color 0.12s ease, border-color 0.12s ease',
       }}
@@ -93,7 +93,7 @@ function FilterSection({ title, items, active, onSelect, maxVisible = 99 }: {
         padding: '0.6rem 1rem 0.3rem',
         fontFamily: 'Inter, system-ui, sans-serif',
         fontSize: '0.68rem', fontWeight: 600,
-        color: '#555', letterSpacing: '0.07em', textTransform: 'uppercase',
+        color: 'var(--text-subtle)', letterSpacing: '0.07em', textTransform: 'uppercase',
       }}>
         {title}
       </div>
@@ -108,7 +108,7 @@ function FilterSection({ title, items, active, onSelect, maxVisible = 99 }: {
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 width: '100%', height: 40, padding: '0 1rem',
                 background: 'transparent', border: 'none',
-                color: isActive ? '#FFA100' : '#c8c8c8',
+                color: isActive ? '#FFA100' : 'var(--text-primary)',
                 fontFamily: 'Inter, system-ui, sans-serif',
                 fontSize: '0.88rem', fontWeight: isActive ? 500 : 400,
                 cursor: 'pointer', textAlign: 'left',
@@ -124,16 +124,6 @@ function FilterSection({ title, items, active, onSelect, maxVisible = 99 }: {
     </div>
   );
 }
-
-const COL_HEADER: React.CSSProperties = {
-  fontFamily: 'Inter, system-ui, sans-serif',
-  fontSize: '0.68rem',
-  fontWeight: 500,
-  letterSpacing: '0.07em',
-  textTransform: 'uppercase',
-  color: '#666',
-  userSelect: 'none',
-};
 
 export default function Library() {
   const [search, setSearch]             = useState('');
@@ -210,21 +200,21 @@ export default function Library() {
         <div style={{ padding: '2.5rem 0 0', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1.5rem' }}>
             <div>
-              <h1 style={{ fontFamily: "'Stack', 'Geist', 'Inter', sans-serif", color: '#fff', fontSize: 'clamp(1.8rem, 3vw, 2.5rem)', lineHeight: 1.1, fontWeight: 400, letterSpacing: '-0.01em', margin: '0 0 0.4rem' }}>
+              <h1 style={{ fontFamily: "'Stack', 'Geist', 'Inter', sans-serif", color: 'var(--text-primary)', fontSize: 'clamp(1.8rem, 3vw, 2.5rem)', lineHeight: 1.1, fontWeight: 400, letterSpacing: '-0.01em', margin: '0 0 0.4rem' }}>
                 Problem Library
               </h1>
-              <p style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#888', fontSize: '0.95rem', fontWeight: 400, margin: 0, lineHeight: 1.5 }}>
+              <p style={{ fontFamily: 'Inter, system-ui, sans-serif', color: 'var(--text-muted)', fontSize: '0.95rem', fontWeight: 400, margin: 0, lineHeight: 1.5 }}>
                 Browse and practice coding problems across all topics and difficulty levels.
               </p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexShrink: 0, paddingTop: '0.2rem' }}>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#888', fontSize: '0.72rem', fontWeight: 500, marginBottom: '0.2rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Solved</div>
-                <div style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#fff', fontSize: '1.1rem', fontWeight: 700 }}>{solved.size}<span style={{ color: '#888', fontWeight: 400 }}>/{ALL_PROBLEMS.length}</span></div>
+                <div style={{ fontFamily: 'Inter, system-ui, sans-serif', color: 'var(--text-muted)', fontSize: '0.72rem', fontWeight: 500, marginBottom: '0.2rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Solved</div>
+                <div style={{ fontFamily: 'Inter, system-ui, sans-serif', color: 'var(--text-primary)', fontSize: '1.1rem', fontWeight: 700 }}>{solved.size}<span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>/{ALL_PROBLEMS.length}</span></div>
               </div>
-              <div style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.07)' }} />
+              <div style={{ width: 1, height: 32, background: 'var(--border)' }} />
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#888', fontSize: '0.72rem', fontWeight: 500, marginBottom: '0.2rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Showing</div>
+                <div style={{ fontFamily: 'Inter, system-ui, sans-serif', color: 'var(--text-muted)', fontSize: '0.72rem', fontWeight: 500, marginBottom: '0.2rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Showing</div>
                 <div style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#FFA100', fontSize: '1.1rem', fontWeight: 700 }}>{filtered.length}</div>
               </div>
             </div>
@@ -235,7 +225,7 @@ export default function Library() {
 
           {/* Search */}
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flex: '1', maxWidth: 380 }}>
-            <span style={{ position: 'absolute', left: 12, color: '#666', display: 'flex', pointerEvents: 'none' }}>
+            <span style={{ position: 'absolute', left: 12, color: 'var(--text-muted)', display: 'flex', pointerEvents: 'none' }}>
               <SearchIcon />
             </span>
             <input
@@ -245,12 +235,12 @@ export default function Library() {
               onChange={e => setSearch(e.target.value)}
               style={{
                 width: '100%',
-                background: '#090909',
-                border: '1px solid rgba(255,255,255,0.08)',
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
                 borderRadius: '8px',
                 padding: '0 1rem 0 2.25rem',
                 height: 36,
-                color: '#e0e0e0',
+                color: 'var(--text-primary)',
                 fontFamily: 'Inter, system-ui, sans-serif',
                 fontSize: '0.875rem',
                 fontWeight: 400,
@@ -258,8 +248,8 @@ export default function Library() {
                 caretColor: '#FFA100',
                 transition: 'border-color 0.15s ease',
               }}
-              onFocus={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)')}
-              onBlur={e  => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)')}
+              onFocus={e => (e.currentTarget.style.borderColor = 'var(--border-hover)')}
+              onBlur={e  => (e.currentTarget.style.borderColor = 'var(--border)')}
             />
           </div>
 
@@ -270,10 +260,10 @@ export default function Library() {
               style={{
                 display: 'flex', alignItems: 'center', gap: '0.45rem',
                 height: 36, padding: '0 0.85rem',
-                background: filterOpen || hasActiveFilter ? '#161616' : '#090909',
-                border: `1px solid ${filterOpen || hasActiveFilter ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.08)'}`,
+                background: filterOpen || hasActiveFilter ? 'var(--surface-3)' : 'var(--surface)',
+                border: `1px solid ${filterOpen || hasActiveFilter ? 'var(--border-hover)' : 'var(--border)'}`,
                 borderRadius: '8px',
-                color: hasActiveFilter ? '#FFA100' : '#c0c0c0',
+                color: hasActiveFilter ? '#FFA100' : 'var(--text-muted)',
                 fontFamily: 'Inter, system-ui, sans-serif',
                 fontSize: '0.875rem', fontWeight: 500,
                 cursor: 'pointer', whiteSpace: 'nowrap',
@@ -298,11 +288,11 @@ export default function Library() {
                 top: 'calc(100% + 8px)',
                 left: 0,
                 zIndex: 100,
-                background: '#111',
-                border: '1px solid rgba(255,255,255,0.09)',
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
                 borderRadius: '12px',
                 width: 260,
-                boxShadow: '0 20px 56px rgba(0,0,0,0.8)',
+                boxShadow: '0 20px 56px rgba(0,0,0,0.18)',
                 overflow: 'hidden',
                 maxHeight: '70vh',
                 display: 'flex',
@@ -312,17 +302,17 @@ export default function Library() {
                 <div style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                   padding: '0.75rem 1rem',
-                  borderBottom: '1px solid rgba(255,255,255,0.07)',
+                  borderBottom: '1px solid var(--border)',
                   flexShrink: 0,
                 }}>
-                  <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.88rem', fontWeight: 500, color: '#888' }}>
+                  <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.88rem', fontWeight: 500, color: 'var(--text-muted)' }}>
                     Filter by
                   </span>
                   <button
                     onClick={() => setFilterOpen(false)}
-                    style={{ background: 'transparent', border: 'none', color: '#555', cursor: 'pointer', display: 'flex', padding: 4, borderRadius: 4, transition: 'color 0.12s ease' }}
-                    onMouseEnter={e => (e.currentTarget.style.color = '#999')}
-                    onMouseLeave={e => (e.currentTarget.style.color = '#555')}
+                    style={{ background: 'transparent', border: 'none', color: 'var(--text-subtle)', cursor: 'pointer', display: 'flex', padding: 4, borderRadius: 4, transition: 'color 0.12s ease' }}
+                    onMouseEnter={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+                    onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-subtle)')}
                   >
                     <XIcon />
                   </button>
@@ -331,22 +321,22 @@ export default function Library() {
                 {/* Sections */}
                 <div className="no-scrollbar" style={{ overflowY: 'auto', flex: 1 }}>
                   <FilterSection title="Difficulty" items={DIFFICULTIES} active={difficulty} onSelect={setDifficulty} />
-                  <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '0 1rem' }} />
+                  <div style={{ height: 1, background: 'var(--border)', margin: '0 1rem' }} />
                   <FilterSection title="Language" items={LANGUAGES} active={language} onSelect={setLanguage} />
-                  <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '0 1rem' }} />
+                  <div style={{ height: 1, background: 'var(--border)', margin: '0 1rem' }} />
                   <FilterSection title="Topic" items={TOPICS} active={topic} onSelect={setTopic} maxVisible={5} />
-                  <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '0 1rem' }} />
+                  <div style={{ height: 1, background: 'var(--border)', margin: '0 1rem' }} />
                   <FilterSection title="Set" items={PROBLEM_SETS} active={problemSet} onSelect={setProblemSet} />
-                  <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '0 1rem' }} />
+                  <div style={{ height: 1, background: 'var(--border)', margin: '0 1rem' }} />
                   <FilterSection title="Batch" items={BATCHES} active={batch} onSelect={setBatch} maxVisible={5} />
-                  <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '0 1rem' }} />
+                  <div style={{ height: 1, background: 'var(--border)', margin: '0 1rem' }} />
                   <FilterSection title="Tag" items={TAGS} active={tag} onSelect={setTag} maxVisible={5} />
                   <div style={{ height: '0.5rem' }} />
                 </div>
 
                 {/* Clear all footer */}
                 {hasActiveFilter && (
-                  <div style={{ padding: '0.6rem 1rem', borderTop: '1px solid rgba(255,255,255,0.07)', flexShrink: 0 }}>
+                  <div style={{ padding: '0.6rem 1rem', borderTop: '1px solid var(--border)', flexShrink: 0 }}>
                     <button
                       onClick={clearFilters}
                       style={{
@@ -373,27 +363,33 @@ export default function Library() {
           </IconBtn>
         </div>
 
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)', background: 'transparent', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderRadius: '8px', border: '1px solid var(--border)', background: 'transparent', position: 'relative', overflow: 'hidden' }}>
           <div style={{
             display: 'grid',
             gridTemplateColumns: GRID,
             padding: '0 1.5rem',
             height: 40,
             alignItems: 'center',
-            background: '#070707',
-            borderBottom: '1px solid rgba(255,255,255,0.07)',
+            background: 'var(--surface-2)',
+            borderBottom: '1px solid var(--border)',
           }}>
-            <span style={COL_HEADER}>#</span>
-            <span style={COL_HEADER}>Title</span>
-            <span style={COL_HEADER}>Set</span>
-            <span style={COL_HEADER}>Batch</span>
-            <span style={COL_HEADER}>Language</span>
-            <span style={{ ...COL_HEADER, textAlign: 'right' }}>Difficulty</span>
+            {(['#', 'Title', 'Set', 'Batch', 'Language', 'Difficulty'] as const).map((h, i) => (
+              <span key={h} style={{
+                fontFamily: 'Inter, system-ui, sans-serif',
+                fontSize: '0.68rem',
+                fontWeight: 500,
+                letterSpacing: '0.07em',
+                textTransform: 'uppercase' as const,
+                color: 'var(--text-subtle)',
+                userSelect: 'none' as const,
+                textAlign: i === 5 ? 'right' : 'left',
+              }}>{h}</span>
+            ))}
           </div>
 
           {filtered.length === 0 ? (
             <div style={{ padding: '5rem', textAlign: 'center' }}>
-              <div style={{ fontFamily: 'Inter, system-ui, sans-serif', color: '#777', fontSize: '0.95rem', fontWeight: 400 }}>
+              <div style={{ fontFamily: 'Inter, system-ui, sans-serif', color: 'var(--text-muted)', fontSize: '0.95rem', fontWeight: 400 }}>
                 No problems match your filters.
               </div>
             </div>
@@ -410,17 +406,17 @@ export default function Library() {
                     alignItems: 'center',
                     padding: '0 1.5rem',
                     height: 52,
-                    borderBottom: i < filtered.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
+                    borderBottom: i < filtered.length - 1 ? '1px solid var(--border-faint)' : 'none',
                     background: 'transparent',
                     cursor: 'pointer',
                   }}
                 >
-                  <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.82rem', color: solved.has(p.id) ? '#4ade80' : '#666', fontWeight: 600, letterSpacing: 0 }}>
+                  <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.82rem', color: solved.has(p.id) ? '#4ade80' : 'var(--text-subtle)', fontWeight: 600, letterSpacing: 0 }}>
                     {solved.has(p.id) ? '✓' : p.id}
                   </span>
 
                   <span style={{
-                    fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.9rem', color: '#e0e0e0',
+                    fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.9rem', color: 'var(--text-primary)',
                     fontWeight: 500, letterSpacing: 0,
                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                   }}>
@@ -428,7 +424,7 @@ export default function Library() {
                   </span>
 
                   <span style={{
-                    fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.82rem', color: '#888',
+                    fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.82rem', color: 'var(--text-muted)',
                     fontWeight: 400, letterSpacing: 0,
                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                   }}>
@@ -436,7 +432,7 @@ export default function Library() {
                   </span>
 
                   <span style={{
-                    fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.82rem', color: '#888',
+                    fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.82rem', color: 'var(--text-muted)',
                     fontWeight: 400, letterSpacing: 0,
                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                   }}>
@@ -444,7 +440,7 @@ export default function Library() {
                   </span>
 
                   <span style={{
-                    fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.88rem', color: '#bbb',
+                    fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.88rem', color: 'var(--text-muted)',
                     fontWeight: 400, letterSpacing: 0,
                   }}>
                     {p.language}
