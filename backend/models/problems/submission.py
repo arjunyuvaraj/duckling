@@ -1,5 +1,8 @@
 from datetime import datetime
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text
+from uuid import UUID
+
+from sqlalchemy import BigInteger, CheckConstraint, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.utils.db import Base # pyright: ignore[reportMissingImports]
 
@@ -10,10 +13,10 @@ from app.utils.db import Base # pyright: ignore[reportMissingImports]
 # Status progresses from draft → submitted → completed. Execution metrics and
 # test results are populated after grading.
 #
-# id                  INT         Primary Key, Auto-increment
-# student_id          INT         Foreign Key → users.id, Not Null, Indexed
-# problem_id          INT         Foreign Key → problems.id, Not Null, Indexed
-# assignment_id       INT         Nullable, Foreign Key → assignments.id, Indexed
+# id                  BIGINT      Primary Key, identity
+# student_id          UUID        Foreign Key → users.id, Not Null, Indexed
+# problem_id          BIGINT      Foreign Key → problems.id, Not Null, Indexed
+# assignment_id       BIGINT      Nullable, Foreign Key → assignments.id, Indexed
 # language            VARCHAR     Not Null — "python" | "java" | "javascript" | etc
 # code                TEXT        Not Null — submitted source code
 # submission_type     VARCHAR     Default "practice", Indexed — "practice" | "assignment"
@@ -34,11 +37,17 @@ from app.utils.db import Base # pyright: ignore[reportMissingImports]
 
 class Submission(Base):
     __tablename__ = "submissions"
+    __table_args__ = (
+        CheckConstraint("execution_time_ms > 0", name="submissions_execution_time_ms_check"),
+        CheckConstraint("memory_used_mb > 0", name="submissions_memory_used_mb_check"),
+        CheckConstraint("passed_tests >= 0", name="submissions_passed_tests_check"),
+        CheckConstraint("total_tests > 0", name="submissions_total_tests_check"),
+    )
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    student_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
-    problem_id: Mapped[int] = mapped_column(ForeignKey("problems.id"), index=True)
-    assignment_id: Mapped[int | None] = mapped_column(ForeignKey("assignments.id"), index=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    student_id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    problem_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("problems.id", ondelete="CASCADE"), index=True)
+    assignment_id: Mapped[int | None] = mapped_column(BigInteger, ForeignKey("assignments.id", ondelete="SET NULL"), index=True)
     language: Mapped[str] = mapped_column(String(50))
     code: Mapped[str] = mapped_column(Text)
     submission_type: Mapped[str] = mapped_column(String(50), default="practice", index=True)

@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect, type ReactNode } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import Editor, { type OnMount, type Monaco } from '@monaco-editor/react';
 import { Panel, CARD_BG, DefaultButton, GridCorner } from '../components/ui';
 import { ALL_PROBLEMS, type Difficulty, type Language } from '../data/problems';
@@ -694,11 +694,13 @@ function AICoachPanel({
 
 export default function ProblemEditor() {
   const { id }  = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const problem = ALL_PROBLEMS.find(p => p.id === Number(id));
   const detail  = problem ? getProblemDetail(problem) : null;
   const { resolved } = useTheme();
 
   const storedUser = readStoredUser();
+  const assignmentId = searchParams.get('assignment');
   const initials = storedUser?.username?.slice(0, 2).toUpperCase() ?? '>_';
 
   const [activeLanguage, setActiveLanguage] = useState<Language>(problem?.language ?? 'Java');
@@ -898,6 +900,22 @@ export default function ProblemEditor() {
       };
       setRunResult(finalResult);
       if (finalResult.status === 'Accepted' && problem) markSolved(problem.id, code, activeLanguage);
+      if (assignmentId && problem && storedUser) {
+        void fetch(`${CODE_API_BASE_URL}/api/classroom/submissions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            assignmentId,
+            userId: storedUser.id,
+            username: storedUser.username,
+            problemId: problem.id,
+            language: activeLanguage,
+            sourceCode: code,
+            status: finalResult.status,
+            summary: finalResult.summary || finalResult.message || '',
+          }),
+        }).catch(() => {});
+      }
     } catch (error) {
       setRunResult({
         status: 'Error', stdout: '', stderr: '', compileOutput: '',

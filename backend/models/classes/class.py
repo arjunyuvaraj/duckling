@@ -4,8 +4,8 @@
 # A single account can create and join multiple classes. Soft-deleted by setting
 # is_active to false rather than removing the row.
 #
-# id              INT         Primary Key, Auto-increment
-# teacher_id      INT         Foreign Key → users.id, Not Null, Indexed
+# id              UUID        Primary Key, defaults to gen_random_uuid()
+# teacher_id      UUID        Foreign Key → users.id, Not Null, Indexed
 # name            VARCHAR     Not Null — display name of the class
 # description     TEXT        Nullable — optional description of the class
 # code            VARCHAR     Unique, Indexed — 6-char join code e.g. "xB7kQ2"
@@ -16,7 +16,10 @@
 # ==============================================================================
 
 from datetime import datetime
-from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text, UniqueConstraint
+from uuid import UUID
+
+from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text, text
+from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.utils.db import Base
 
@@ -24,8 +27,8 @@ from app.utils.db import Base
 class Class(Base):
     __tablename__ = "classes"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    teacher_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()"))
+    teacher_id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), index=True)
     name: Mapped[str] = mapped_column(String(255))
     description: Mapped[str | None] = mapped_column(Text)
     code: Mapped[str] = mapped_column(String(20), unique=True, index=True)

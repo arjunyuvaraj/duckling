@@ -1,7 +1,32 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ALL_PROBLEMS } from '../data/problems';
+import { ALL_PROBLEMS, DIFFICULTY_COLOR } from '../data/problems';
 import { readStoredUser } from '../utils/user';
+
+const API_BASE_URL = import.meta.env.VITE_CODE_API_BASE_URL ?? '';
+
+interface AssignmentStats {
+  submitted: number;
+  graded: number;
+  averageGrade: number | null;
+  accepted: number;
+}
+
+interface Submission {
+  id: string;
+  assignmentId: string;
+  classId: string;
+  userId: string;
+  username: string;
+  problemId: number;
+  language: string;
+  sourceCode: string;
+  status: string;
+  summary: string;
+  grade: number | null;
+  feedback: string;
+  updatedAt: string;
+}
 
 interface Assignment {
   id: string;
@@ -9,6 +34,14 @@ interface Assignment {
   title: string;
   instructions: string;
   createdAt: string;
+  stats: AssignmentStats;
+  submission: Submission | null;
+}
+
+interface Student {
+  userId: string;
+  username: string;
+  joinedAt?: string;
 }
 
 interface ClassroomItem {
@@ -18,344 +51,701 @@ interface ClassroomItem {
   code: string;
   role: 'teacher' | 'student';
   assignments: Assignment[];
+  students: Student[];
+  submissions: Submission[];
+  teacherStats: {
+    students: number;
+    submissions: number;
+    graded: number;
+    averageGrade: number | null;
+  };
 }
 
-const STORAGE_KEY = 'duckling_classrooms';
+interface ClassroomResponse {
+  classes: ClassroomItem[];
+  selectedId?: string;
+}
 
-const mono: React.CSSProperties = {
+const MONO: React.CSSProperties = {
   fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
 };
 
-function defaultClasses(username: string): ClassroomItem[] {
-  return [
-    {
-      id: 'demo-ap-csa',
-      name: 'AP Computer Science A',
-      section: `${username}'s workspace`,
-      code: 'CSA101',
-      role: 'teacher',
-      assignments: [
-        {
-          id: 'a-recursion',
-          problemId: 104,
-          title: 'Recursive Digit Sum',
-          instructions: 'Focus on the base case first, then trace one recursive call chain.',
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: 'a-arrays',
-          problemId: 72,
-          title: 'Array Statistics',
-          instructions: 'Practice array traversal and return clear helper values.',
-          createdAt: new Date().toISOString(),
-        },
-      ],
-    },
-  ];
-}
-
-function loadClasses(username: string): ClassroomItem[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      const seeded = defaultClasses(username);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(seeded));
-      return seeded;
-    }
-    const parsed = JSON.parse(raw) as ClassroomItem[];
-    return Array.isArray(parsed) ? parsed : defaultClasses(username);
-  } catch {
-    return defaultClasses(username);
-  }
-}
-
-function saveClasses(classes: ClassroomItem[]) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(classes));
-  } catch {
-    // Local classroom state is best-effort until the backend classroom API is wired back in.
-  }
-}
-
-function makeCode() {
-  return Math.random().toString(36).slice(2, 8).toUpperCase();
-}
+const TEXT: React.CSSProperties = {
+  fontFamily: 'Inter, system-ui, sans-serif',
+  letterSpacing: 0,
+};
 
 export default function Classroom() {
   const user = readStoredUser();
-  const username = user?.username?.split('.')[0] ?? 'student';
-  const [classes, setClasses] = useState<ClassroomItem[]>(() => loadClasses(username));
-  const [selectedId, setSelectedId] = useState(classes[0]?.id ?? '');
+  const username = user?.username ?? 'student';
+  const userId = user?.id ?? 'local-student';
+  const [classes, setClasses] = useState<ClassroomItem[]>([]);
+  const [selectedId, setSelectedId] = useState('');
+  const [tab, setTab] = useState<'stream' | 'classwork' | 'review'>('stream');
   const [className, setClassName] = useState('');
   const [section, setSection] = useState('');
   const [joinCode, setJoinCode] = useState('');
   const [problemId, setProblemId] = useState(String(ALL_PROBLEMS[0]?.id ?? 1));
   const [instructions, setInstructions] = useState('');
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState<string | null>(null);
 
   const selected = useMemo(
-    () => classes.find((item) => item.id === selectedId) ?? classes[0] ?? null,
+    () => classes.find((item) => item.id === selectedId) ?? null,
     [classes, selectedId],
   );
   const selectedProblem = ALL_PROBLEMS.find((problem) => problem.id === Number(problemId)) ?? ALL_PROBLEMS[0];
-  const packs = useMemo(() => {
-    const grouped = new Map<string, number>();
-    for (const problem of ALL_PROBLEMS) {
-      const key = `${problem.set} / ${problem.batch}`;
-      grouped.set(key, (grouped.get(key) ?? 0) + 1);
-    }
-    return [...grouped.entries()].slice(0, 8);
-  }, []);
 
-  function commit(next: ClassroomItem[], nextMessage: string) {
-    setClasses(next);
-    saveClasses(next);
+  useEffect(() => {
+    void loadClassroom();
+  }, [userId, username]);
+
+  useEffect(() => {
+    if (selected?.role !== 'teacher' && tab === 'review') {
+      setTab('classwork');
+    }
+  }, [selected?.role, tab]);
+
+  async function request(path: string, init?: RequestInit): Promise<ClassroomResponse> {
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+      ...init,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(init?.headers ?? {}),
+      },
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || data.ok === false) throw new Error(data.error ?? 'Classroom request failed.');
+    return data as ClassroomResponse;
+  }
+
+  function chooseSelectedId(nextClasses: ClassroomItem[], preferredId?: string) {
+    if (preferredId && nextClasses.some((item) => item.id === preferredId)) return preferredId;
+    if (selectedId && nextClasses.some((item) => item.id === selectedId)) return selectedId;
+    return nextClasses[0]?.id ?? '';
+  }
+
+  async function loadClassroom(preferredId?: string) {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({ userId, username });
+      const data = await request(`/api/classroom?${params.toString()}`);
+      setClasses(data.classes);
+      setSelectedId(chooseSelectedId(data.classes, preferredId ?? data.selectedId));
+      setMessage('');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Could not load classroom.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function applyClassroom(data: ClassroomResponse, nextMessage: string) {
+    setClasses(data.classes);
+    setSelectedId(chooseSelectedId(data.classes, data.selectedId));
     setMessage(nextMessage);
   }
 
-  function createClass(event: React.FormEvent<HTMLFormElement>) {
+  async function createClass(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const name = className.trim();
-    if (!name) return;
+    if (!name || busy) return;
 
-    const created: ClassroomItem = {
-      id: `class-${Date.now()}`,
-      name,
-      section: section.trim() || 'Duckling classroom',
-      code: makeCode(),
-      role: 'teacher',
-      assignments: [],
-    };
-    const next = [created, ...classes];
-    setSelectedId(created.id);
-    setClassName('');
-    setSection('');
-    commit(next, 'Class created locally. Backend sync can attach here next.');
+    setBusy('create');
+    try {
+      const data = await request('/api/classroom/classes', {
+        method: 'POST',
+        body: JSON.stringify({ userId, username, name, section }),
+      });
+      setClassName('');
+      setSection('');
+      setTab('stream');
+      applyClassroom(data, 'Class created.');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Could not create class.');
+    } finally {
+      setBusy(null);
+    }
   }
 
-  function joinClass(event: React.FormEvent<HTMLFormElement>) {
+  async function joinClass(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const code = joinCode.trim().toUpperCase();
-    if (!code) return;
+    if (!code || busy) return;
 
-    const found = classes.find((item) => item.code === code);
-    if (found) {
-      setSelectedId(found.id);
+    setBusy('join');
+    try {
+      const data = await request('/api/classroom/join', {
+        method: 'POST',
+        body: JSON.stringify({ userId, username, code }),
+      });
       setJoinCode('');
-      setMessage('Class opened.');
-      return;
+      setTab('stream');
+      applyClassroom(data, 'Class joined.');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Could not join class.');
+    } finally {
+      setBusy(null);
     }
-
-    const joined: ClassroomItem = {
-      id: `joined-${Date.now()}`,
-      name: `Class ${code}`,
-      section: 'Joined class',
-      code,
-      role: 'student',
-      assignments: [],
-    };
-    const next = [joined, ...classes];
-    setSelectedId(joined.id);
-    setJoinCode('');
-    commit(next, 'Joined class locally.');
   }
 
-  function assignProblem(event: React.FormEvent<HTMLFormElement>) {
+  async function assignProblem(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!selected || selected.role !== 'teacher' || !selectedProblem) return;
+    if (!selected || selected.role !== 'teacher' || !selectedProblem || busy) return;
 
-    const assignment: Assignment = {
-      id: `assignment-${Date.now()}`,
-      problemId: selectedProblem.id,
-      title: selectedProblem.title,
-      instructions: instructions.trim() || 'Solve the problem and run your tests before submitting.',
-      createdAt: new Date().toISOString(),
-    };
-    const next = classes.map((item) => item.id === selected.id ? { ...item, assignments: [assignment, ...item.assignments] } : item);
-    setInstructions('');
-    commit(next, 'Assignment posted.');
+    setBusy('assign');
+    try {
+      const data = await request(`/api/classroom/classes/${encodeURIComponent(selected.id)}/assignments`, {
+        method: 'POST',
+        body: JSON.stringify({
+          userId,
+          username,
+          problemId: selectedProblem.id,
+          title: selectedProblem.title,
+          instructions,
+        }),
+      });
+      setInstructions('');
+      setTab('classwork');
+      applyClassroom(data, 'Assignment posted.');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Could not post assignment.');
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function gradeSubmission(submissionId: string, grade: string, feedback: string) {
+    if (!selected || busy) return;
+
+    setBusy(`grade-${submissionId}`);
+    try {
+      const data = await request(`/api/classroom/submissions/${encodeURIComponent(submissionId)}/grade`, {
+        method: 'PATCH',
+        body: JSON.stringify({ userId, username, grade, feedback }),
+      });
+      setTab('review');
+      applyClassroom(data, 'Grade saved.');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Could not save grade.');
+    } finally {
+      setBusy(null);
+    }
   }
 
   return (
-    <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto', background: 'var(--bg)' }}>
-      <main style={{ width: 'min(1180px, calc(100% - 2rem))', margin: '0 auto', padding: '2rem 0 4rem' }}>
-        <header style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'end', marginBottom: '1.25rem' }}>
-          <div>
-            <div style={{ ...mono, color: '#FFA100', fontSize: '0.76rem', fontWeight: 800, marginBottom: '0.5rem' }}>
-              $ duckling classroom --sync
-            </div>
-            <h1 style={{ fontFamily: "'Stack', 'Geist', 'Inter', sans-serif", color: 'var(--text-primary)', fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 500, margin: 0 }}>
-              Classroom
-            </h1>
-            <p style={{ color: 'var(--text-muted)', margin: '0.65rem 0 0', lineHeight: 1.55 }}>
-              A focused class space for assignments, practice packs, and student-friendly progress.
-            </p>
-          </div>
-          <span style={{ ...mono, color: '#4ade80', border: '1px solid rgba(74,222,128,0.25)', background: 'rgba(74,222,128,0.08)', borderRadius: 999, padding: '0.55rem 0.8rem', fontSize: '0.72rem' }}>
-            {classes.length} class{classes.length === 1 ? '' : 'es'}
-          </span>
+    <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '0 1.5rem' }}>
+      <main style={{ padding: '2.5rem 0 4rem' }}>
+        <header style={{ marginBottom: '1.75rem' }}>
+          <h1 style={{ fontFamily: "'Stack', 'Geist', 'Inter', sans-serif", fontSize: 'clamp(1.8rem, 3vw, 2.5rem)', fontWeight: 400, color: 'var(--text-primary)', margin: '0 0 0.35rem', lineHeight: 1.1, letterSpacing: 0 }}>
+            Classroom
+          </h1>
+          <p style={{ ...TEXT, fontSize: '0.95rem', color: 'var(--text-muted)', margin: 0, lineHeight: 1.5 }}>
+            Assign practice, review submissions, and keep class progress synced on the backend.
+          </p>
         </header>
 
-        {message && (
-          <div style={{ border: '1px solid rgba(255,161,0,0.22)', background: 'rgba(255,161,0,0.07)', color: '#FFA100', borderRadius: 8, padding: '0.75rem 0.9rem', marginBottom: '1rem' }}>
-            {message}
-          </div>
-        )}
+        <div className="classroom-workspace" style={workspaceStyle}>
+          <aside className="classroom-sidebar" style={sidebarStyle}>
+            <div style={{ padding: '1rem', borderBottom: '1px solid var(--border)' }}>
+              <div style={{ ...MONO, color: '#FFA100', fontSize: '0.72rem', fontWeight: 700, marginBottom: '0.75rem' }}>
+                api / classroom
+              </div>
+              <form onSubmit={createClass} style={{ display: 'grid', gap: '0.65rem', marginBottom: '1rem' }}>
+                <input value={className} onChange={(event) => setClassName(event.target.value)} placeholder="Class name" style={inputStyle} />
+                <input value={section} onChange={(event) => setSection(event.target.value)} placeholder="Section or room" style={inputStyle} />
+                <button disabled={busy === 'create'} style={primaryButton}>{busy === 'create' ? 'Creating...' : 'Create class'}</button>
+              </form>
+              <form onSubmit={joinClass} style={{ display: 'grid', gap: '0.65rem' }}>
+                <input value={joinCode} onChange={(event) => setJoinCode(event.target.value)} placeholder="Join code" style={{ ...inputStyle, textTransform: 'uppercase' }} />
+                <button disabled={busy === 'join'} style={secondaryButton}>{busy === 'join' ? 'Joining...' : 'Join class'}</button>
+              </form>
+            </div>
 
-        <section style={{ display: 'grid', gridTemplateColumns: '320px minmax(0, 1fr)', gap: '1rem', alignItems: 'start' }}>
-          <aside style={{ display: 'grid', gap: '1rem' }}>
-            <form onSubmit={createClass} style={panelStyle}>
-              <strong style={panelTitle}>Create class</strong>
-              <input value={className} onChange={(event) => setClassName(event.target.value)} placeholder="Intro CS Period 3" style={inputStyle} />
-              <input value={section} onChange={(event) => setSection(event.target.value)} placeholder="Section or room" style={inputStyle} />
-              <button style={primaryButton}>Create</button>
-            </form>
-
-            <form onSubmit={joinClass} style={panelStyle}>
-              <strong style={panelTitle}>Join class</strong>
-              <input value={joinCode} onChange={(event) => setJoinCode(event.target.value)} placeholder="CSA101" style={{ ...inputStyle, textTransform: 'uppercase' }} />
-              <button style={secondaryButton}>Join</button>
-            </form>
-
-            <div style={{ ...panelStyle, padding: 0, overflow: 'hidden' }}>
-              <div style={{ ...mono, padding: '0.8rem 1rem', color: 'var(--text-subtle)', borderBottom: '1px solid var(--border)', fontSize: '0.72rem' }}>
+            <div>
+              <div style={{ ...sectionLabel, padding: '0.85rem 1rem', borderBottom: '1px solid var(--border)' }}>
                 classes
               </div>
+              {loading && <div style={emptyListText}>Loading classes...</div>}
+              {!loading && classes.length === 0 && <div style={emptyListText}>No classes yet.</div>}
               {classes.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => setSelectedId(item.id)}
-                  style={{
-                    border: 'none',
-                    borderBottom: '1px solid var(--border-faint)',
-                    background: selected?.id === item.id ? 'rgba(255,161,0,0.08)' : 'transparent',
-                    color: 'var(--text-primary)',
-                    padding: '0.95rem 1rem',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <span style={{ display: 'block', fontWeight: 800 }}>{item.name}</span>
-                  <span style={{ ...mono, display: 'block', color: 'var(--text-subtle)', fontSize: '0.68rem', marginTop: '0.3rem' }}>{item.role} / {item.code}</span>
+                <button key={item.id} onClick={() => setSelectedId(item.id)} style={classButton(selected?.id === item.id)}>
+                  <span style={classMark}>{item.name.slice(0, 1).toUpperCase()}</span>
+                  <span style={{ minWidth: 0 }}>
+                    <span style={{ display: 'block', color: 'var(--text-primary)', fontWeight: 650, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</span>
+                    <span style={{ ...MONO, display: 'block', color: 'var(--text-subtle)', fontSize: '0.68rem', marginTop: '0.25rem' }}>{item.role} / {item.code}</span>
+                  </span>
                 </button>
               ))}
             </div>
           </aside>
 
-          <section style={{ border: '1px solid var(--border)', borderRadius: 10, background: 'var(--surface)', overflow: 'hidden', minHeight: 620 }}>
+          <section style={{ minWidth: 0 }}>
+            {message && (
+              <div style={messageStyle}>
+                {message}
+              </div>
+            )}
+
             {selected ? (
-              <>
-                <div style={{ padding: '1.4rem', background: 'var(--surface-2)', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', gap: '1rem' }}>
-                  <div>
-                    <div style={{ ...mono, color: '#FFA100', fontSize: '0.72rem', marginBottom: '0.45rem' }}>{selected.role} view</div>
-                    <h2 style={{ color: 'var(--text-primary)', margin: 0, fontSize: 'clamp(1.45rem, 3vw, 2.15rem)' }}>{selected.name}</h2>
-                    <p style={{ color: 'var(--text-muted)', margin: '0.45rem 0 0' }}>{selected.section}</p>
-                  </div>
-                  <div style={{ ...mono, border: '1px solid rgba(255,161,0,0.25)', color: '#FFA100', background: 'rgba(255,161,0,0.07)', borderRadius: 8, padding: '0.65rem 0.85rem', height: 'fit-content' }}>
-                    {selected.code}
-                  </div>
-                </div>
+              <div>
+                <ClassHeader selected={selected} />
+                <StatsStrip selected={selected} />
 
-                <div style={{ display: 'grid', gridTemplateColumns: selected.role === 'teacher' ? 'minmax(0, 1fr) 320px' : '1fr', gap: '1rem', padding: '1rem' }}>
-                  <div style={{ display: 'grid', gap: '0.8rem', alignContent: 'start' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '0.75rem' }}>
-                      <Metric label="assignments" value={String(selected.assignments.length)} />
-                      <Metric label="pack options" value={String(packs.length)} />
-                      <Metric label="role" value={selected.role} />
-                    </div>
+                <nav style={{ display: 'flex', gap: '0.2rem', borderBottom: '1px solid var(--border)', padding: '0 1rem' }}>
+                  <TabButton active={tab === 'stream'} onClick={() => setTab('stream')}>Stream</TabButton>
+                  <TabButton active={tab === 'classwork'} onClick={() => setTab('classwork')}>Classwork</TabButton>
+                  {selected.role === 'teacher' && <TabButton active={tab === 'review'} onClick={() => setTab('review')}>Grades</TabButton>}
+                </nav>
 
-                    <div style={panelStyle}>
-                      <strong style={panelTitle}>Classwork</strong>
-                      {selected.assignments.length === 0 ? (
-                        <p style={{ color: 'var(--text-subtle)', margin: 0, lineHeight: 1.5 }}>No assignments yet.</p>
-                      ) : (
-                        <div style={{ display: 'grid', gap: '0.65rem' }}>
-                          {selected.assignments.map((assignment) => (
-                            <Link key={assignment.id} to={`/problem/${assignment.problemId}`} style={{ textDecoration: 'none', color: 'inherit', border: '1px solid var(--border)', background: 'var(--surface-2)', borderRadius: 8, padding: '0.85rem', display: 'grid', gridTemplateColumns: '42px 1fr auto', gap: '0.75rem', alignItems: 'center' }}>
-                              <span style={{ ...mono, width: 42, height: 42, borderRadius: 8, display: 'grid', placeItems: 'center', background: 'rgba(255,161,0,0.1)', color: '#FFA100', fontWeight: 900 }}>{"</>"}</span>
-                              <span style={{ minWidth: 0 }}>
-                                <span style={{ display: 'block', color: 'var(--text-primary)', fontWeight: 850 }}>{assignment.title}</span>
-                                <span style={{ display: 'block', color: 'var(--text-muted)', fontSize: '0.82rem', marginTop: '0.25rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{assignment.instructions}</span>
-                              </span>
-                              <span style={{ ...mono, color: '#FFA100', fontSize: '0.72rem' }}>#{assignment.problemId}</span>
-                            </Link>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {selected.role === 'teacher' && (
-                    <form onSubmit={assignProblem} style={panelStyle}>
-                      <strong style={panelTitle}>Post assignment</strong>
-                      <select value={problemId} onChange={(event) => setProblemId(event.target.value)} style={inputStyle}>
-                        {ALL_PROBLEMS.map((problem) => (
-                          <option key={problem.id} value={problem.id}>#{problem.id} {problem.title}</option>
-                        ))}
-                      </select>
-                      <textarea value={instructions} onChange={(event) => setInstructions(event.target.value)} placeholder="Instructions for students" style={{ ...inputStyle, minHeight: 96, paddingTop: '0.75rem', resize: 'vertical' }} />
-                      <button style={primaryButton}>Post</button>
-                    </form>
+                <div style={{ padding: '1rem' }}>
+                  {tab === 'stream' && <StreamView selected={selected} />}
+                  {tab === 'classwork' && (
+                    <ClassworkView
+                      selected={selected}
+                      problemId={problemId}
+                      instructions={instructions}
+                      setProblemId={setProblemId}
+                      setInstructions={setInstructions}
+                      assignProblem={assignProblem}
+                      posting={busy === 'assign'}
+                    />
+                  )}
+                  {tab === 'review' && selected.role === 'teacher' && (
+                    <ReviewView selected={selected} savingId={busy?.startsWith('grade-') ? busy.slice(6) : null} onGrade={gradeSubmission} />
                   )}
                 </div>
-              </>
+              </div>
             ) : (
-              <div style={{ minHeight: 620, display: 'grid', placeItems: 'center', color: 'var(--text-muted)' }}>Create or join a class.</div>
+              <EmptyClassroom loading={loading} />
             )}
           </section>
-        </section>
+        </div>
       </main>
     </div>
   );
 }
 
-function Metric({ label, value }: { label: string; value: string }) {
+function ClassHeader({ selected }: { selected: ClassroomItem }) {
   return (
-    <div style={{ border: '1px solid var(--border)', background: 'var(--surface-2)', borderRadius: 8, padding: '0.85rem' }}>
-      <div style={{ ...mono, color: 'var(--text-subtle)', fontSize: '0.68rem', marginBottom: '0.35rem' }}>{label}</div>
-      <div style={{ color: 'var(--text-primary)', fontWeight: 850 }}>{value}</div>
+    <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'start' }}>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ ...MONO, color: '#FFA100', fontSize: '0.72rem', fontWeight: 700, marginBottom: '0.55rem' }}>
+            {selected.role} view
+          </div>
+          <h2 style={{ fontFamily: "'Stack', 'Geist', 'Inter', sans-serif", color: 'var(--text-primary)', fontSize: 'clamp(1.45rem, 3vw, 2rem)', lineHeight: 1.15, fontWeight: 400, margin: 0, letterSpacing: 0 }}>
+            {selected.name}
+          </h2>
+          <p style={{ ...TEXT, color: 'var(--text-muted)', margin: '0.45rem 0 0', fontSize: '0.9rem' }}>
+            {selected.section}
+          </p>
+        </div>
+        <div style={{ ...MONO, color: '#FFA100', border: '1px solid rgba(255,161,0,0.35)', background: 'rgba(255,161,0,0.08)', borderRadius: 8, padding: '0.55rem 0.75rem', fontSize: '0.78rem', fontWeight: 800, whiteSpace: 'nowrap' }}>
+          {selected.code}
+        </div>
+      </div>
     </div>
   );
 }
 
-const panelStyle: React.CSSProperties = {
+function StatsStrip({ selected }: { selected: ClassroomItem }) {
+  const stats = [
+    ['ASSIGNMENTS', selected.assignments.length.toString()],
+    ['STUDENTS', selected.teacherStats.students.toString()],
+    ['TURNED IN', selected.teacherStats.submissions.toString()],
+    ['AVG GRADE', selected.teacherStats.averageGrade === null ? '--' : `${selected.teacherStats.averageGrade}%`],
+  ] as const;
+
+  return (
+    <div className="dashboard-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', borderBottom: '1px solid var(--border)' }}>
+      {stats.map(([label, value], index) => (
+        <div key={label} style={{ padding: '1rem 1.25rem', borderRight: index < stats.length - 1 ? '1px solid var(--border)' : 'none' }}>
+          <div style={sectionLabel}>{label}</div>
+          <div style={{ fontFamily: "'Stack', 'Geist', 'Inter', sans-serif", color: label === 'AVG GRADE' && value !== '--' ? '#FFA100' : 'var(--text-primary)', fontSize: '1.75rem', lineHeight: 1, fontWeight: 400, marginTop: '0.45rem' }}>
+            {value}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function StreamView({ selected }: { selected: ClassroomItem }) {
+  const latest = selected.assignments.slice(0, 4);
+
+  return (
+    <div className="classroom-stream-grid" style={{ display: 'grid', gridTemplateColumns: '220px minmax(0, 1fr)', gap: '1rem', alignItems: 'start' }}>
+      <div style={panelStyle}>
+        <div style={sectionLabel}>CLASS CODE</div>
+        <div style={{ ...MONO, color: '#FFA100', fontSize: '1.25rem', fontWeight: 800 }}>{selected.code}</div>
+        <p style={smallMuted}>{selected.teacherStats.students} enrolled student{selected.teacherStats.students === 1 ? '' : 's'}</p>
+      </div>
+
+      <div style={{ display: 'grid', gap: '0.75rem' }}>
+        <div style={panelStyle}>
+          <div style={sectionLabel}>LATEST</div>
+          <p style={{ ...TEXT, color: 'var(--text-muted)', margin: 0, lineHeight: 1.55, fontSize: '0.9rem' }}>
+            {selected.role === 'teacher'
+              ? 'Recent classwork and submissions will collect here as students run assigned problems.'
+              : 'Open assigned problems from classwork; your latest run is submitted back to your teacher.'}
+          </p>
+        </div>
+        {latest.length === 0 ? (
+          <EmptyPanel text="No classwork posted yet." />
+        ) : latest.map((assignment) => (
+          <AssignmentCard key={assignment.id} assignment={assignment} role={selected.role} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ClassworkView({
+  selected,
+  problemId,
+  instructions,
+  setProblemId,
+  setInstructions,
+  assignProblem,
+  posting,
+}: {
+  selected: ClassroomItem;
+  problemId: string;
+  instructions: string;
+  setProblemId: (value: string) => void;
+  setInstructions: (value: string) => void;
+  assignProblem: (event: React.FormEvent<HTMLFormElement>) => void;
+  posting: boolean;
+}) {
+  return (
+    <div className="classroom-classwork-grid" style={{ display: 'grid', gridTemplateColumns: selected.role === 'teacher' ? 'minmax(0, 1fr) 320px' : '1fr', gap: '1rem', alignItems: 'start' }}>
+      <div style={{ display: 'grid', gap: '0.75rem' }}>
+        {selected.assignments.length === 0 ? (
+          <EmptyPanel text={selected.role === 'teacher' ? 'Post the first assignment from the panel on the right.' : 'No assignments have been posted yet.'} />
+        ) : selected.assignments.map((assignment) => (
+          <AssignmentCard key={assignment.id} assignment={assignment} role={selected.role} />
+        ))}
+      </div>
+
+      {selected.role === 'teacher' && (
+        <form onSubmit={assignProblem} style={panelStyle}>
+          <div>
+            <div style={sectionLabel}>POST ASSIGNMENT</div>
+            <strong style={{ display: 'block', color: 'var(--text-primary)', marginTop: '0.35rem', fontWeight: 650 }}>Choose a problem</strong>
+          </div>
+          <select value={problemId} onChange={(event) => setProblemId(event.target.value)} style={inputStyle}>
+            {ALL_PROBLEMS.map((problem) => (
+              <option key={problem.id} value={problem.id}>#{problem.id} {problem.title}</option>
+            ))}
+          </select>
+          <textarea value={instructions} onChange={(event) => setInstructions(event.target.value)} placeholder="Instructions for students" style={{ ...inputStyle, minHeight: 96, paddingTop: '0.75rem', resize: 'vertical' }} />
+          <button disabled={posting} style={primaryButton}>{posting ? 'Posting...' : 'Post assignment'}</button>
+        </form>
+      )}
+    </div>
+  );
+}
+
+function ReviewView({
+  selected,
+  savingId,
+  onGrade,
+}: {
+  selected: ClassroomItem;
+  savingId: string | null;
+  onGrade: (submissionId: string, grade: string, feedback: string) => Promise<void>;
+}) {
+  return (
+    <div style={{ display: 'grid', gap: '0.75rem' }}>
+      {selected.students.length === 0 ? (
+        <EmptyPanel text="No students have joined this class yet." />
+      ) : selected.submissions.length === 0 ? (
+        <EmptyPanel text="Students are enrolled, but no submissions have come in yet." />
+      ) : selected.submissions.map((submission) => (
+        <SubmissionCard key={submission.id} submission={submission} saving={savingId === submission.id} onGrade={onGrade} />
+      ))}
+    </div>
+  );
+}
+
+function SubmissionCard({
+  submission,
+  saving,
+  onGrade,
+}: {
+  submission: Submission;
+  saving: boolean;
+  onGrade: (submissionId: string, grade: string, feedback: string) => Promise<void>;
+}) {
+  const [grade, setGrade] = useState(submission.grade?.toString() ?? '');
+  const [feedback, setFeedback] = useState(submission.feedback ?? '');
+  const problem = ALL_PROBLEMS.find((entry) => entry.id === submission.problemId);
+  const canSave = grade.trim() === '' || (Number.isFinite(Number(grade)) && Number(grade) >= 0 && Number(grade) <= 100);
+
+  useEffect(() => {
+    setGrade(submission.grade?.toString() ?? '');
+    setFeedback(submission.feedback ?? '');
+  }, [submission.grade, submission.feedback]);
+
+  return (
+    <article style={panelStyle}>
+      <div className="classroom-submission-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 92px minmax(190px, 260px)', gap: '0.85rem', alignItems: 'start' }}>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <strong style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{submission.username}</strong>
+            <span style={tinyPill}>{submission.status}</span>
+            <span style={tinyPill}>{submission.language || 'code'}</span>
+          </div>
+          <p style={{ ...smallMuted, marginTop: '0.35rem' }}>
+            {problem?.title ?? `Problem ${submission.problemId}`} / {formatDate(submission.updatedAt)}
+          </p>
+          {submission.summary && <p style={{ ...smallMuted, color: '#FFA100', marginTop: '0.35rem' }}>{submission.summary}</p>}
+          <pre style={codePreview}>{submission.sourceCode}</pre>
+        </div>
+        <input value={grade} onChange={(event) => setGrade(event.target.value)} placeholder="0-100" style={inputStyle} />
+        <div style={{ display: 'grid', gap: '0.5rem' }}>
+          <textarea value={feedback} onChange={(event) => setFeedback(event.target.value)} placeholder="Feedback" style={{ ...inputStyle, minHeight: 86, paddingTop: '0.65rem', resize: 'vertical' }} />
+          <button type="button" disabled={!canSave || saving} onClick={() => void onGrade(submission.id, grade, feedback)} style={{ ...primaryButton, opacity: !canSave || saving ? 0.55 : 1 }}>
+            {saving ? 'Saving...' : 'Save grade'}
+          </button>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function AssignmentCard({ assignment, role }: { assignment: Assignment; role: ClassroomItem['role'] }) {
+  const problem = ALL_PROBLEMS.find((entry) => entry.id === assignment.problemId);
+  const submission = assignment.submission;
+  const accent = problem ? DIFFICULTY_COLOR[problem.difficulty] : '#FFA100';
+  const meta = role === 'teacher'
+    ? `${assignment.stats.submitted} turned in / ${assignment.stats.graded} graded / ${assignment.stats.averageGrade === null ? 'no average' : `${assignment.stats.averageGrade}% avg`}`
+    : submission
+      ? `${submission.status}${submission.grade === null ? '' : ` / ${submission.grade}%`}`
+      : 'Not submitted';
+
+  return (
+    <Link to={`/problem/${assignment.problemId}?assignment=${encodeURIComponent(assignment.id)}`} style={assignmentStyle}>
+      <span style={{ ...assignmentIcon, color: accent, borderColor: `${accent}55`, background: `${accent}18` }}>{"</>"}</span>
+      <span style={{ minWidth: 0 }}>
+        <span style={{ display: 'block', color: 'var(--text-primary)', fontWeight: 700 }}>{assignment.title}</span>
+        <span style={{ display: 'block', color: 'var(--text-muted)', fontSize: '0.86rem', marginTop: '0.25rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{assignment.instructions}</span>
+        <span style={{ ...MONO, color: role === 'student' && submission?.grade !== null ? '#FFA100' : 'var(--text-subtle)', fontSize: '0.7rem', marginTop: '0.4rem', display: 'block' }}>
+          {meta}
+        </span>
+        {role === 'student' && submission?.feedback && (
+          <span style={{ ...TEXT, display: 'block', color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '0.35rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            Feedback: {submission.feedback}
+          </span>
+        )}
+      </span>
+      <span style={{ ...MONO, color: '#FFA100', fontSize: '0.72rem' }}>#{assignment.problemId}</span>
+    </Link>
+  );
+}
+
+function TabButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button onClick={onClick} style={{ ...TEXT, border: 'none', borderBottom: active ? '2px solid #FFA100' : '2px solid transparent', background: 'transparent', color: active ? 'var(--text-primary)' : 'var(--text-muted)', padding: '0.9rem 0.9rem 0.75rem', fontSize: '0.86rem', fontWeight: 650, cursor: 'pointer' }}>
+      {children}
+    </button>
+  );
+}
+
+function EmptyClassroom({ loading }: { loading: boolean }) {
+  return (
+    <div style={{ minHeight: 520, display: 'grid', placeItems: 'center', padding: '1.5rem' }}>
+      <div style={{ textAlign: 'center', maxWidth: 420 }}>
+        <div style={{ ...MONO, color: '#FFA100', fontSize: '0.72rem', fontWeight: 800, marginBottom: '0.65rem' }}>
+          {loading ? 'loading' : 'no classes'}
+        </div>
+        <h2 style={{ fontFamily: "'Stack', 'Geist', 'Inter', sans-serif", color: 'var(--text-primary)', fontWeight: 400, margin: 0, fontSize: '1.7rem', letterSpacing: 0 }}>
+          {loading ? 'Loading classroom.' : 'Create or join a class.'}
+        </h2>
+        <p style={{ ...TEXT, color: 'var(--text-muted)', lineHeight: 1.55, margin: '0.65rem 0 0', fontSize: '0.92rem' }}>
+          {loading ? 'Pulling your class list from the backend.' : 'Use the controls on the left to start a teacher workspace or join with a class code.'}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function EmptyPanel({ text }: { text: string }) {
+  return (
+    <div style={panelStyle}>
+      <p style={{ ...TEXT, color: 'var(--text-subtle)', margin: 0, lineHeight: 1.5, fontSize: '0.9rem' }}>{text}</p>
+    </div>
+  );
+}
+
+function formatDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'just now';
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+const workspaceStyle: React.CSSProperties = {
   border: '1px solid var(--border)',
   borderRadius: 10,
+  overflow: 'hidden',
+  background: 'var(--surface)',
+  display: 'grid',
+  gridTemplateColumns: '300px minmax(0, 1fr)',
+  minHeight: 680,
+};
+
+const sidebarStyle: React.CSSProperties = {
+  borderRight: '1px solid var(--border)',
+  background: 'var(--surface)',
+};
+
+const panelStyle: React.CSSProperties = {
+  border: '1px solid var(--border)',
+  borderRadius: 8,
   background: 'var(--surface)',
   padding: '1rem',
   display: 'grid',
   gap: '0.75rem',
 };
 
-const panelTitle: React.CSSProperties = {
-  color: 'var(--text-primary)',
-  fontWeight: 850,
+const sectionLabel: React.CSSProperties = {
+  ...TEXT,
+  color: 'var(--text-subtle)',
+  fontSize: '0.68rem',
+  fontWeight: 700,
+  letterSpacing: '0.08em',
+  textTransform: 'uppercase',
 };
 
 const inputStyle: React.CSSProperties = {
+  ...TEXT,
   width: '100%',
-  minHeight: 40,
+  minHeight: 38,
   background: 'var(--surface-2)',
   border: '1px solid var(--border)',
   borderRadius: 8,
   color: 'var(--text-primary)',
-  padding: '0 0.75rem',
+  padding: '0 0.7rem',
   outline: 'none',
+  boxSizing: 'border-box',
+  fontSize: '0.86rem',
 };
 
 const primaryButton: React.CSSProperties = {
-  minHeight: 40,
+  ...TEXT,
+  minHeight: 38,
   border: '1px solid #FFA100',
   borderRadius: 8,
   background: '#FFA100',
-  color: '#171100',
-  fontWeight: 850,
+  color: '#fff',
+  fontWeight: 650,
   cursor: 'pointer',
 };
 
 const secondaryButton: React.CSSProperties = {
   ...primaryButton,
-  background: 'var(--surface-2)',
-  color: '#FFA100',
+  background: 'transparent',
+  color: 'var(--text-primary)',
+  border: '1px solid var(--border)',
+};
+
+const classMark: React.CSSProperties = {
+  ...MONO,
+  width: 34,
+  height: 34,
+  borderRadius: 8,
+  display: 'grid',
+  placeItems: 'center',
   border: '1px solid rgba(255,161,0,0.28)',
+  background: 'rgba(255,161,0,0.08)',
+  color: '#FFA100',
+  fontWeight: 800,
+  flexShrink: 0,
+};
+
+const classButton = (active: boolean): React.CSSProperties => ({
+  border: 'none',
+  borderBottom: '1px solid var(--border-faint)',
+  background: active ? 'rgba(255,161,0,0.08)' : 'transparent',
+  color: 'var(--text-primary)',
+  padding: '0.85rem 1rem',
+  textAlign: 'left',
+  cursor: 'pointer',
+  display: 'flex',
+  gap: '0.75rem',
+  alignItems: 'center',
+  width: '100%',
+});
+
+const assignmentStyle: React.CSSProperties = {
+  textDecoration: 'none',
+  color: 'inherit',
+  border: '1px solid var(--border)',
+  background: 'var(--surface)',
+  borderRadius: 8,
+  padding: '0.9rem 1rem',
+  display: 'grid',
+  gridTemplateColumns: '42px 1fr auto',
+  gap: '0.85rem',
+  alignItems: 'center',
+};
+
+const assignmentIcon: React.CSSProperties = {
+  ...MONO,
+  width: 42,
+  height: 42,
+  borderRadius: 8,
+  border: '1px solid rgba(255,161,0,0.35)',
+  display: 'grid',
+  placeItems: 'center',
+  fontWeight: 800,
+};
+
+const messageStyle: React.CSSProperties = {
+  ...TEXT,
+  borderBottom: '1px solid rgba(255,161,0,0.2)',
+  background: 'rgba(255,161,0,0.07)',
+  color: '#FFA100',
+  padding: '0.75rem 1rem',
+  fontSize: '0.88rem',
+};
+
+const emptyListText: React.CSSProperties = {
+  ...TEXT,
+  padding: '1rem',
+  color: 'var(--text-subtle)',
+  fontSize: '0.86rem',
+};
+
+const smallMuted: React.CSSProperties = {
+  ...TEXT,
+  color: 'var(--text-muted)',
+  margin: 0,
+  fontSize: '0.84rem',
+  lineHeight: 1.45,
+};
+
+const tinyPill: React.CSSProperties = {
+  ...MONO,
+  color: 'var(--text-subtle)',
+  border: '1px solid var(--border)',
+  borderRadius: 5,
+  padding: '0.12rem 0.45rem',
+  fontSize: '0.66rem',
+};
+
+const codePreview: React.CSSProperties = {
+  ...MONO,
+  margin: '0.75rem 0 0',
+  maxHeight: 190,
+  overflow: 'auto',
+  whiteSpace: 'pre-wrap',
+  background: 'var(--surface-2)',
+  border: '1px solid var(--border-faint)',
+  borderRadius: 8,
+  padding: '0.75rem',
+  color: 'var(--text-muted)',
+  fontSize: '0.76rem',
 };

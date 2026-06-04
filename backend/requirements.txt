@@ -6,3 +6,4 @@ passlib[bcrypt]
 bcrypt==3.2.2
 supabase
 psycopg2-binary
+sqlalchemy

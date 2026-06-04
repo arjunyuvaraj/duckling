@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, String, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.utils.db import Base
 
@@ -23,8 +23,8 @@ from app.utils.db import Base
 class TestCase(Base):
     __tablename__ = "test_cases"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    problem_id: Mapped[int] = mapped_column(ForeignKey("problems.id"), index=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    problem_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("problems.id", ondelete="CASCADE"), index=True)
     language: Mapped[str | None] = mapped_column(String(50))
     input_json: Mapped[str] = mapped_column(Text)
     expected_output_json: Mapped[str] = mapped_column(Text)

@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import BigInteger, Boolean, CheckConstraint, DateTime, ForeignKey, Integer, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 from app.utils.db import Base
 
@@ -21,12 +21,15 @@ from app.utils.db import Base
 
 class BatchMilestone(Base):
     __tablename__ = "batch_milestones"
-    __table_args__ = (UniqueConstraint("batch_id", "problem_id"),)
+    __table_args__ = (
+        UniqueConstraint("batch_id", "problem_id"),
+        UniqueConstraint("batch_id", "order_index"),
+        CheckConstraint("order_index > 0", name="batch_milestones_order_index_check"),
+    )
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    batch_id: Mapped[int] = mapped_column(ForeignKey("batches.id"), index=True)
-    problem_id: Mapped[int] = mapped_column(ForeignKey("problems.id"))
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    batch_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("batches.id", ondelete="CASCADE"), index=True)
+    problem_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("problems.id", ondelete="CASCADE"))
     order_index: Mapped[int] = mapped_column(Integer)
     is_prerequisite: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-

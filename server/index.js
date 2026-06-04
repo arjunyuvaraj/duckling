@@ -1,7 +1,12 @@
 import { createServer } from 'node:http';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { buildHarness, extractHarnessOutput } from './problemHarnesses.js';
 
 const PORT = Number(process.env.PORT ?? 8787);
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const CLASSROOM_STORE_PATH = join(__dirname, 'data', 'classroom-store.json');
 const JUDGE0_BASE_URL = (process.env.JUDGE0_BASE_URL ?? 'https://ce.judge0.com').replace(/\/$/, '');
 const JUDGE0_AUTH_HEADER = process.env.JUDGE0_AUTH_HEADER;
 const JUDGE0_AUTH_TOKEN = process.env.JUDGE0_AUTH_TOKEN;
@@ -11,7 +16,7 @@ const JUDGE0_RAPIDAPI_HOST = process.env.JUDGE0_RAPIDAPI_HOST;
 const JSON_HEADERS = {
   'Content-Type': 'application/json',
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+  'Access-Control-Allow-Methods': 'GET,POST,PATCH,OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
 };
 
@@ -22,6 +27,145 @@ const LANGUAGE_PATTERNS = {
 };
 
 let languageCache = null;
+
+const emptyClassroomStore = () => ({
+  classes: {},
+  memberships: {},
+  assignments: {},
+  submissions: {},
+});
+
+let classroomStore = loadClassroomStore();
+
+function loadClassroomStore() {
+  try {
+    if (!existsSync(CLASSROOM_STORE_PATH)) {
+      return emptyClassroomStore();
+    }
+
+    const parsed = JSON.parse(readFileSync(CLASSROOM_STORE_PATH, 'utf8'));
+    return {
+      classes: parsed.classes && typeof parsed.classes === 'object' ? parsed.classes : {},
+      memberships: parsed.memberships && typeof parsed.memberships === 'object' ? parsed.memberships : {},
+      assignments: parsed.assignments && typeof parsed.assignments === 'object' ? parsed.assignments : {},
+      submissions: parsed.submissions && typeof parsed.submissions === 'object' ? parsed.submissions : {},
+    };
+  } catch {
+    return emptyClassroomStore();
+  }
+}
+
+function persistClassroomStore() {
+  mkdirSync(dirname(CLASSROOM_STORE_PATH), { recursive: true });
+  writeFileSync(CLASSROOM_STORE_PATH, JSON.stringify(classroomStore));
+}
+
+function slugId(prefix) {
+  return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function makeClassCode() {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  do {
+    code = Array.from({ length: 6 }, () => alphabet[Math.floor(Math.random() * alphabet.length)]).join('');
+  } while (Object.values(classroomStore.classes).some((classroom) => classroom.code === code));
+  return code;
+}
+
+function membershipKey(classId, userId) {
+  return `${classId}:${userId}`;
+}
+
+function normalizeUser(rawUserId, rawUsername) {
+  const userId = String(rawUserId ?? '').trim();
+  const username = String(rawUsername ?? '').trim() || 'student';
+
+  if (!userId) {
+    return null;
+  }
+
+  return { userId, username };
+}
+
+function buildClassroomPayload(userId) {
+  const userMemberships = Object.values(classroomStore.memberships).filter((entry) => entry.userId === userId);
+  const classes = userMemberships
+    .map((membership) => {
+      const classroom = classroomStore.classes[membership.classId];
+      if (!classroom) return null;
+
+      const assignments = Object.values(classroomStore.assignments)
+        .filter((assignment) => assignment.classId === classroom.id)
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+        .map((assignment) => {
+          const submissions = Object.values(classroomStore.submissions).filter((submission) => submission.assignmentId === assignment.id);
+          const ownSubmission = submissions
+            .filter((submission) => submission.userId === userId)
+            .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0] ?? null;
+          const submitted = new Set(submissions.map((submission) => submission.userId)).size;
+          const graded = submissions.filter((submission) => submission.grade !== null && submission.grade !== undefined && submission.grade !== '').length;
+
+          return {
+            ...assignment,
+            stats: {
+              submitted,
+              graded,
+              averageGrade: averageGrade(submissions),
+              accepted: submissions.filter((submission) => submission.status === 'Accepted').length,
+            },
+            submission: ownSubmission,
+          };
+        });
+
+      const classSubmissions = Object.values(classroomStore.submissions).filter((submission) => submission.classId === classroom.id);
+      const students = Object.values(classroomStore.memberships)
+        .filter((entry) => entry.classId === classroom.id && entry.role === 'student')
+        .sort((a, b) => a.username.localeCompare(b.username))
+        .map((entry) => ({
+          userId: entry.userId,
+          username: entry.username,
+          joinedAt: entry.joinedAt,
+        }));
+
+      return {
+        ...classroom,
+        role: membership.role,
+        assignments,
+        teacherStats: {
+          students: students.length,
+          submissions: classSubmissions.length,
+          graded: classSubmissions.filter((submission) => submission.grade !== null && submission.grade !== undefined && submission.grade !== '').length,
+          averageGrade: averageGrade(classSubmissions),
+        },
+        students,
+        submissions: membership.role === 'teacher'
+          ? classSubmissions.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+          : [],
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
+  return { classes };
+}
+
+function averageGrade(submissions) {
+  const grades = submissions
+    .filter((submission) => submission.grade !== null && submission.grade !== undefined && submission.grade !== '')
+    .map((submission) => Number(submission.grade))
+    .filter((grade) => Number.isFinite(grade));
+  if (!grades.length) return null;
+  return Math.round((grades.reduce((sum, grade) => sum + grade, 0) / grades.length) * 10) / 10;
+}
+
+function classMembership(classId, userId) {
+  return classroomStore.memberships[membershipKey(classId, userId)] ?? null;
+}
+
+function isTeacher(classId, userId) {
+  return classMembership(classId, userId)?.role === 'teacher';
+}
 
 function sendJson(response, statusCode, payload) {
   response.writeHead(statusCode, JSON_HEADERS);
@@ -199,6 +343,204 @@ const server = createServer(async (request, response) => {
   if (request.method === 'GET' && request.url === '/api/health') {
     sendJson(response, 200, { ok: true, judge0BaseUrl: JUDGE0_BASE_URL });
     return;
+  }
+
+  const url = new URL(request.url, `http://${request.headers.host ?? 'localhost'}`);
+
+  if (request.method === 'GET' && url.pathname === '/api/classroom') {
+    const user = normalizeUser(url.searchParams.get('userId'), url.searchParams.get('username'));
+    if (!user) {
+      sendJson(response, 400, { error: 'userId is required.' });
+      return;
+    }
+
+    sendJson(response, 200, { ok: true, ...buildClassroomPayload(user.userId) });
+    return;
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/classroom/classes') {
+    try {
+      const body = await readJsonBody(request);
+      const user = normalizeUser(body.userId, body.username);
+      const name = String(body.name ?? '').trim();
+      if (!user || !name) {
+        sendJson(response, 400, { error: 'userId and name are required.' });
+        return;
+      }
+
+      const now = new Date().toISOString();
+      const classId = slugId('class');
+      classroomStore.classes[classId] = {
+        id: classId,
+        name,
+        section: String(body.section ?? '').trim() || 'Duckling classroom',
+        code: makeClassCode(),
+        teacherId: user.userId,
+        createdAt: now,
+      };
+      classroomStore.memberships[membershipKey(classId, user.userId)] = {
+        classId,
+        userId: user.userId,
+        username: user.username,
+        role: 'teacher',
+        joinedAt: now,
+      };
+      persistClassroomStore();
+      sendJson(response, 201, { ok: true, ...buildClassroomPayload(user.userId), selectedId: classId });
+      return;
+    } catch (error) {
+      sendJson(response, 500, { ok: false, error: error instanceof Error ? error.message : 'Could not create class.' });
+      return;
+    }
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/classroom/join') {
+    try {
+      const body = await readJsonBody(request);
+      const user = normalizeUser(body.userId, body.username);
+      const code = String(body.code ?? '').trim().toUpperCase();
+      const classroom = Object.values(classroomStore.classes).find((entry) => entry.code === code);
+      if (!user || !code) {
+        sendJson(response, 400, { error: 'userId and code are required.' });
+        return;
+      }
+      if (!classroom) {
+        sendJson(response, 404, { error: 'No class found for that code.' });
+        return;
+      }
+
+      const key = membershipKey(classroom.id, user.userId);
+      classroomStore.memberships[key] = classroomStore.memberships[key] ?? {
+        classId: classroom.id,
+        userId: user.userId,
+        username: user.username,
+        role: classroom.teacherId === user.userId ? 'teacher' : 'student',
+        joinedAt: new Date().toISOString(),
+      };
+      persistClassroomStore();
+      sendJson(response, 200, { ok: true, ...buildClassroomPayload(user.userId), selectedId: classroom.id });
+      return;
+    } catch (error) {
+      sendJson(response, 500, { ok: false, error: error instanceof Error ? error.message : 'Could not join class.' });
+      return;
+    }
+  }
+
+  const assignmentMatch = url.pathname.match(/^\/api\/classroom\/classes\/([^/]+)\/assignments$/);
+  if (request.method === 'POST' && assignmentMatch) {
+    try {
+      const classId = decodeURIComponent(assignmentMatch[1]);
+      const body = await readJsonBody(request);
+      const user = normalizeUser(body.userId, body.username);
+      if (!classroomStore.classes[classId]) {
+        sendJson(response, 404, { error: 'Class not found.' });
+        return;
+      }
+      if (!user || !isTeacher(classId, user.userId)) {
+        sendJson(response, 403, { error: 'Only the teacher can post assignments.' });
+        return;
+      }
+
+      const problemId = Number(body.problemId);
+      const title = String(body.title ?? '').trim();
+      if (!Number.isInteger(problemId) || !title) {
+        sendJson(response, 400, { error: 'problemId and title are required.' });
+        return;
+      }
+
+      const assignmentId = slugId('assignment');
+      classroomStore.assignments[assignmentId] = {
+        id: assignmentId,
+        classId,
+        problemId,
+        title,
+        instructions: String(body.instructions ?? '').trim() || 'Solve the problem and run your tests before submitting.',
+        createdAt: new Date().toISOString(),
+      };
+      persistClassroomStore();
+      sendJson(response, 201, { ok: true, ...buildClassroomPayload(user.userId), selectedId: classId });
+      return;
+    } catch (error) {
+      sendJson(response, 500, { ok: false, error: error instanceof Error ? error.message : 'Could not post assignment.' });
+      return;
+    }
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/classroom/submissions') {
+    try {
+      const body = await readJsonBody(request);
+      const user = normalizeUser(body.userId, body.username);
+      const assignmentId = String(body.assignmentId ?? '').trim();
+      const assignment = classroomStore.assignments[assignmentId];
+      if (!user || !assignment) {
+        sendJson(response, 400, { error: 'Valid userId and assignmentId are required.' });
+        return;
+      }
+      if (classMembership(assignment.classId, user.userId)?.role !== 'student') {
+        sendJson(response, 403, { error: 'Only enrolled students can submit this assignment.' });
+        return;
+      }
+
+      const existing = Object.values(classroomStore.submissions)
+        .find((submission) => submission.assignmentId === assignmentId && submission.userId === user.userId);
+      const now = new Date().toISOString();
+      const submissionId = existing?.id ?? slugId('submission');
+      classroomStore.submissions[submissionId] = {
+        id: submissionId,
+        assignmentId,
+        classId: assignment.classId,
+        userId: user.userId,
+        username: user.username,
+        problemId: assignment.problemId,
+        language: String(body.language ?? ''),
+        sourceCode: String(body.sourceCode ?? ''),
+        status: String(body.status ?? 'Submitted'),
+        summary: String(body.summary ?? ''),
+        grade: existing?.grade ?? null,
+        feedback: existing?.feedback ?? '',
+        createdAt: existing?.createdAt ?? now,
+        updatedAt: now,
+      };
+      persistClassroomStore();
+      sendJson(response, 201, { ok: true, submission: classroomStore.submissions[submissionId] });
+      return;
+    } catch (error) {
+      sendJson(response, 500, { ok: false, error: error instanceof Error ? error.message : 'Could not save submission.' });
+      return;
+    }
+  }
+
+  const gradeMatch = url.pathname.match(/^\/api\/classroom\/submissions\/([^/]+)\/grade$/);
+  if (request.method === 'PATCH' && gradeMatch) {
+    try {
+      const submissionId = decodeURIComponent(gradeMatch[1]);
+      const submission = classroomStore.submissions[submissionId];
+      const body = await readJsonBody(request);
+      const user = normalizeUser(body.userId, body.username);
+      if (!submission || !user || !isTeacher(submission.classId, user.userId)) {
+        sendJson(response, 403, { error: 'Only the teacher can grade this submission.' });
+        return;
+      }
+
+      const grade = body.grade === '' || body.grade === null || body.grade === undefined ? null : Number(body.grade);
+      if (grade !== null && (!Number.isFinite(grade) || grade < 0 || grade > 100)) {
+        sendJson(response, 400, { error: 'Grade must be between 0 and 100.' });
+        return;
+      }
+
+      classroomStore.submissions[submissionId] = {
+        ...submission,
+        grade,
+        feedback: String(body.feedback ?? ''),
+        updatedAt: new Date().toISOString(),
+      };
+      persistClassroomStore();
+      sendJson(response, 200, { ok: true, ...buildClassroomPayload(user.userId), selectedId: submission.classId });
+      return;
+    } catch (error) {
+      sendJson(response, 500, { ok: false, error: error instanceof Error ? error.message : 'Could not save grade.' });
+      return;
+    }
   }
 
   if (request.method === 'POST' && request.url === '/api/code/run') {
