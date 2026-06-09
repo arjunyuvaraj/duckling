@@ -113,7 +113,7 @@ export default function AppSidebar() {
         flexShrink: 0,
         overflow: 'hidden',
       }}>
-        <div style={{ width: 28, height: 28, color: '#FFA100', flexShrink: 0 }}>
+        <div style={{ width: 28, height: 28, color: '#FD6D03', flexShrink: 0 }}>
           <svg viewBox="0 0 1514 1514" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
             <path d="M862.5 304C985.616 304 1087.39 395.37 1103.71 514H1208.99C1208.67 590.681 1151.68 653.171 1080.13 656.829C1062.64 691.577 1037.08 721.561 1005.9 744.316C1092.38 781.22 1153 867.03 1153 967C1153 1100.65 1044.65 1209 911 1209H548C414.347 1209 306 1100.65 306 967C306 963.283 306.084 959.585 306.25 955.908V580.613L532.977 725.46C537.945 725.156 542.955 725 548 725H695.809C648.529 680.583 619 617.49 619 547.5C619 413.019 728.019 304 862.5 304Z"/>
           </svg>
@@ -144,8 +144,8 @@ export default function AppSidebar() {
             left: 6,
             right: 6,
             height: ITEM_H,
-            background: 'rgba(255,161,0,0.1)',
-            border: '1px solid rgba(255,161,0,0.18)',
+            background: 'rgba(253,109,3,0.1)',
+            border: '1px solid rgba(253,109,3,0.18)',
             borderRadius: 6,
             top: pillTop,
             transition: 'top 0.22s cubic-bezier(0.34, 1.56, 0.64, 1)',
@@ -175,7 +175,7 @@ export default function AppSidebar() {
                 borderRadius: 6,
                 textDecoration: 'none',
                 background: 'transparent',
-                color: active ? '#FFA100' : 'var(--text-muted)',
+                color: active ? '#FD6D03' : 'var(--text-muted)',
                 transition: 'color 0.18s ease',
               }}
             >
@@ -209,7 +209,7 @@ export default function AppSidebar() {
             justifyContent: collapsed ? 'center' : 'flex-start',
             borderRadius: 6,
             textDecoration: 'none',
-            color: pathname === '/account' ? '#FFA100' : 'var(--text-muted)',
+            color: pathname === '/account' ? '#FD6D03' : 'var(--text-muted)',
             transition: 'background 0.12s ease, color 0.18s ease',
           }}
         >
@@ -218,8 +218,8 @@ export default function AppSidebar() {
             height: 22,
             borderRadius: 5,
             background: 'var(--surface-2)',
-            border: `1px solid ${pathname === '/account' ? 'rgba(255,161,0,0.5)' : 'rgba(255,161,0,0.35)'}`,
-            color: '#FFA100',
+            border: `1px solid ${pathname === '/account' ? 'rgba(253,109,3,0.5)' : 'rgba(253,109,3,0.35)'}`,
+            color: '#FD6D03',
             display: 'grid',
             placeItems: 'center',
             fontFamily: "'JetBrains Mono', monospace",
@@ -234,7 +234,7 @@ export default function AppSidebar() {
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: '0.75rem',
             fontWeight: 600,
-            color: pathname === '/account' ? '#FFA100' : 'var(--text-subtle)',
+            color: pathname === '/account' ? '#FD6D03' : 'var(--text-subtle)',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',

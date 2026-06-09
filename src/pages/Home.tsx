@@ -309,7 +309,7 @@ export default function Home() {
           <div className="lp-marquee">
             {['Python 3','Java 17','Data Structures','Algorithms','CS 101','LeetCode-style','Test-driven','AP CS','Interview Prep','Object-Oriented','Python 3','Java 17','Data Structures','Algorithms','CS 101','LeetCode-style','Test-driven','AP CS','Interview Prep','Object-Oriented'].map((l, i) => (
               <span key={i} className="lp-marquee-item">
-                <span style={{ width: 4, height: 4, borderRadius: '50%', background: '#FFA100', opacity: 0.7, display: 'inline-block', flexShrink: 0 }} />
+                <span style={{ width: 4, height: 4, borderRadius: '50%', background: '#FD6D03', opacity: 0.7, display: 'inline-block', flexShrink: 0 }} />
                 {l}
               </span>
             ))}
@@ -327,7 +327,7 @@ export default function Home() {
         <div className="lp-rail" style={{ maxWidth: 1120, width: '100%', margin: '0 auto', position: 'relative' }}>
           <div style={{ textAlign: 'center', padding: 'clamp(3rem,6vw,5rem) 2rem 2rem' }}>
             <div className="lp-section-badge">
-              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#FFA100', display: 'inline-block' }} />
+              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#FD6D03', display: 'inline-block' }} />
               Features
             </div>
             <h2 className="lp-section-h2">Everything a coding class needs.</h2>
@@ -357,7 +357,7 @@ export default function Home() {
         <div className="lp-ascii-tr"><AsciiBlob rows={8} cols={12} /></div>
         <div style={{ maxWidth: 1120, width: '100%', margin: '0 auto', padding: 'clamp(3rem,6vw,5rem) 2rem 0', position: 'relative', zIndex: 1 }}>
           <div className="lp-section-badge">
-            <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#FFA100', display: 'inline-block' }} />
+            <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#FD6D03', display: 'inline-block' }} />
             Live Demo
           </div>
           <h2 className="lp-section-h2" style={{ marginBottom: '2rem' }}>
@@ -416,7 +416,7 @@ export default function Home() {
                   { text: '✓ test_single_pair (1ms)',    color: '#16a34a' },
                   { text: '✓ test_multiple_pairs (2ms)', color: '#16a34a' },
                   { text: '', color: '' },
-                  { text: 'PASS  8/8 tests  0.03s', color: '#FFA100', bold: true },
+                  { text: 'PASS  8/8 tests  0.03s', color: '#FD6D03', bold: true },
                 ] as { text: string; color: string; bold?: boolean }[]).map(({ text, color, bold }, i) => (
                   <div key={i} style={{ color, fontWeight: bold ? 500 : 400 }}>{text || ' '}</div>
                 ))}
@@ -440,7 +440,7 @@ export default function Home() {
         ]} />
         <div className="lp-steps-inner" style={{ position: 'relative', zIndex: 1 }}>
           <div className="lp-section-badge">
-            <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#FFA100', display: 'inline-block' }} />
+            <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#FD6D03', display: 'inline-block' }} />
             How it works
           </div>
           <h2 className="lp-section-h2">Focused practice, <span>classroom ready.</span></h2>
@@ -453,7 +453,7 @@ export default function Home() {
                 <div className="lp-step-code">
                   {s.code.map((line, j) => (
                     <div key={j} style={{ color: j === 1 ? '#4ade80' : '#666' }}>
-                      {j === 0 && <span style={{ color: '#FFA100', fontWeight: 500 }}>$ </span>}
+                      {j === 0 && <span style={{ color: '#FD6D03', fontWeight: 500 }}>$ </span>}
                       {j === 0 ? line.slice(2) : line}
                     </div>
                   ))}
@@ -473,7 +473,7 @@ export default function Home() {
         ]} />
         <div style={{ position: 'relative', zIndex: 1 }}>
           <div className="lp-cta-badge">
-            <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#FFA100', display: 'inline-block' }} />
+            <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#FD6D03', display: 'inline-block' }} />
             Ready to build habits?
           </div>
           <h2>Start practicing<br /><span>today.</span></h2>

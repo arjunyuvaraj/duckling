@@ -35,7 +35,7 @@ async def user_from_authorization(authorization: str | None):
 
     result = await asyncio.to_thread(
         lambda: supabase.table("users").select(
-            "id, email, username, deleted_at"
+            "id, email, username, feathers, deleted_at"
         ).eq("id", payload["sub"]).execute()
     )
 
@@ -72,6 +72,7 @@ async def signup(req: SignupRequest):
                 "email": req.email,
                 "username": req.username,
                 "password_hash": password_hash,
+                "feathers": 0,
             }).execute()
         )
 
@@ -82,6 +83,7 @@ async def signup(req: SignupRequest):
             "user_id": user_id,
             "username": req.username,
             "email": req.email,
+            "feathers": 0,
             "message": "Account created successfully",
             **session_payload(user),
         }
@@ -107,7 +109,7 @@ async def login(req: LoginRequest):
 
         result = await asyncio.to_thread(
             lambda: supabase.table("users").select(
-                "id, email, username, password_hash, deleted_at"
+                "id, email, username, feathers, password_hash, deleted_at"
             ).eq("email", req.email).execute()
         )
 
@@ -128,6 +130,7 @@ async def login(req: LoginRequest):
             "user_id": user["id"],
             "username": user["username"],
             "email": user["email"],
+            "feathers": user.get("feathers", 0),
             "message": "Logged in successfully",
             **session_payload(user),
         }
@@ -147,6 +150,7 @@ async def me(authorization: str | None = Header(default=None)):
         "user_id": user["id"],
         "username": user["username"],
         "email": user["email"],
+        "feathers": user.get("feathers", 0),
     }
 
 

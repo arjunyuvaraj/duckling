@@ -38,7 +38,11 @@
       "Bash(xargs sed -i '' 's/#fbe7de/#FFF5D6/g')",
       "Bash(xargs sed -i '' 's/#ffebe3/#FFF5D6/g')",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173)",
-      "Bash(npm run dev > /tmp/duckling-dev.log 2>&1 & *)"
+      "Bash(npm run dev > /tmp/duckling-dev.log 2>&1 & *)",
+      "Bash(claude mcp *)",
+      "Bash(xargs sed -i '' 's/#FFA100/#FECC04/g; s/#FFB833/#FECC04/g; s/ffa100/fecc04/g')",
+      "Bash(xargs sed -i '' 's/rgba\\(255,161,0,/rgba\\(254,204,4,/g')",
+      "Bash(xargs sed -i '' 's/#FECC04/#FD6D03/g; s/#fecc04/#fd6d03/g; s/rgba\\(254,204,4,/rgba\\(253,109,3,/g; s/#FFCC00/#FD6D03/g')"
     ],
     "additionalDirectories": [
       "/tmp"

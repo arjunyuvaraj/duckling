@@ -138,9 +138,9 @@ export function MainButton({ children, style, ...props }: ButtonProps) {
       {...props}
       style={{
         ...btnBase,
-        background: '#FFA100',
+        background: '#FD6D03',
         color: '#fff',
-        border: '1px solid #FFA100',
+        border: '1px solid #FD6D03',
         boxShadow: '0 0 10px rgba(250, 93, 25, 0.15)',
         ...style,
       }}

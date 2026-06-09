@@ -107,8 +107,8 @@ export default function Account() {
               left: PAD,
               right: PAD,
               height: ITEM_H,
-              background: 'rgba(255,161,0,0.1)',
-              border: '1px solid rgba(255,161,0,0.18)',
+              background: 'rgba(253,109,3,0.1)',
+              border: '1px solid rgba(253,109,3,0.18)',
               borderRadius: 7,
               top: pillTop,
               transition: 'top 0.22s cubic-bezier(0.34, 1.56, 0.64, 1)',
@@ -131,7 +131,7 @@ export default function Account() {
                     borderRadius: 7,
                     border: 'none',
                     background: 'transparent',
-                    color: isActive ? '#FFA100' : 'var(--text-muted)',
+                    color: isActive ? '#FD6D03' : 'var(--text-muted)',
                     fontFamily: 'Inter, system-ui, sans-serif',
                     fontSize: '0.875rem',
                     fontWeight: isActive ? 600 : 400,
@@ -180,15 +180,17 @@ export default function Account() {
 
                 <FieldRow label="Username" description="Your display name on ducklings.dev." value={user.username ?? 'unknown'} />
                 <FieldRow label="Email" description="The email address linked to your account." value={user.email ?? 'unknown'} />
+                <FieldRow label="Feathers" description="Your duckling rating — earned by solving problems." value={String(user.feathers ?? 0)} />
 
                 <div style={{ padding: '1.25rem 1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
                   <Link to="/home" style={{
                     fontFamily: 'Inter, system-ui, sans-serif',
+                    
                     fontSize: '0.875rem',
                     fontWeight: 600,
                     color: '#fff',
-                    background: '#FFA100',
-                    border: '1px solid #FFA100',
+                    background: '#FD6D03',
+                    border: '1px solid #FD6D03',
                     borderRadius: 8,
                     padding: '0.55rem 1.2rem',
                     textDecoration: 'none',
@@ -248,10 +250,10 @@ export default function Account() {
                             alignItems: 'center',
                             gap: '0.4rem',
                             padding: '0.5rem 1rem',
-                            background: active ? 'rgba(255,161,0,0.12)' : 'transparent',
+                            background: active ? 'rgba(253,109,3,0.12)' : 'transparent',
                             border: 'none',
                             borderLeft: i > 0 ? '1px solid var(--border)' : 'none',
-                            color: active ? '#FFA100' : 'var(--text-muted)',
+                            color: active ? '#FD6D03' : 'var(--text-muted)',
                             fontFamily: 'Inter, system-ui, sans-serif',
                             fontSize: '0.875rem',
                             fontWeight: active ? 600 : 400,
