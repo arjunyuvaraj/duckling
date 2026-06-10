@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ALL_PROBLEMS, DIFFICULTY_COLOR } from '../data/problems';
 import { readStoredUser } from '../utils/user';
@@ -66,6 +66,12 @@ interface ClassroomResponse {
   selectedId?: string;
 }
 
+function chooseSelectedId(nextClasses: ClassroomItem[], preferredId: string | undefined, currentId: string) {
+  if (preferredId && nextClasses.some((item) => item.id === preferredId)) return preferredId;
+  if (currentId && nextClasses.some((item) => item.id === currentId)) return currentId;
+  return nextClasses[0]?.id ?? '';
+}
+
 const MONO: React.CSSProperties = {
   fontFamily: "'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
 };
@@ -95,19 +101,10 @@ export default function Classroom() {
     () => classes.find((item) => item.id === selectedId) ?? null,
     [classes, selectedId],
   );
+  const activeTab = selected?.role !== 'teacher' && tab === 'review' ? 'classwork' : tab;
   const selectedProblem = ALL_PROBLEMS.find((problem) => problem.id === Number(problemId)) ?? ALL_PROBLEMS[0];
 
-  useEffect(() => {
-    void loadClassroom();
-  }, [userId, username]);
-
-  useEffect(() => {
-    if (selected?.role !== 'teacher' && tab === 'review') {
-      setTab('classwork');
-    }
-  }, [selected?.role, tab]);
-
-  async function request(path: string, init?: RequestInit): Promise<ClassroomResponse> {
+  const request = useCallback(async (path: string, init?: RequestInit): Promise<ClassroomResponse> => {
     const response = await fetch(`${API_BASE_URL}${path}`, {
       ...init,
       headers: {
@@ -118,32 +115,35 @@ export default function Classroom() {
     const data = await response.json().catch(() => ({}));
     if (!response.ok || data.ok === false) throw new Error(data.error ?? 'Classroom request failed.');
     return data as ClassroomResponse;
-  }
+  }, []);
 
-  function chooseSelectedId(nextClasses: ClassroomItem[], preferredId?: string) {
-    if (preferredId && nextClasses.some((item) => item.id === preferredId)) return preferredId;
-    if (selectedId && nextClasses.some((item) => item.id === selectedId)) return selectedId;
-    return nextClasses[0]?.id ?? '';
-  }
+  useEffect(() => {
+    let cancelled = false;
+    const params = new URLSearchParams({ userId, username });
 
-  async function loadClassroom(preferredId?: string) {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({ userId, username });
-      const data = await request(`/api/classroom?${params.toString()}`);
-      setClasses(data.classes);
-      setSelectedId(chooseSelectedId(data.classes, preferredId ?? data.selectedId));
-      setMessage('');
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Could not load classroom.');
-    } finally {
-      setLoading(false);
-    }
-  }
+    request(`/api/classroom?${params.toString()}`)
+      .then((data) => {
+        if (cancelled) return;
+        setClasses(data.classes);
+        setSelectedId((currentId) => chooseSelectedId(data.classes, data.selectedId, currentId));
+        setMessage('');
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        setMessage(error instanceof Error ? error.message : 'Could not load classroom.');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [request, userId, username]);
 
   function applyClassroom(data: ClassroomResponse, nextMessage: string) {
     setClasses(data.classes);
-    setSelectedId(chooseSelectedId(data.classes, data.selectedId));
+    setSelectedId((currentId) => chooseSelectedId(data.classes, data.selectedId, currentId));
     setMessage(nextMessage);
   }
 
@@ -294,14 +294,14 @@ export default function Classroom() {
                 <StatsStrip selected={selected} />
 
                 <nav style={{ display: 'flex', gap: '0.2rem', borderBottom: '1px solid var(--border)', padding: '0 1rem' }}>
-                  <TabButton active={tab === 'stream'} onClick={() => setTab('stream')}>Stream</TabButton>
-                  <TabButton active={tab === 'classwork'} onClick={() => setTab('classwork')}>Classwork</TabButton>
-                  {selected.role === 'teacher' && <TabButton active={tab === 'review'} onClick={() => setTab('review')}>Grades</TabButton>}
+                  <TabButton active={activeTab === 'stream'} onClick={() => setTab('stream')}>Stream</TabButton>
+                  <TabButton active={activeTab === 'classwork'} onClick={() => setTab('classwork')}>Classwork</TabButton>
+                  {selected.role === 'teacher' && <TabButton active={activeTab === 'review'} onClick={() => setTab('review')}>Grades</TabButton>}
                 </nav>
 
                 <div style={{ padding: '1rem' }}>
-                  {tab === 'stream' && <StreamView selected={selected} />}
-                  {tab === 'classwork' && (
+                  {activeTab === 'stream' && <StreamView selected={selected} />}
+                  {activeTab === 'classwork' && (
                     <ClassworkView
                       selected={selected}
                       problemId={problemId}
@@ -312,7 +312,7 @@ export default function Classroom() {
                       posting={busy === 'assign'}
                     />
                   )}
-                  {tab === 'review' && selected.role === 'teacher' && (
+                  {activeTab === 'review' && selected.role === 'teacher' && (
                     <ReviewView selected={selected} savingId={busy?.startsWith('grade-') ? busy.slice(6) : null} onGrade={gradeSubmission} />
                   )}
                 </div>
@@ -464,7 +464,7 @@ function ReviewView({
       ) : selected.submissions.length === 0 ? (
         <EmptyPanel text="Students are enrolled, but no submissions have come in yet." />
       ) : selected.submissions.map((submission) => (
-        <SubmissionCard key={submission.id} submission={submission} saving={savingId === submission.id} onGrade={onGrade} />
+        <SubmissionCard key={`${submission.id}-${submission.grade ?? ''}-${submission.feedback}`} submission={submission} saving={savingId === submission.id} onGrade={onGrade} />
       ))}
     </div>
   );
@@ -483,11 +483,6 @@ function SubmissionCard({
   const [feedback, setFeedback] = useState(submission.feedback ?? '');
   const problem = ALL_PROBLEMS.find((entry) => entry.id === submission.problemId);
   const canSave = grade.trim() === '' || (Number.isFinite(Number(grade)) && Number(grade) >= 0 && Number(grade) <= 100);
-
-  useEffect(() => {
-    setGrade(submission.grade?.toString() ?? '');
-    setFeedback(submission.feedback ?? '');
-  }, [submission.grade, submission.feedback]);
 
   return (
     <article style={panelStyle}>
