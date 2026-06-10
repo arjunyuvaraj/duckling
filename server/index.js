@@ -2,7 +2,7 @@ import { createServer } from 'node:http';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildHarness, extractHarnessOutput } from './problemHarnesses.js';
+import { buildHarness, extractHarnessOutput, buildCompeteHarness, extractCompeteOutput } from './problemHarnesses.js';
 
 const PORT = Number(process.env.PORT ?? 8787);
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -576,6 +576,82 @@ const server = createServer(async (request, response) => {
         memory: result.memory ?? null,
         summary: finalCases.length ? summarizeCases(finalCases) : summarizeResult(result),
         cases: finalCases,
+      });
+      return;
+    } catch (error) {
+      sendJson(response, 500, {
+        ok: false,
+        error: error instanceof Error ? error.message : 'Execution failed.',
+      });
+      return;
+    }
+  }
+
+  if (request.method === 'POST' && request.url === '/api/code/compete') {
+    try {
+      const body = await readJsonBody(request);
+      const language = normalizeLanguageName(String(body.language ?? ''));
+      const sourceCode = String(body.sourceCode ?? '');
+      const rawProblemId = Number(body.problemId);
+      const problemId = Number.isInteger(rawProblemId) ? rawProblemId : null;
+
+      if (!language || !sourceCode.trim()) {
+        sendJson(response, 400, { error: 'language and sourceCode are required.' });
+        return;
+      }
+
+      const competeCode = problemId ? buildCompeteHarness(problemId, language, sourceCode) : null;
+      if (!competeCode) {
+        sendJson(response, 400, { error: 'No compete harness for this problem/language.' });
+        return;
+      }
+
+      const language_id = await resolveLanguageId(language);
+      const judgeResponse = await fetch(
+        `${JUDGE0_BASE_URL}/submissions?base64_encoded=false&wait=true`,
+        {
+          method: 'POST',
+          headers: judge0Headers(),
+          body: JSON.stringify({
+            language_id,
+            source_code: competeCode,
+            stdin: '',
+            cpu_time_limit: 5,
+            wall_time_limit: 10,
+            memory_limit: 256000,
+            enable_network: false,
+          }),
+        },
+      );
+
+      const payload = await judgeResponse.json().catch(() => ({}));
+      if (!judgeResponse.ok) {
+        throw new Error(payload.error ?? payload.message ?? `Judge0 request failed (${judgeResponse.status}).`);
+      }
+
+      const compete = extractCompeteOutput(payload.stdout ?? '');
+      if (!compete) {
+        sendJson(response, 200, {
+          ok: false,
+          error: 'Execution error',
+          stderr: payload.stderr ?? '',
+          compileOutput: payload.compile_output ?? '',
+        });
+        return;
+      }
+
+      sendJson(response, 200, {
+        ok: true,
+        allPassed: compete.allPassed,
+        passedVisible: compete.passedVisible,
+        totalVisible: compete.totalVisible,
+        passedHidden: compete.passedHidden,
+        totalHidden: compete.totalHidden,
+        visibleCases: compete.visibleCases,
+        status: compete.status,
+        message: compete.message,
+        stderr: payload.stderr ?? '',
+        compileOutput: payload.compile_output ?? '',
       });
       return;
     } catch (error) {

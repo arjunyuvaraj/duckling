@@ -3,7 +3,6 @@ import AppSidebar from './AppSidebar';
 
 export default function AppLayout() {
   const location = useLocation();
-
   return (
     <div style={{ display: 'flex', height: '100vh', background: 'var(--bg)', overflow: 'hidden' }}>
       <AppSidebar />

@@ -3,7 +3,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config.logging import setup_logging
-from app.api.routes import auth
+from app.api.routes import auth, compete
 
 setup_logging()
 
@@ -20,6 +20,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
+app.include_router(compete.router, prefix="/compete", tags=["compete"])
 
 
 @app.get("/health")
