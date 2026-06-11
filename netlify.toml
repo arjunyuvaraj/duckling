@@ -1,0 +1,13 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  VITE_CODE_API_BASE_URL = "https://duckling-api-332057590473.us-central1.run.app"
+  VITE_COMPETE_API_BASE_URL = "https://duckling-api-332057590473.us-central1.run.app/api"
+  VITE_ENABLE_AUTH_API = "false"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

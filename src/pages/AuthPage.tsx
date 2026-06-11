@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useRef, useLayoutEffect, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { saveUserSession } from '../utils/user';
+import { AUTH_API_BASE_URL, AUTH_API_ENABLED } from '../config/api';
 
 type AuthMode = 'login' | 'register';
 type AuthStatus = 'idle' | 'loading' | 'success' | 'error';
@@ -11,9 +12,6 @@ interface AuthResponse {
   message?: string; detail?: string; access_token?: string;
   token_type?: string; expires_in?: number;
 }
-
-const API_BASE_URL     = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000';
-const AUTH_API_ENABLED = import.meta.env.VITE_ENABLE_AUTH_API !== 'false';
 
 interface LineGeom {
   cardLeft: number; cardRight: number;
@@ -119,7 +117,7 @@ export default function AuthPage({ mode }: AuthPageProps) {
     try {
       const endpoint = isRegister ? '/auth/signup' : '/auth/login';
       const payload  = isRegister ? { email, username: derivedUsername, password } : { email, password };
-      const res  = await fetch(`${API_BASE_URL}${endpoint}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const res  = await fetch(`${AUTH_API_BASE_URL}${endpoint}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       const data = (await res.json().catch(() => ({}))) as AuthResponse;
       if (!res.ok) throw new Error(data.detail ?? data.message ?? 'Something went wrong.');
       if (!data.access_token) throw new Error('Login succeeded but no session token was returned.');

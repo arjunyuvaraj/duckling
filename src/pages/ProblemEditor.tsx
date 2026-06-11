@@ -8,6 +8,7 @@ import { EDITOR_LANGUAGES, getStarterCode } from '../data/problemStarterCode';
 import { readStoredUser } from '../utils/user';
 import { markSolved } from '../utils/progress';
 import { useTheme } from '../context/theme-core';
+import { CODE_API_BASE_URL } from '../config/api';
 
 const GAP = 10;
 
@@ -161,7 +162,6 @@ function VPillDivider({ onMouseDown, active }: { onMouseDown: (e: React.MouseEve
 
 const LEFT_TABS = ['Description', 'Hints']    as const;
 const BOT_TABS  = ['Testcase', 'Test Result'] as const;
-const CODE_API_BASE_URL = import.meta.env.VITE_CODE_API_BASE_URL ?? '';
 const EDITOR_SETTINGS_KEY = 'duckling-editor-settings';
 
 type AccentColor = 'yellow' | 'green' | 'blue' | 'coral';

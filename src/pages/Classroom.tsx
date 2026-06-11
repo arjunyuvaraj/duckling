@@ -2,8 +2,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ALL_PROBLEMS, DIFFICULTY_COLOR } from '../data/problems';
 import { readStoredUser } from '../utils/user';
+import { CODE_API_BASE_URL } from '../config/api';
 
-const API_BASE_URL = import.meta.env.VITE_CODE_API_BASE_URL ?? '';
+const API_BASE_URL = CODE_API_BASE_URL;
 
 interface AssignmentStats {
   submitted: number;

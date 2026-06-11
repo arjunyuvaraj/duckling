@@ -5,9 +5,10 @@ import { getProblemDetail } from '../data/problemDetails';
 import { getStarterCode } from '../data/problemStarterCode';
 import { readSession, saveSession, type StoredSession } from '../utils/user';
 import { useTheme } from '../context/theme-core';
+import { CODE_API_BASE_URL, COMPETE_API_BASE_URL } from '../config/api';
 
-const API  = import.meta.env.VITE_COMPETE_API_BASE_URL ?? '/api';
-const CODE = import.meta.env.VITE_CODE_API_BASE_URL ?? '';
+const API  = COMPETE_API_BASE_URL;
+const CODE = CODE_API_BASE_URL;
 
 const MONO: React.CSSProperties  = { fontFamily: "'JetBrains Mono', ui-monospace, monospace" };
 const SANS: React.CSSProperties  = { fontFamily: 'Inter, system-ui, sans-serif' };
