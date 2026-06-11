@@ -75,7 +75,7 @@ export default function AppSidebar() {
     setCollapsed(c => {
       const next = !c;
       try { localStorage.setItem(LS_KEY, next ? '1' : '0'); } catch {
-        // Ignore storage failures in private browsing or locked-down environments.
+        return next;
       }
       return next;
     });
@@ -100,8 +100,6 @@ export default function AppSidebar() {
       transition: 'width 0.22s cubic-bezier(0.4,0,0.2,1), min-width 0.22s cubic-bezier(0.4,0,0.2,1)',
       overflow: 'hidden',
     }}>
-
-      {/* Brand */}
       <Link to="/home" style={{
         display: 'flex',
         alignItems: 'center',
@@ -132,8 +130,6 @@ export default function AppSidebar() {
           ducklings.dev
         </span>
       </Link>
-
-      {/* Nav */}
       <div
         className="no-scrollbar"
         style={{ flex: 1, overflowY: 'auto', padding: `${NAV_PAD}px 0`, position: 'relative' }}
@@ -194,8 +190,6 @@ export default function AppSidebar() {
           );
         })}
       </div>
-
-      {/* Footer */}
       <div style={{ borderTop: '1px solid var(--border)', padding: '6px' }}>
         <Link
           to="/account"

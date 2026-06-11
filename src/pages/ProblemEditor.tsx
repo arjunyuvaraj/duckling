@@ -201,7 +201,7 @@ function saveEditorSettings(settings: EditorSettings) {
   try {
     localStorage.setItem(EDITOR_SETTINGS_KEY, JSON.stringify(settings));
   } catch {
-    // Editor settings still work for the current session when storage is unavailable.
+    return undefined;
   }
 }
 
@@ -345,7 +345,6 @@ export default function ProblemEditor() {
     saveEditorSettings(editorSettings);
   }, [editorSettings]);
 
-  // Switch Monaco theme when app theme changes
   useEffect(() => {
     if (!monacoRef.current) return;
     monacoRef.current.editor.setTheme(
@@ -480,8 +479,6 @@ export default function ProblemEditor() {
       cursor: draggingH ? 'col-resize' : draggingV ? 'row-resize' : undefined,
       userSelect: isDragging ? 'none' : undefined,
     }}>
-
-      {/* Top bar */}
       <div style={{
         flexShrink: 0, minHeight: 56,
         display: 'flex', alignItems: 'center',
@@ -518,11 +515,7 @@ export default function ProblemEditor() {
           </div>
         </Link>
       </div>
-
-      {/* Main split area */}
       <div ref={containerRef} style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
-
-        {/* Left — description panel */}
         <Panel style={{
           width: `${hSplit * 100}%`, flexShrink: 0,
           display: 'flex', flexDirection: 'column',
@@ -633,20 +626,15 @@ export default function ProblemEditor() {
         </Panel>
 
         <HPillDivider onMouseDown={onHMouseDown} active={draggingH} />
-
-        {/* Right — editor + results */}
         <div
           ref={rightContentRef}
           style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', pointerEvents: isDragging ? 'none' : undefined }}
         >
-          {/* Editor panel */}
           <Panel style={{ flex: vSplit * 100, display: 'flex', flexDirection: 'column', minHeight: 0, background: CARD_BG, overflow: 'visible', position: 'relative' }}>
             <GridCorner position="top-left" />
             <GridCorner position="top-right" />
             <GridCorner position="bottom-left" />
             <GridCorner position="bottom-right" />
-
-            {/* Editor toolbar */}
             <div style={{
               height: 46, flexShrink: 0,
               display: 'flex', alignItems: 'center',
@@ -845,8 +833,6 @@ export default function ProblemEditor() {
                 {running ? 'Running...' : 'Run tests'}
               </button>
             </div>
-
-            {/* Monaco editor */}
             <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
               <Editor
                 height="100%"
@@ -886,8 +872,6 @@ export default function ProblemEditor() {
                 }}
               />
             </div>
-
-            {/* Status bar */}
             <div style={{
               height: 24, flexShrink: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -905,8 +889,6 @@ export default function ProblemEditor() {
           </Panel>
 
           <VPillDivider onMouseDown={onVMouseDown} active={draggingV} />
-
-          {/* Bottom — test results panel */}
           <Panel style={{ flex: (1 - vSplit) * 100, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'visible', position: 'relative' }}>
             <GridCorner position="top-left" />
             <GridCorner position="top-right" />
@@ -964,7 +946,6 @@ export default function ProblemEditor() {
                   )}
                   {runResult.cases.length > 0 && (
                     <div style={{ border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden', marginBottom: '0.85rem' }}>
-                      {/* Table header */}
                       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.8fr) 120px 72px 16px', background: 'var(--surface-2)', borderBottom: '1px solid var(--border)' }}>
                         {['Expected', 'Run', 'Check'].map((h, i) => (
                           <div key={h} style={{ ...TEXT, padding: '0.75rem 0.9rem', fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-primary)', borderLeft: i > 0 ? '1px solid var(--border)' : 'none' }}>
@@ -973,7 +954,6 @@ export default function ProblemEditor() {
                         ))}
                         <div />
                       </div>
-                      {/* Table rows */}
                       {runResult.cases.map((tc, idx) => (
                         <div key={`${tc.expected}-${idx}`} style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.8fr) 120px 72px 16px', borderBottom: idx === runResult.cases.length - 1 ? 'none' : '1px solid var(--border)', background: idx % 2 === 0 ? 'var(--surface)' : 'var(--surface-2)' }}>
                           <div style={{ ...MONO, padding: '0.85rem 0.9rem', color: 'var(--text-primary)', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>

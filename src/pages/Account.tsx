@@ -78,8 +78,6 @@ export default function Account() {
   return (
     <div className="no-scrollbar" style={{ flex: 1, overflowY: 'auto' }}>
       <main style={{ width: 'min(860px, calc(100% - 3rem))', margin: '0 auto', padding: '2.5rem 0 4rem' }}>
-
-        {/* Page header */}
         <div style={{ marginBottom: '2rem' }}>
           <h1 style={{ fontFamily: "'Stack', 'Geist', 'Inter', sans-serif", fontSize: 'clamp(1.8rem, 3vw, 2.5rem)', fontWeight: 400, color: 'var(--text-primary)', margin: '0 0 0.4rem', lineHeight: 1.1, letterSpacing: '-0.01em' }}>
             Account
@@ -90,8 +88,6 @@ export default function Account() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '190px 1fr', gap: '1.25rem', alignItems: 'start' }}>
-
-          {/* Left sub-nav */}
           <div style={{
             position: 'relative',
             border: '1px solid var(--border)',
@@ -145,8 +141,6 @@ export default function Account() {
               );
             })}
           </div>
-
-          {/* Right content */}
           <div
             key={activeTab}
             className={slideDir === 'right' ? 'slide-from-right' : 'slide-from-left'}
@@ -228,8 +222,6 @@ export default function Account() {
                       Select light, dark, or follow your system setting.
                     </div>
                   </div>
-
-                  {/* Toggle group */}
                   <div style={{
                     display: 'inline-flex',
                     border: '1px solid var(--border)',

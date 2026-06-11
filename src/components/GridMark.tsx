@@ -12,11 +12,6 @@ const S: CSSProperties = {
   zIndex: 2,
 };
 
-/**
- * Renders + markers at column-separator × row-border intersections.
- * Parent must have position: relative.
- * cols: percentage strings of each column divider, e.g. ['25%', '50%', '75%']
- */
 export function GridMark({ cols }: { cols: string[] }) {
   return (
     <>

@@ -6,14 +6,12 @@ import { getStarterCode } from '../data/problemStarterCode';
 import { readSession, saveSession, type StoredSession } from '../utils/user';
 import { useTheme } from '../context/theme-core';
 
-const API  = import.meta.env.VITE_API_BASE_URL      ?? 'http://localhost:8000';
-const CODE = import.meta.env.VITE_CODE_API_BASE_URL ?? 'http://localhost:8787';
+const API  = import.meta.env.VITE_COMPETE_API_BASE_URL ?? '/api';
+const CODE = import.meta.env.VITE_CODE_API_BASE_URL ?? '';
 
 const MONO: React.CSSProperties  = { fontFamily: "'JetBrains Mono', ui-monospace, monospace" };
 const SANS: React.CSSProperties  = { fontFamily: 'Inter, system-ui, sans-serif' };
 const STACK: React.CSSProperties = { fontFamily: "'Stack', 'Geist', 'Inter', sans-serif" };
-
-// ── Types ────────────────────────────────────────────────────────────────────
 
 type View = 'home' | 'lobby-room' | 'match' | 'result';
 type Mode = 'casual' | 'ranked';
@@ -41,8 +39,6 @@ interface RunResult {
   visibleCases: TestCase[];
   status: string; stderr?: string; compileOutput?: string;
 }
-
-// ── Theme defs ────────────────────────────────────────────────────────────────
 
 const DARK_THEME = {
   base: 'vs-dark' as const, inherit: true,
@@ -73,13 +69,17 @@ const LIGHT_THEME = {
   },
 };
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
 function fmt(s: number) {
   return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
 }
-function authJson(token: string) {
-  return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+function authJson(session: StoredSession | null) {
+  return {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${session?.accessToken ?? ''}`,
+    'X-Duckling-User-Id': session?.user.id ?? '',
+    'X-Duckling-Username': session?.user.username ?? '',
+    'X-Duckling-Feathers': String(session?.user.feathers ?? 100),
+  };
 }
 function diffColor(d: string) {
   return d === 'Easy' ? '#4ade80' : d === 'Medium' ? '#FFC91A' : '#f87171';
@@ -90,8 +90,6 @@ function initials(name: string) {
 function placeLabel(n: number) {
   return ['🥇', '🥈', '🥉', '4th'][n - 1] ?? `${n}th`;
 }
-
-// ── HomeView ──────────────────────────────────────────────────────────────────
 
 function HomeView({
   onCreateLobby, onJoinLobby, joinError, joining,
@@ -105,8 +103,6 @@ function HomeView({
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-
-      {/* Header */}
       <div style={{ padding: '2rem 1.75rem', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
         <h1 style={{ ...STACK, fontSize: 'clamp(1.8rem, 3vw, 2.5rem)', fontWeight: 400, color: 'var(--text-primary)', margin: '0 0 0.3rem', letterSpacing: '-0.01em' }}>
           Compete.
@@ -117,8 +113,6 @@ function HomeView({
       </div>
 
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-
-        {/* Left — Create Lobby */}
         <div style={{ flex: 1, borderRight: '1px solid var(--border)', padding: '2.5rem 2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', overflowY: 'auto' }}>
           <div>
             <div style={{ ...MONO, fontSize: '0.65rem', color: 'var(--text-subtle)', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>CREATE LOBBY</div>
@@ -127,8 +121,6 @@ function HomeView({
               Create a lobby and get a 6-digit code. Share it with up to 3 friends. You decide when to start.
             </div>
           </div>
-
-          {/* Mode selector */}
           <div>
             <div style={{ ...SANS, fontSize: '0.78rem', color: 'var(--text-subtle)', marginBottom: '0.5rem' }}>Mode</div>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -164,8 +156,6 @@ function HomeView({
           >
             Create Lobby →
           </button>
-
-          {/* Info pills */}
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             {['Up to 4 players', '30 min time limit', 'Same problem for all'].map(t => (
               <span key={t} style={{
@@ -175,8 +165,6 @@ function HomeView({
             ))}
           </div>
         </div>
-
-        {/* Right — Join Lobby */}
         <div style={{ flex: 1, padding: '2.5rem 2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', overflowY: 'auto' }}>
           <div>
             <div style={{ ...MONO, fontSize: '0.65rem', color: 'var(--text-subtle)', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>JOIN LOBBY</div>
@@ -228,8 +216,6 @@ function HomeView({
   );
 }
 
-// ── LobbyRoomView ─────────────────────────────────────────────────────────────
-
 function LobbyRoomView({
   lobby, players, userId, onLeave, onStart, starting,
 }: {
@@ -237,7 +223,7 @@ function LobbyRoomView({
   onLeave: () => void; onStart: () => void; starting: boolean;
 }) {
   const isHost    = lobby.host_id === userId;
-  const canStart  = isHost && players.length >= 2 && !starting;
+  const canStart  = isHost && players.length >= 1 && !starting;
   const [copied, setCopied] = useState(false);
 
   function copyCode() {
@@ -246,13 +232,10 @@ function LobbyRoomView({
     setTimeout(() => setCopied(false), 2000);
   }
 
-  // Format code as XXX XXX for readability
   const displayCode = `${lobby.code.slice(0, 3)} ${lobby.code.slice(3)}`;
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-
-      {/* Top bar */}
       <div style={{
         borderBottom: '1px solid var(--border)', padding: '1rem 1.75rem',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0,
@@ -273,11 +256,8 @@ function LobbyRoomView({
           Leave
         </button>
       </div>
-
-      {/* Body */}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
 
-        {/* Left: Game pin */}
         <div style={{
           width: 280, flexShrink: 0, borderRight: '1px solid var(--border)',
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
@@ -310,30 +290,21 @@ function LobbyRoomView({
           <div style={{ ...SANS, fontSize: '0.75rem', color: 'var(--text-subtle)', textAlign: 'center', lineHeight: 1.6 }}>
             Share this code with friends. They go to Compete → Enter Code.
           </div>
-
-          {/* Start button */}
           <div style={{ marginTop: 'auto', width: '100%' }}>
             {isHost ? (
-              <>
-                <button
-                  onClick={onStart}
-                  disabled={!canStart}
-                  style={{
-                    width: '100%', ...SANS, fontSize: '0.95rem', fontWeight: 500,
-                    color: canStart ? '#fff' : 'var(--text-subtle)',
-                    background: canStart ? 'var(--accent, #FD6D03)' : 'var(--border)',
-                    border: 'none', borderRadius: 8, padding: '0.75rem',
-                    cursor: canStart ? 'pointer' : 'not-allowed', transition: 'all 0.15s',
-                  }}
-                >
-                  {starting ? 'Starting…' : players.length < 2 ? 'Waiting for players…' : 'Start Game →'}
-                </button>
-                {players.length < 2 && (
-                  <div style={{ ...SANS, fontSize: '0.72rem', color: 'var(--text-subtle)', textAlign: 'center', marginTop: '0.5rem' }}>
-                    Need at least 2 players
-                  </div>
-                )}
-              </>
+              <button
+                onClick={onStart}
+                disabled={!canStart}
+                style={{
+                  width: '100%', ...SANS, fontSize: '0.95rem', fontWeight: 500,
+                  color: canStart ? '#fff' : 'var(--text-subtle)',
+                  background: canStart ? 'var(--accent, #FD6D03)' : 'var(--border)',
+                  border: 'none', borderRadius: 8, padding: '0.75rem',
+                  cursor: canStart ? 'pointer' : 'not-allowed', transition: 'all 0.15s',
+                }}
+              >
+                {starting ? 'Starting…' : 'Start Game →'}
+              </button>
             ) : (
               <div style={{ ...SANS, fontSize: '0.8rem', color: 'var(--text-subtle)', textAlign: 'center', padding: '0.75rem', border: '1px solid var(--border)', borderRadius: 8 }}>
                 Waiting for host to start…
@@ -341,15 +312,12 @@ function LobbyRoomView({
             )}
           </div>
         </div>
-
-        {/* Right: Player list */}
         <div style={{ flex: 1, padding: '2rem', overflowY: 'auto' }}>
           <div style={{ ...SANS, fontSize: '0.72rem', color: 'var(--text-subtle)', letterSpacing: '0.07em', marginBottom: '1.25rem' }}>
             PLAYERS IN LOBBY
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            {/* Filled slots */}
             {players.map(p => (
               <div key={p.user_id} style={{
                 display: 'flex', alignItems: 'center', gap: '0.75rem',
@@ -357,7 +325,6 @@ function LobbyRoomView({
                 background: 'var(--surface)', border: `1px solid ${p.user_id === userId ? 'var(--accent, #FD6D03)' : 'var(--border)'}`,
                 borderRadius: 8, transition: 'border-color 0.15s',
               }}>
-                {/* Avatar */}
                 <div style={{
                   width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
                   background: p.user_id === userId ? 'rgba(253,109,3,0.15)' : 'var(--surface-2)',
@@ -389,8 +356,6 @@ function LobbyRoomView({
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80', animation: 'pulse 2s infinite', flexShrink: 0 }} />
               </div>
             ))}
-
-            {/* Empty slots */}
             {Array.from({ length: lobby.max_players - players.length }).map((_, i) => (
               <div key={i} style={{
                 display: 'flex', alignItems: 'center', gap: '0.75rem',
@@ -416,8 +381,6 @@ function LobbyRoomView({
     </div>
   );
 }
-
-// ── MatchView ─────────────────────────────────────────────────────────────────
 
 function MatchView({
   lobby, players, submissions, userId, timeLeft,
@@ -455,7 +418,19 @@ function MatchView({
       const data: RunResult = await res.json();
       setResult(data);
       if (data.ok) await onSubmit(data, code, language);
-    } catch { /* network error */ }
+    } catch {
+      setResult({
+        ok: false,
+        allPassed: false,
+        passedVisible: 0,
+        totalVisible: 0,
+        passedHidden: 0,
+        totalHidden: 0,
+        visibleCases: [],
+        status: 'Network error',
+        stderr: 'The code runner is not reachable.',
+      });
+    }
     finally { setRunning(false); }
   };
 
@@ -465,8 +440,6 @@ function MatchView({
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-
-      {/* Top bar */}
       <div style={{
         height: 52, flexShrink: 0, display: 'flex', alignItems: 'center',
         borderBottom: '1px solid var(--border)', padding: '0 1rem', gap: '1rem',
@@ -484,8 +457,6 @@ function MatchView({
         <span style={{ ...MONO, fontSize: '1rem', fontWeight: 700, color: isUrgent ? '#f87171' : 'var(--text-primary)', minWidth: 56, flexShrink: 0 }}>
           {fmt(timeLeft)}
         </span>
-
-        {/* Opponent mini-progress */}
         <div style={{ flex: 1, display: 'flex', gap: '0.75rem', overflow: 'hidden', alignItems: 'center' }}>
           {opponents.map(opp => {
             const sub      = subMap[opp.user_id];
@@ -527,11 +498,8 @@ function MatchView({
           {running ? 'Running…' : 'Submit →'}
         </button>
       </div>
-
-      {/* Main */}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
 
-        {/* Problem panel */}
         <div style={{ width: '37%', flexShrink: 0, borderRight: '1px solid var(--border)', overflowY: 'auto', padding: '1.25rem 1.5rem' }}>
           {problem && (
             <>
@@ -585,8 +553,6 @@ function MatchView({
             </>
           )}
         </div>
-
-        {/* Editor */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           <Editor
             height={result ? 'calc(100% - 130px)' : '100%'}
@@ -601,8 +567,6 @@ function MatchView({
               padding: { top: 14, bottom: 14 }, wordWrap: 'on',
             }}
           />
-
-          {/* Test results strip */}
           {result && (
             <div style={{ height: 130, flexShrink: 0, borderTop: '1px solid var(--border)', background: 'var(--surface)', overflowY: 'auto', padding: '0.65rem 1rem' }}>
               {!result.ok ? (
@@ -662,8 +626,6 @@ function MatchView({
   );
 }
 
-// ── ResultView ────────────────────────────────────────────────────────────────
-
 function ResultView({
   lobby, players, submissions, rankings, featherChanges, userId, onPlayAgain,
 }: {
@@ -684,8 +646,6 @@ function ResultView({
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2.5rem', overflow: 'auto', position: 'relative' }}>
-
-      {/* Glow */}
       <div style={{
         position: 'absolute', top: '25%', left: '50%', transform: 'translate(-50%,-50%)',
         width: 400, height: 400, borderRadius: '50%', pointerEvents: 'none',
@@ -703,8 +663,6 @@ function ResultView({
           </div>
         )}
       </div>
-
-      {/* Leaderboard */}
       <div style={{ width: '100%', maxWidth: 520, display: 'flex', flexDirection: 'column', gap: '0.4rem', marginBottom: '1.5rem' }}>
         {sorted.map((p, idx) => {
           const sub        = subMap[p.user_id];
@@ -745,8 +703,6 @@ function ResultView({
                   {passed}/{totalTests} tests passed
                 </div>
               </div>
-
-              {/* Feather change */}
               {lobby.mode === 'ranked' && (
                 <div style={{ textAlign: 'right', flexShrink: 0 }}>
                   <div style={{ ...MONO, fontSize: '0.8rem', fontWeight: 700, color: change >= 0 ? '#4ade80' : '#f87171' }}>
@@ -759,8 +715,6 @@ function ResultView({
           );
         })}
       </div>
-
-      {/* Actions */}
       <div style={{ display: 'flex', gap: '0.75rem' }}>
         <button onClick={onPlayAgain} style={{ ...SANS, fontSize: '0.9rem', fontWeight: 500, color: '#fff', background: 'var(--accent, #FD6D03)', border: 'none', borderRadius: 8, padding: '0.65rem 1.5rem', cursor: 'pointer' }}>
           Play Again →
@@ -773,15 +727,12 @@ function ResultView({
   );
 }
 
-// ── Main ──────────────────────────────────────────────────────────────────────
-
 export default function Compete() {
-  const session = readSession();
+  const [session, setSession] = useState<StoredSession | null>(() => readSession());
   const userId  = session?.user.id ?? '';
-  const token   = session?.accessToken ?? '';
 
   const [view, setView]     = useState<View>('home');
-  const [code, setCode]     = useState('');            // lobby code
+  const [code, setCode]     = useState('');
   const [lobby, setLobby]   = useState<Lobby | null>(null);
   const [players, setPlayers] = useState<LobbyPlayer[]>([]);
   const [subs, setSubs]       = useState<Submission[]>([]);
@@ -793,9 +744,8 @@ export default function Compete() {
     rankings: Record<string, number>; featherChanges: Record<string, number>;
   } | null>(null);
 
-  const headers = useCallback(() => authJson(token), [token]);
+  const headers = useCallback(() => authJson(session), [session]);
 
-  // Fetch lobby state
   const fetchLobby = useCallback(async (lobbyCode: string) => {
     try {
       const res  = await fetch(`${API}/compete/lobby/${lobbyCode}`, { headers: headers() });
@@ -805,7 +755,6 @@ export default function Compete() {
     } catch { return null; }
   }, [headers]);
 
-  // ── Lobby-room polling ──
   useEffect(() => {
     if (view !== 'lobby-room' || !code) return;
 
@@ -833,13 +782,14 @@ export default function Compete() {
     try {
       const res  = await fetch(`${API}/compete/lobby/${code}/end`, { method: 'POST', headers: headers() });
       const data = await res.json();
-      // Sync feathers if ranked
       if (session && lobby?.mode === 'ranked') {
         const myChange = data.feather_changes?.[userId] ?? 0;
         if (myChange !== 0) {
           const myPlayer = players.find(p => p.user_id === userId);
           if (myPlayer) {
-            saveSession({ ...session, user: { ...session.user, feathers: Math.max(0, myPlayer.feathers + myChange) } } as StoredSession);
+            const nextSession = { ...session, user: { ...session.user, feathers: Math.max(0, myPlayer.feathers + myChange) } } as StoredSession;
+            saveSession(nextSession);
+            setSession(nextSession);
           }
         }
       }
@@ -848,7 +798,6 @@ export default function Compete() {
     } catch { setView('result'); }
   }, [code, headers, session, lobby, userId, players]);
 
-  // ── Match polling (opponent progress + early end detection) ──
   useEffect(() => {
     if (view !== 'match' || !code) return;
 
@@ -868,7 +817,6 @@ export default function Compete() {
       if (data.lobby.status === 'completed') {
         clearInterval(timer);
         clearInterval(poll);
-        // Compute rankings from submissions and show result
         const endRes  = await fetch(`${API}/compete/lobby/${code}/end`, { method: 'POST', headers: headers() });
         const endData = await endRes.json();
         setResultData({ rankings: endData.rankings, featherChanges: endData.feather_changes ?? {} });
@@ -880,8 +828,7 @@ export default function Compete() {
     }, 3000);
 
     return () => { clearInterval(timer); clearInterval(poll); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, code]);
+  }, [view, code, fetchLobby, handleTimeUp, headers]);
 
   const handleSubmitResult = useCallback(async (runResult: RunResult, sourceCode: string, lang: string) => {
     if (!code) return;
@@ -901,11 +848,15 @@ export default function Compete() {
       const data = await res.json();
 
       if (data.status === 'winner') {
-        // Sync feathers
-        if (session && lobby?.mode === 'ranked' && data.feather_change) {
-          saveSession({ ...session, user: { ...session.user, feathers: data.new_feathers } } as StoredSession);
+        if (session && lobby?.mode === 'ranked') {
+          const myChange = data.feather_changes?.[userId] ?? 0;
+          const myPlayer = players.find(p => p.user_id === userId);
+          if (myChange !== 0 && myPlayer) {
+            const nextSession = { ...session, user: { ...session.user, feathers: Math.max(0, myPlayer.feathers + myChange) } } as StoredSession;
+            saveSession(nextSession);
+            setSession(nextSession);
+          }
         }
-        // Fetch final state for result screen
         const finalRes  = await fetch(`${API}/compete/lobby/${code}/end`, { method: 'POST', headers: headers() });
         const finalData = await finalRes.json();
         setResultData({ rankings: finalData.rankings ?? { [userId]: 1 }, featherChanges: finalData.feather_changes ?? {} });
@@ -913,8 +864,10 @@ export default function Compete() {
         if (snapshot) { setLobby(snapshot.lobby); setPlayers(snapshot.players); setSubs(snapshot.submissions); }
         setView('result');
       }
-    } catch { /* ignore */ }
-  }, [code, headers, lobby, session, userId, fetchLobby]);
+    } catch {
+      return;
+    }
+  }, [code, headers, lobby, session, userId, fetchLobby, players]);
 
   const handleCreateLobby = useCallback(async (selectedMode: Mode) => {
     try {
@@ -927,7 +880,9 @@ export default function Compete() {
       const snapshot = await fetchLobby(data.code);
       if (snapshot) { setLobby(snapshot.lobby); setPlayers(snapshot.players); setSubs([]); }
       setView('lobby-room');
-    } catch { /* ignore */ }
+    } catch {
+      setJoinError('Could not create lobby. Start the backend and try again.');
+    }
   }, [headers, fetchLobby]);
 
   const handleJoinLobby = useCallback(async (enteredCode: string) => {
@@ -952,16 +907,27 @@ export default function Compete() {
     setStarting(true);
     try {
       await fetch(`${API}/compete/lobby/${code}/start`, { method: 'POST', headers: headers() });
-      // Lobby poll will detect status=active and transition
-    } catch { /* ignore */ }
+      const snapshot = await fetchLobby(code);
+      if (snapshot?.lobby.status === 'active') {
+        setLobby(snapshot.lobby);
+        setPlayers(snapshot.players);
+        setSubs(snapshot.submissions);
+        setTimeLeft(1800);
+        setView('match');
+      }
+    } catch {
+      setJoinError('Could not start game. Try again.');
+    }
     finally { setStarting(false); }
-  }, [code, headers]);
+  }, [code, headers, fetchLobby]);
 
   const handleLeave = useCallback(async () => {
     if (code) {
       try {
         await fetch(`${API}/compete/lobby/${code}/leave`, { method: 'POST', headers: headers() });
-      } catch { /* ignore */ }
+      } catch {
+        setJoinError('');
+      }
     }
     setLobby(null); setPlayers([]); setSubs([]); setCode(''); setResultData(null);
     setView('home');
@@ -973,7 +939,6 @@ export default function Compete() {
     setView('home');
   }, []);
 
-  // ── Render ──
   if (view === 'home') {
     return (
       <HomeView

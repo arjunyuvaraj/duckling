@@ -155,9 +155,11 @@ export default function Library() {
       }
       return true;
     });
-    if (isShuffled) list = shuffleArray(list);
+    if (isShuffled) {
+      list = shuffleArray(list);
+      if (shuffleCount % 2 === 1) list.reverse();
+    }
     return list;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, difficulty, language, topic, problemSet, batch, tag, isShuffled, shuffleCount]);
 
   const clearFilters = () => {
@@ -174,8 +176,6 @@ export default function Library() {
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-
-      {/* ── Row 1: Header ── */}
       <div style={{ padding: '2rem 1.75rem', borderBottom: '1px solid var(--border)', flexShrink: 0, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1.5rem' }}>
         <div>
           <h1 style={{ fontFamily: "'Stack', 'Geist', 'Inter', sans-serif", color: 'var(--text-primary)', fontSize: 'clamp(1.8rem, 3vw, 2.5rem)', lineHeight: 1.1, fontWeight: 400, letterSpacing: '-0.01em', margin: '0 0 0.4rem' }}>
@@ -199,10 +199,7 @@ export default function Library() {
           </div>
         </div>
       </div>
-
-      {/* ── Row 2: Search + filter toolbar ── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.75rem', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
-        {/* Search */}
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flex: '1', maxWidth: 380 }}>
           <span style={{ position: 'absolute', left: 12, color: 'var(--text-muted)', display: 'flex', pointerEvents: 'none' }}>
             <SearchIcon />
@@ -230,8 +227,6 @@ export default function Library() {
             onBlur={e  => (e.currentTarget.style.borderColor = 'var(--border)')}
           />
         </div>
-
-        {/* Filter dropdown */}
         <div ref={filterWrapRef} style={{ position: 'relative', flexShrink: 0 }}>
           <button
             onClick={() => setFilterOpen(o => !o)}
@@ -297,14 +292,10 @@ export default function Library() {
             </div>
           )}
         </div>
-
-        {/* Shuffle */}
         <IconBtn onClick={isShuffled ? () => setIsShuffled(false) : () => { setShuffleCount(c => c + 1); setIsShuffled(true); }} active={isShuffled} title={isShuffled ? 'Unshuffle' : 'Shuffle'}>
           <ShuffleIcon />
         </IconBtn>
       </div>
-
-      {/* ── Row 3: Column headers ── */}
       <div style={{ display: 'grid', gridTemplateColumns: GRID, padding: '0 1.75rem', height: 40, alignItems: 'center', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
         {(['#', 'Title', 'Set', 'Batch', 'Language', 'Difficulty'] as const).map((h, i) => (
           <span key={h} style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.68rem', fontWeight: 500, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--text-subtle)', userSelect: 'none', textAlign: i === 5 ? 'right' : 'left' }}>
@@ -312,8 +303,6 @@ export default function Library() {
           </span>
         ))}
       </div>
-
-      {/* ── Row 4: Problem list ── */}
       {filtered.length === 0 ? (
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ fontFamily: 'Inter, system-ui, sans-serif', color: 'var(--text-muted)', fontSize: '0.95rem' }}>

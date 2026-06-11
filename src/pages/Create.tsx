@@ -218,8 +218,6 @@ export default function Create() {
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-
-      {/* ── Row 1: Header ── */}
       <div style={{ padding: '2rem 1.75rem', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
         <h1 style={{ fontFamily: "'Stack', 'Geist', 'Inter', sans-serif", fontSize: 'clamp(1.8rem, 3vw, 2.5rem)', fontWeight: 400, color: 'var(--text-primary)', margin: '0 0 0.35rem', lineHeight: 1.1, letterSpacing: '-0.01em' }}>
           Create a Problem.
@@ -228,21 +226,15 @@ export default function Create() {
           Design a coding problem — write the prompt, add test cases, and provide a reference solution.
         </p>
       </div>
-
-      {/* Save success banner */}
       {saveMsg && (
         <div style={{ padding: '0.65rem 1.75rem', borderBottom: '1px solid rgba(74,222,128,0.2)', background: 'rgba(74,222,128,0.06)', color: '#4ade80', fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.875rem', flexShrink: 0 }}>
           ✓ {saveMsg}
         </div>
       )}
-
-      {/* ── Row 2: 3-column body ── */}
       <div
         className="create-grid"
         style={{ flex: 1, display: 'grid', gridTemplateColumns: '260px minmax(0, 1fr) 280px', overflow: 'hidden' }}
       >
-
-        {/* ── Col A: Metadata sidebar ── */}
         <div className="no-scrollbar" style={{ borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
 
           <FieldWrap>
@@ -291,11 +283,7 @@ export default function Create() {
             </button>
           </div>
         </div>
-
-        {/* ── Col B: Tab editor ── */}
         <div style={{ display: 'flex', flexDirection: 'column', borderRight: '1px solid var(--border)', overflow: 'hidden' }}>
-
-          {/* Tab bar */}
           <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
             {TABS.map(t => {
               const active = t === activeTab;
@@ -328,16 +316,12 @@ export default function Create() {
               );
             })}
           </div>
-
-          {/* Tab content */}
           <div
             ref={tabContentRef}
             key={activeTab}
             className={`no-scrollbar ${slideDir === 'right' ? 'slide-from-right' : 'slide-from-left'}`}
             style={{ flex: 1, padding: '1.5rem', overflowY: 'auto' }}
           >
-
-            {/* Problem tab */}
             {activeTab === 'Problem' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 <div>
@@ -394,8 +378,6 @@ export default function Create() {
                 </div>
               </div>
             )}
-
-            {/* Test Cases tab */}
             {activeTab === 'Test Cases' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {errors.testCases && (
@@ -432,8 +414,6 @@ export default function Create() {
                 </button>
               </div>
             )}
-
-            {/* Code tab */}
             {activeTab === 'Code' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 <div style={{ border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden' }}>
@@ -472,8 +452,6 @@ export default function Create() {
             )}
           </div>
         </div>
-
-        {/* ── Col C: Saved problems ── */}
         <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           <div style={{ padding: '0.75rem 1.25rem', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
             <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)' }}>My Problems</span>

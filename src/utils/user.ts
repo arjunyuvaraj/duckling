@@ -64,7 +64,8 @@ export function readSession(): StoredSession | null {
   try {
     const rawUser = localStorage.getItem(LEGACY_USER_KEY);
     if (!rawUser) return null;
-    const user = JSON.parse(rawUser) as StoredUser;
+    const legacyUser = JSON.parse(rawUser) as StoredUser;
+    const user = { ...legacyUser, feathers: legacyUser.feathers ?? 100 };
     if (!user?.id || !user.email || !user.username) return null;
     const fallbackSession: StoredSession = {
       user,

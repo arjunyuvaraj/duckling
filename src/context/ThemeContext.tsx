@@ -32,7 +32,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   function setPreference(p: ThemePreference) {
     try { localStorage.setItem(LS_KEY, p); } catch {
-      // Theme still works when localStorage is unavailable.
+      setPreferenceRaw(p);
+      return;
     }
     setPreferenceRaw(p);
   }

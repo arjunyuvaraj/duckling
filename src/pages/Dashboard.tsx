@@ -31,8 +31,6 @@ export default function Dashboard() {
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-
-      {/* ── Row 1: Header ── */}
       <div style={{ padding: '2rem 1.75rem', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
         <h1 style={{
           fontFamily: "'Stack', 'Geist', 'Inter', sans-serif",
@@ -46,8 +44,6 @@ export default function Dashboard() {
           Pick up where you left off, browse the library, or check class work.
         </p>
       </div>
-
-      {/* ── Row 2: Stats strip — 4 columns ── */}
       <div
         className="dashboard-stats-grid"
         style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', borderBottom: '1px solid var(--border)', flexShrink: 0, position: 'relative' }}
@@ -67,13 +63,10 @@ export default function Dashboard() {
           </div>
         ))}
       </div>
-
-      {/* ── Row 3: Content — 2 columns ── */}
       <div
         className="dashboard-hero-grid"
         style={{ flex: 1, display: 'grid', gridTemplateColumns: 'minmax(0, 1.3fr) minmax(260px, 0.7fr)', overflow: 'hidden' }}
       >
-        {/* Left — next problem */}
         <div className="no-scrollbar" style={{
           padding: '2rem 1.75rem',
           display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
@@ -108,8 +101,6 @@ export default function Dashboard() {
             </Link>
           </div>
         </div>
-
-        {/* Right — progress + quick links */}
         <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           <div style={{ padding: '1.75rem', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '0.75rem' }}>

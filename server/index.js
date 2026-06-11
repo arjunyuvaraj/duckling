@@ -17,7 +17,7 @@ const JSON_HEADERS = {
   'Content-Type': 'application/json',
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET,POST,PATCH,OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, X-Duckling-User-Id, X-Duckling-Username, X-Duckling-Feathers',
 };
 
 const LANGUAGE_PATTERNS = {
@@ -36,6 +36,11 @@ const emptyClassroomStore = () => ({
 });
 
 let classroomStore = loadClassroomStore();
+const competeStore = {
+  lobbies: {},
+  players: {},
+  submissions: {},
+};
 
 function loadClassroomStore() {
   try {
@@ -165,6 +170,98 @@ function classMembership(classId, userId) {
 
 function isTeacher(classId, userId) {
   return classMembership(classId, userId)?.role === 'teacher';
+}
+
+function requestUser(headers) {
+  const headerId = String(headers['x-duckling-user-id'] ?? '').trim();
+  const headerName = String(headers['x-duckling-username'] ?? '').trim();
+  const auth = String(headers.authorization ?? '');
+  const tokenId = auth.toLowerCase().startsWith('bearer local-') ? auth.slice('bearer local-'.length).trim() : '';
+  const userId = headerId || tokenId;
+
+  if (!userId) return null;
+
+  return {
+    id: userId,
+    username: headerName || `player-${userId.slice(-4)}`,
+    feathers: Number(headers['x-duckling-feathers'] ?? 100) || 100,
+  };
+}
+
+function makeCompeteCode() {
+  let code = '';
+  do {
+    code = String(Math.floor(100000 + Math.random() * 900000));
+  } while (Object.values(competeStore.lobbies).some((lobby) => lobby.code === code && lobby.status !== 'completed'));
+  return code;
+}
+
+function playerList(lobbyId) {
+  return competeStore.players[lobbyId] ?? [];
+}
+
+function submissionList(lobbyId) {
+  return competeStore.submissions[lobbyId] ?? [];
+}
+
+function competeSnapshot(lobby) {
+  return {
+    lobby,
+    players: playerList(lobby.id),
+    submissions: submissionList(lobby.id),
+  };
+}
+
+function pickCompeteProblem(players) {
+  const average = players.length
+    ? players.reduce((sum, player) => sum + Number(player.feathers ?? 100), 0) / players.length
+    : 100;
+  const easy = [1, 2, 3, 5, 6, 9, 11, 12, 14];
+  const medium = [4, 7, 10, 13, 15, 16];
+  const hard = [8, 17, 18, 19, 20];
+  const pool = average < 300 ? easy : average < 650 ? [...easy, ...medium] : [...medium, ...hard];
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function computeRankings(submissions, players) {
+  const byUser = new Map(submissions.map((submission) => [submission.user_id, submission]));
+  const ordered = [...players].sort((a, b) => {
+    const subA = byUser.get(a.user_id);
+    const subB = byUser.get(b.user_id);
+    const winA = subA?.all_passed ? 1 : 0;
+    const winB = subB?.all_passed ? 1 : 0;
+    const totalA = (subA?.passed_visible ?? 0) + (subA?.passed_hidden ?? 0);
+    const totalB = (subB?.passed_visible ?? 0) + (subB?.passed_hidden ?? 0);
+    if (winA !== winB) return winB - winA;
+    if (totalA !== totalB) return totalB - totalA;
+    return String(subA?.submitted_at ?? '9999').localeCompare(String(subB?.submitted_at ?? '9999'));
+  });
+
+  return Object.fromEntries(ordered.map((player, index) => [player.user_id, index + 1]));
+}
+
+function featherChanges(lobby, players, rankings) {
+  if (lobby.mode !== 'ranked' || players.length <= 1) return {};
+  return Object.fromEntries(players.map((player) => {
+    const place = rankings[player.user_id] ?? players.length;
+    const change = place === 1 ? 24 : Math.max(-18, 8 - place * 10);
+    return [player.user_id, change];
+  }));
+}
+
+function finishLobby(lobby) {
+  const players = playerList(lobby.id);
+  const submissions = submissionList(lobby.id);
+  const rankings = computeRankings(submissions, players);
+  const changes = featherChanges(lobby, players, rankings);
+
+  for (const player of players) {
+    player.place = rankings[player.user_id] ?? null;
+  }
+
+  lobby.status = 'completed';
+  lobby.ended_at = new Date().toISOString();
+  return { rankings, feather_changes: changes };
 }
 
 function sendJson(response, statusCode, payload) {
@@ -539,6 +636,182 @@ const server = createServer(async (request, response) => {
       return;
     } catch (error) {
       sendJson(response, 500, { ok: false, error: error instanceof Error ? error.message : 'Could not save grade.' });
+      return;
+    }
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/compete/lobby/create') {
+    try {
+      const user = requestUser(request.headers);
+      const body = await readJsonBody(request);
+      const mode = String(body.mode ?? 'casual');
+      if (!user) {
+        sendJson(response, 401, { detail: 'Sign in before creating a lobby.' });
+        return;
+      }
+      if (!['casual', 'ranked'].includes(mode)) {
+        sendJson(response, 400, { detail: 'Invalid mode.' });
+        return;
+      }
+
+      const id = slugId('lobby');
+      const lobby = {
+        id,
+        code: makeCompeteCode(),
+        host_id: user.id,
+        mode,
+        status: 'waiting',
+        max_players: 4,
+        problem_id: null,
+        started_at: null,
+        ended_at: null,
+        created_at: new Date().toISOString(),
+      };
+      competeStore.lobbies[id] = lobby;
+      competeStore.players[id] = [{
+        user_id: user.id,
+        username: user.username,
+        feathers: user.feathers,
+        place: null,
+        joined_at: new Date().toISOString(),
+      }];
+      competeStore.submissions[id] = [];
+      sendJson(response, 201, { lobby_id: id, code: lobby.code });
+      return;
+    } catch (error) {
+      sendJson(response, 500, { detail: error instanceof Error ? error.message : 'Could not create lobby.' });
+      return;
+    }
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/compete/lobby/join') {
+    try {
+      const user = requestUser(request.headers);
+      const body = await readJsonBody(request);
+      const code = String(body.code ?? '').trim();
+      const lobby = Object.values(competeStore.lobbies).find((entry) => entry.code === code);
+      if (!user) {
+        sendJson(response, 401, { detail: 'Sign in before joining a lobby.' });
+        return;
+      }
+      if (!lobby) {
+        sendJson(response, 404, { detail: 'Lobby not found. Check the code and try again.' });
+        return;
+      }
+      if (lobby.status !== 'waiting') {
+        sendJson(response, 400, { detail: 'This game has already started.' });
+        return;
+      }
+
+      const players = playerList(lobby.id);
+      if (!players.some((player) => player.user_id === user.id)) {
+        if (players.length >= lobby.max_players) {
+          sendJson(response, 400, { detail: 'Lobby is full.' });
+          return;
+        }
+        players.push({
+          user_id: user.id,
+          username: user.username,
+          feathers: user.feathers,
+          place: null,
+          joined_at: new Date().toISOString(),
+        });
+      }
+
+      sendJson(response, 200, { lobby_id: lobby.id, code: lobby.code });
+      return;
+    } catch (error) {
+      sendJson(response, 500, { detail: error instanceof Error ? error.message : 'Could not join lobby.' });
+      return;
+    }
+  }
+
+  const competeLobbyMatch = url.pathname.match(/^\/api\/compete\/lobby\/([^/]+)$/);
+  if (request.method === 'GET' && competeLobbyMatch) {
+    const code = decodeURIComponent(competeLobbyMatch[1]);
+    const lobby = Object.values(competeStore.lobbies).find((entry) => entry.code === code);
+    if (!lobby) {
+      sendJson(response, 404, { detail: 'Lobby not found.' });
+      return;
+    }
+    sendJson(response, 200, competeSnapshot(lobby));
+    return;
+  }
+
+  const competeActionMatch = url.pathname.match(/^\/api\/compete\/lobby\/([^/]+)\/(start|leave|submit|end)$/);
+  if (request.method === 'POST' && competeActionMatch) {
+    try {
+      const code = decodeURIComponent(competeActionMatch[1]);
+      const action = competeActionMatch[2];
+      const user = requestUser(request.headers);
+      const lobby = Object.values(competeStore.lobbies).find((entry) => entry.code === code);
+      if (!lobby) {
+        sendJson(response, 404, { detail: 'Lobby not found.' });
+        return;
+      }
+
+      if (action === 'start') {
+        if (!user || lobby.host_id !== user.id) {
+          sendJson(response, 403, { detail: 'Only the host can start this game.' });
+          return;
+        }
+        if (lobby.status !== 'waiting') {
+          sendJson(response, 400, { detail: 'This game has already started.' });
+          return;
+        }
+        lobby.problem_id = pickCompeteProblem(playerList(lobby.id));
+        lobby.status = 'active';
+        lobby.started_at = new Date().toISOString();
+        sendJson(response, 200, competeSnapshot(lobby));
+        return;
+      }
+
+      if (action === 'leave') {
+        if (user) {
+          competeStore.players[lobby.id] = playerList(lobby.id).filter((player) => player.user_id !== user.id);
+        }
+        sendJson(response, 200, { ok: true });
+        return;
+      }
+
+      if (action === 'submit') {
+        if (!user) {
+          sendJson(response, 401, { detail: 'Sign in before submitting.' });
+          return;
+        }
+        const body = await readJsonBody(request);
+        const submissions = submissionList(lobby.id);
+        const existing = submissions.find((entry) => entry.user_id === user.id);
+        const submission = {
+          user_id: user.id,
+          code: String(body.code ?? ''),
+          language: String(body.language ?? ''),
+          passed_visible: Number(body.passed_visible ?? 0),
+          total_visible: Number(body.total_visible ?? 0),
+          passed_hidden: Number(body.passed_hidden ?? 0),
+          total_hidden: Number(body.total_hidden ?? 0),
+          all_passed: Boolean(body.all_passed),
+          submitted_at: new Date().toISOString(),
+        };
+        if (existing) {
+          Object.assign(existing, submission);
+        } else {
+          submissions.push(submission);
+        }
+        if (submission.all_passed) {
+          const result = finishLobby(lobby);
+          sendJson(response, 200, { status: 'winner', ...result });
+          return;
+        }
+        sendJson(response, 200, { status: 'submitted' });
+        return;
+      }
+
+      const result = finishLobby(lobby);
+      sendJson(response, 200, result);
+      return;
+    } catch (error) {
+      sendJson(response, 500, { detail: error instanceof Error ? error.message : 'Compete request failed.' });
       return;
     }
   }

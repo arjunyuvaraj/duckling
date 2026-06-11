@@ -170,26 +170,19 @@ function starterFor(problem: Problem, language: Language): string {
 
   if (language === 'Python') {
     return `def ${methodName}():
-    """${problem.title}
-
-    Topic: ${problem.topic}
-    Tags: ${problem.tags.join(', ')}
-    """
     pass`;
   }
 
   if (problem.topic === 'Classes' || problem.topic === 'Inheritance') {
     return `public class ${methodName.charAt(0).toUpperCase()}${methodName.slice(1)} {
-    // TODO: add fields, constructors, and methods for ${problem.title}.
 }`;
   }
 
   return `public Object ${methodName}() {
-    // TODO: solve ${problem.title}.
     return null;
 }`;
 }
 
 export function getStarterCode(problemId: number, language: Language, problem?: Problem) {
-  return STARTER_CODE_BY_LANGUAGE[problemId]?.[language] ?? (problem ? starterFor(problem, language) : '// Starter code unavailable.');
+  return STARTER_CODE_BY_LANGUAGE[problemId]?.[language] ?? (problem ? starterFor(problem, language) : '');
 }
