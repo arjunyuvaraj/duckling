@@ -268,7 +268,7 @@ export default function AuthPage({ mode }: AuthPageProps) {
           {message && (
             <div
               role="status"
-              style={{ marginTop: '1rem', padding: '0.65rem 0.875rem', borderRadius: 7, fontSize: '0.8rem', lineHeight: 1.45, fontFamily: "'JetBrains Mono', monospace", animation: 'flow-rise 0.2s ease both', ...(status === 'error' ? { color: '#f87171', background: 'rgba(248,113,113,0.07)', border: '1px solid rgba(248,113,113,0.14)' } : { color: '#4ade80', background: 'rgba(74,222,128,0.07)', border: '1px solid rgba(74,222,128,0.14)' }) }}
+              style={{ marginTop: '1rem', padding: '0.65rem 0.875rem', borderRadius: 7, fontSize: '0.8rem', lineHeight: 1.45, fontFamily: "'JetBrains Mono', monospace", animation: 'flow-rise 0.2s ease both', ...(status === 'error' ? { color: '#e05252', background: 'var(--danger-soft)', border: '1px solid var(--danger-border)' } : { color: '#45c46f', background: 'var(--success-soft)', border: '1px solid var(--success-border)' }) }}
             >
               {message}
             </div>

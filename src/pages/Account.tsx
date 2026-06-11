@@ -42,10 +42,10 @@ const FieldRow = ({ label, description, value }: { label: string; description: s
   </div>
 );
 
-const THEME_OPTIONS: { value: ThemePreference; label: string; icon: string }[] = [
-  { value: 'light',  label: 'Light',  icon: '☀' },
-  { value: 'dark',   label: 'Dark',   icon: '◑' },
-  { value: 'system', label: 'System', icon: '⊙' },
+const THEME_OPTIONS: { value: ThemePreference; label: string }[] = [
+  { value: 'light',  label: 'Light' },
+  { value: 'dark',   label: 'Dark' },
+  { value: 'system', label: 'System' },
 ];
 
 export default function Account() {
@@ -174,7 +174,7 @@ export default function Account() {
 
                 <FieldRow label="Username" description="Your display name on ducklings.dev." value={user.username ?? 'unknown'} />
                 <FieldRow label="Email" description="The email address linked to your account." value={user.email ?? 'unknown'} />
-                <FieldRow label="Feathers" description="Your duckling rating — earned by solving problems." value={String(user.feathers ?? 0)} />
+                <FieldRow label="Rating" description="Earned by solving problems." value={String(user.feathers ?? 0)} />
 
                 <div style={{ padding: '1.25rem 1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
                   <Link to="/home" style={{
@@ -231,7 +231,7 @@ export default function Account() {
                     alignSelf: 'center',
                     justifySelf: 'end',
                   }}>
-                    {THEME_OPTIONS.map(({ value, label, icon }, i) => {
+                    {THEME_OPTIONS.map(({ value, label }, i) => {
                       const active = preference === value;
                       return (
                         <button
@@ -254,7 +254,6 @@ export default function Account() {
                             whiteSpace: 'nowrap',
                           }}
                         >
-                          <span style={{ fontSize: '0.9rem', lineHeight: 1 }}>{icon}</span>
                           {label}
                         </button>
                       );
@@ -301,9 +300,9 @@ export default function Account() {
                       fontFamily: 'Inter, system-ui, sans-serif',
                       fontSize: '0.875rem',
                       fontWeight: 600,
-                      color: '#f87171',
-                      background: 'rgba(248,113,113,0.08)',
-                      border: '1px solid rgba(248,113,113,0.25)',
+                      color: '#e05252',
+                      background: 'var(--danger-soft)',
+                      border: '1px solid var(--danger-border)',
                       borderRadius: 8,
                       padding: '0.55rem 1.2rem',
                       cursor: 'pointer',

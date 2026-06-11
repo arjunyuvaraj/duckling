@@ -36,7 +36,7 @@ export default function Navbar({ showHome = false }: NavbarProps) {
             </>
           ) : (
             showHome && (
-              <Link to="/" className="lp-nav-ghost">← Back</Link>
+              <Link to="/" className="lp-nav-ghost">Back</Link>
             )
           )}
         </div>

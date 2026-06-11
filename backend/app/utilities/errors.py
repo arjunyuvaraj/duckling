@@ -13,7 +13,7 @@ class AuthError(HTTPException):
         self.status_code = status_code
         self.detail = detail or message
         super().__init__(status_code=status_code, detail=self.detail)
-        logger.error(f"🔴 AUTH ERROR: {message}")
+        logger.error(f"AUTH ERROR: {message}")
 
 def handle_auth_error(error: Exception) -> None:
     """Parse Supabase auth errors and raise with better messages"""

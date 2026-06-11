@@ -249,7 +249,7 @@ export default function Classroom() {
         <div className="classroom-workspace" style={workspaceStyle}>
           <aside className="classroom-sidebar" style={sidebarStyle}>
             <div style={{ padding: '1rem', borderBottom: '1px solid var(--border)' }}>
-              <div style={{ ...MONO, color: '#FFA100', fontSize: '0.72rem', fontWeight: 700, marginBottom: '0.75rem' }}>
+              <div style={{ ...MONO, color: '#FD6D03', fontSize: '0.72rem', fontWeight: 700, marginBottom: '0.75rem' }}>
                 api / classroom
               </div>
               <form onSubmit={createClass} style={{ display: 'grid', gap: '0.65rem', marginBottom: '1rem' }}>
@@ -332,7 +332,7 @@ function ClassHeader({ selected }: { selected: ClassroomItem }) {
     <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'start' }}>
         <div style={{ minWidth: 0 }}>
-          <div style={{ ...MONO, color: '#FFA100', fontSize: '0.72rem', fontWeight: 700, marginBottom: '0.55rem' }}>
+          <div style={{ ...MONO, color: '#FD6D03', fontSize: '0.72rem', fontWeight: 700, marginBottom: '0.55rem' }}>
             {selected.role} view
           </div>
           <h2 style={{ fontFamily: "'Stack', 'Geist', 'Inter', sans-serif", color: 'var(--text-primary)', fontSize: 'clamp(1.45rem, 3vw, 2rem)', lineHeight: 1.15, fontWeight: 400, margin: 0, letterSpacing: 0 }}>
@@ -342,7 +342,7 @@ function ClassHeader({ selected }: { selected: ClassroomItem }) {
             {selected.section}
           </p>
         </div>
-        <div style={{ ...MONO, color: '#FFA100', border: '1px solid rgba(255,161,0,0.35)', background: 'rgba(255,161,0,0.08)', borderRadius: 8, padding: '0.55rem 0.75rem', fontSize: '0.78rem', fontWeight: 800, whiteSpace: 'nowrap' }}>
+        <div style={{ ...MONO, color: '#FD6D03', border: '1px solid rgba(253,109,3,0.35)', background: 'rgba(253,109,3,0.08)', borderRadius: 8, padding: '0.55rem 0.75rem', fontSize: '0.78rem', fontWeight: 800, whiteSpace: 'nowrap' }}>
           {selected.code}
         </div>
       </div>
@@ -363,7 +363,7 @@ function StatsStrip({ selected }: { selected: ClassroomItem }) {
       {stats.map(([label, value], index) => (
         <div key={label} style={{ padding: '1rem 1.25rem', borderRight: index < stats.length - 1 ? '1px solid var(--border)' : 'none' }}>
           <div style={sectionLabel}>{label}</div>
-          <div style={{ fontFamily: "'Stack', 'Geist', 'Inter', sans-serif", color: label === 'AVG GRADE' && value !== '--' ? '#FFA100' : 'var(--text-primary)', fontSize: '1.75rem', lineHeight: 1, fontWeight: 400, marginTop: '0.45rem' }}>
+          <div style={{ fontFamily: "'Stack', 'Geist', 'Inter', sans-serif", color: label === 'AVG GRADE' && value !== '--' ? '#FD6D03' : 'var(--text-primary)', fontSize: '1.75rem', lineHeight: 1, fontWeight: 400, marginTop: '0.45rem' }}>
             {value}
           </div>
         </div>
@@ -379,7 +379,7 @@ function StreamView({ selected }: { selected: ClassroomItem }) {
     <div className="classroom-stream-grid" style={{ display: 'grid', gridTemplateColumns: '220px minmax(0, 1fr)', gap: '1rem', alignItems: 'start' }}>
       <div style={panelStyle}>
         <div style={sectionLabel}>CLASS CODE</div>
-        <div style={{ ...MONO, color: '#FFA100', fontSize: '1.25rem', fontWeight: 800 }}>{selected.code}</div>
+        <div style={{ ...MONO, color: '#FD6D03', fontSize: '1.25rem', fontWeight: 800 }}>{selected.code}</div>
         <p style={smallMuted}>{selected.teacherStats.students} enrolled student{selected.teacherStats.students === 1 ? '' : 's'}</p>
       </div>
 
@@ -496,7 +496,7 @@ function SubmissionCard({
           <p style={{ ...smallMuted, marginTop: '0.35rem' }}>
             {problem?.title ?? `Problem ${submission.problemId}`} / {formatDate(submission.updatedAt)}
           </p>
-          {submission.summary && <p style={{ ...smallMuted, color: '#FFA100', marginTop: '0.35rem' }}>{submission.summary}</p>}
+          {submission.summary && <p style={{ ...smallMuted, color: '#FD6D03', marginTop: '0.35rem' }}>{submission.summary}</p>}
           <pre style={codePreview}>{submission.sourceCode}</pre>
         </div>
         <input value={grade} onChange={(event) => setGrade(event.target.value)} placeholder="0-100" style={inputStyle} />
@@ -514,7 +514,7 @@ function SubmissionCard({
 function AssignmentCard({ assignment, role }: { assignment: Assignment; role: ClassroomItem['role'] }) {
   const problem = ALL_PROBLEMS.find((entry) => entry.id === assignment.problemId);
   const submission = assignment.submission;
-  const accent = problem ? DIFFICULTY_COLOR[problem.difficulty] : '#FFA100';
+  const accent = problem ? DIFFICULTY_COLOR[problem.difficulty] : '#FD6D03';
   const meta = role === 'teacher'
     ? `${assignment.stats.submitted} turned in / ${assignment.stats.graded} graded / ${assignment.stats.averageGrade === null ? 'no average' : `${assignment.stats.averageGrade}% avg`}`
     : submission
@@ -527,7 +527,7 @@ function AssignmentCard({ assignment, role }: { assignment: Assignment; role: Cl
       <span style={{ minWidth: 0 }}>
         <span style={{ display: 'block', color: 'var(--text-primary)', fontWeight: 700 }}>{assignment.title}</span>
         <span style={{ display: 'block', color: 'var(--text-muted)', fontSize: '0.86rem', marginTop: '0.25rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{assignment.instructions}</span>
-        <span style={{ ...MONO, color: role === 'student' && submission?.grade !== null ? '#FFA100' : 'var(--text-subtle)', fontSize: '0.7rem', marginTop: '0.4rem', display: 'block' }}>
+        <span style={{ ...MONO, color: role === 'student' && submission?.grade !== null ? '#FD6D03' : 'var(--text-subtle)', fontSize: '0.7rem', marginTop: '0.4rem', display: 'block' }}>
           {meta}
         </span>
         {role === 'student' && submission?.feedback && (
@@ -536,14 +536,14 @@ function AssignmentCard({ assignment, role }: { assignment: Assignment; role: Cl
           </span>
         )}
       </span>
-      <span style={{ ...MONO, color: '#FFA100', fontSize: '0.72rem' }}>#{assignment.problemId}</span>
+      <span style={{ ...MONO, color: '#FD6D03', fontSize: '0.72rem' }}>#{assignment.problemId}</span>
     </Link>
   );
 }
 
 function TabButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
-    <button onClick={onClick} style={{ ...TEXT, border: 'none', borderBottom: active ? '2px solid #FFA100' : '2px solid transparent', background: 'transparent', color: active ? 'var(--text-primary)' : 'var(--text-muted)', padding: '0.9rem 0.9rem 0.75rem', fontSize: '0.86rem', fontWeight: 650, cursor: 'pointer' }}>
+    <button onClick={onClick} style={{ ...TEXT, border: 'none', borderBottom: active ? '2px solid #FD6D03' : '2px solid transparent', background: 'transparent', color: active ? 'var(--text-primary)' : 'var(--text-muted)', padding: '0.9rem 0.9rem 0.75rem', fontSize: '0.86rem', fontWeight: 650, cursor: 'pointer' }}>
       {children}
     </button>
   );
@@ -553,7 +553,7 @@ function EmptyClassroom({ loading }: { loading: boolean }) {
   return (
     <div style={{ minHeight: 520, display: 'grid', placeItems: 'center', padding: '1.5rem' }}>
       <div style={{ textAlign: 'center', maxWidth: 420 }}>
-        <div style={{ ...MONO, color: '#FFA100', fontSize: '0.72rem', fontWeight: 800, marginBottom: '0.65rem' }}>
+        <div style={{ ...MONO, color: '#FD6D03', fontSize: '0.72rem', fontWeight: 800, marginBottom: '0.65rem' }}>
           {loading ? 'loading' : 'no classes'}
         </div>
         <h2 style={{ fontFamily: "'Stack', 'Geist', 'Inter', sans-serif", color: 'var(--text-primary)', fontWeight: 400, margin: 0, fontSize: '1.7rem', letterSpacing: 0 }}>
@@ -631,9 +631,9 @@ const inputStyle: React.CSSProperties = {
 const primaryButton: React.CSSProperties = {
   ...TEXT,
   minHeight: 38,
-  border: '1px solid #FFA100',
+  border: '1px solid #FD6D03',
   borderRadius: 8,
-  background: '#FFA100',
+  background: '#FD6D03',
   color: '#fff',
   fontWeight: 650,
   cursor: 'pointer',
@@ -653,9 +653,9 @@ const classMark: React.CSSProperties = {
   borderRadius: 8,
   display: 'grid',
   placeItems: 'center',
-  border: '1px solid rgba(255,161,0,0.28)',
-  background: 'rgba(255,161,0,0.08)',
-  color: '#FFA100',
+  border: '1px solid rgba(253,109,3,0.28)',
+  background: 'rgba(253,109,3,0.08)',
+  color: '#FD6D03',
   fontWeight: 800,
   flexShrink: 0,
 };
@@ -663,7 +663,7 @@ const classMark: React.CSSProperties = {
 const classButton = (active: boolean): React.CSSProperties => ({
   border: 'none',
   borderBottom: '1px solid var(--border-faint)',
-  background: active ? 'rgba(255,161,0,0.08)' : 'transparent',
+  background: active ? 'rgba(253,109,3,0.08)' : 'transparent',
   color: 'var(--text-primary)',
   padding: '0.85rem 1rem',
   textAlign: 'left',
@@ -692,7 +692,7 @@ const assignmentIcon: React.CSSProperties = {
   width: 42,
   height: 42,
   borderRadius: 8,
-  border: '1px solid rgba(255,161,0,0.35)',
+  border: '1px solid rgba(253,109,3,0.35)',
   display: 'grid',
   placeItems: 'center',
   fontWeight: 800,
@@ -700,9 +700,9 @@ const assignmentIcon: React.CSSProperties = {
 
 const messageStyle: React.CSSProperties = {
   ...TEXT,
-  borderBottom: '1px solid rgba(255,161,0,0.2)',
-  background: 'rgba(255,161,0,0.07)',
-  color: '#FFA100',
+  borderBottom: '1px solid rgba(253,109,3,0.2)',
+  background: 'rgba(253,109,3,0.07)',
+  color: '#FD6D03',
   padding: '0.75rem 1rem',
   fontSize: '0.88rem',
 };

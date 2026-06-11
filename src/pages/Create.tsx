@@ -11,7 +11,7 @@ type Tab = typeof TABS[number];
 const DIFF_OPTIONS: Difficulty[] = ['Easy', 'Medium', 'Hard'];
 const LANG_OPTIONS: Language[]   = ['Python', 'Java'];
 const DIFF_COLOR: Record<Difficulty, string> = {
-  Easy: '#4ade80', Medium: '#FD6D03', Hard: '#f87171',
+  Easy: '#45c46f', Medium: '#FD6D03', Hard: '#e05252',
 };
 
 const LABEL_STYLE: React.CSSProperties = {
@@ -151,7 +151,7 @@ function SavedRow({ p, onEdit, onDelete }: { p: CreatedProblem; onEdit: () => vo
           <button type="button" onClick={onEdit} style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.75rem', fontWeight: 500, color: 'var(--text-muted)', background: 'transparent', border: '1px solid var(--border)', borderRadius: 5, padding: '0.2rem 0.6rem', cursor: 'pointer' }}>
             Edit
           </button>
-          <button type="button" onClick={onDelete} style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.75rem', fontWeight: 500, color: '#f87171', background: 'transparent', border: '1px solid rgba(248,113,113,0.25)', borderRadius: 5, padding: '0.2rem 0.6rem', cursor: 'pointer' }}>
+          <button type="button" onClick={onDelete} style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.75rem', fontWeight: 500, color: '#e05252', background: 'transparent', border: '1px solid var(--danger-border)', borderRadius: 5, padding: '0.2rem 0.6rem', cursor: 'pointer' }}>
             Delete
           </button>
         </div>
@@ -227,8 +227,8 @@ export default function Create() {
         </p>
       </div>
       {saveMsg && (
-        <div style={{ padding: '0.65rem 1.75rem', borderBottom: '1px solid rgba(74,222,128,0.2)', background: 'rgba(74,222,128,0.06)', color: '#4ade80', fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.875rem', flexShrink: 0 }}>
-          ✓ {saveMsg}
+        <div style={{ padding: '0.65rem 1.75rem', borderBottom: '1px solid var(--success-border)', background: 'var(--success-soft)', color: '#45c46f', fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.875rem', flexShrink: 0 }}>
+          {saveMsg}
         </div>
       )}
       <div
@@ -240,7 +240,7 @@ export default function Create() {
           <FieldWrap>
             <Label>Title</Label>
             <TextInput placeholder="e.g. Two Sum" value={form.title} onChange={e => set('title', e.target.value)} />
-            {errors.title && <div style={{ color: '#f87171', fontSize: '0.75rem', marginTop: '0.35rem', fontFamily: 'Inter, system-ui, sans-serif' }}>{errors.title}</div>}
+            {errors.title && <div style={{ color: '#e05252', fontSize: '0.75rem', marginTop: '0.35rem', fontFamily: 'Inter, system-ui, sans-serif' }}>{errors.title}</div>}
           </FieldWrap>
 
           <FieldWrap>
@@ -332,7 +332,7 @@ export default function Create() {
                     onChange={e => set('description', e.target.value)}
                     style={{ minHeight: 140 }}
                   />
-                  {errors.description && <div style={{ color: '#f87171', fontSize: '0.75rem', marginTop: '0.35rem', fontFamily: 'Inter, system-ui, sans-serif' }}>{errors.description}</div>}
+                  {errors.description && <div style={{ color: '#e05252', fontSize: '0.75rem', marginTop: '0.35rem', fontFamily: 'Inter, system-ui, sans-serif' }}>{errors.description}</div>}
                 </div>
 
                 <div>
@@ -381,7 +381,7 @@ export default function Create() {
             {activeTab === 'Test Cases' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {errors.testCases && (
-                  <div style={{ color: '#f87171', fontSize: '0.82rem', fontFamily: 'Inter, system-ui, sans-serif', padding: '0.6rem 0.85rem', background: 'rgba(248,113,113,0.07)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 7 }}>
+                  <div style={{ color: '#e05252', fontSize: '0.82rem', fontFamily: 'Inter, system-ui, sans-serif', padding: '0.6rem 0.85rem', background: 'var(--danger-soft)', border: '1px solid var(--danger-border)', borderRadius: 7 }}>
                     {errors.testCases}
                   </div>
                 )}
@@ -392,7 +392,7 @@ export default function Create() {
                         TEST CASE {i + 1}
                       </span>
                       {form.testCases.length > 1 && (
-                        <button type="button" onClick={() => removeTestCase(i)} style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.75rem', color: '#f87171', background: 'transparent', border: '1px solid rgba(248,113,113,0.25)', borderRadius: 5, padding: '0.2rem 0.6rem', cursor: 'pointer' }}>
+                        <button type="button" onClick={() => removeTestCase(i)} style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.75rem', color: '#e05252', background: 'transparent', border: '1px solid var(--danger-border)', borderRadius: 5, padding: '0.2rem 0.6rem', cursor: 'pointer' }}>
                           Remove
                         </button>
                       )}

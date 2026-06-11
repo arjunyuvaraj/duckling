@@ -16,7 +16,7 @@ export default function Dashboard() {
   const percent = Math.round((solvedCount / total) * 100);
 
   const STATS = [
-    { label: 'FEATHERS', value: feathers,    desc: 'your duckling rating' },
+    { label: 'RATING', value: feathers,    desc: 'earned by solving' },
     { label: 'SOLVED',   value: solvedCount, desc: `of ${total} total` },
     { label: 'MEDIUM',   value: mediumSolved, desc: 'solved', color: DIFFICULTY_COLOR['Medium'] },
     { label: 'HARD',     value: hardSolved,   desc: 'solved', color: DIFFICULTY_COLOR['Hard']   },
@@ -133,7 +133,7 @@ export default function Dashboard() {
                 transition: 'background 0.12s ease',
               }}>
                 <span>{label}</span>
-                <span style={{ color: 'var(--text-subtle)', fontSize: '0.8rem' }}>→</span>
+                <span style={{ color: 'var(--text-subtle)', fontSize: '0.8rem' }}>Open</span>
               </Link>
             ))}
           </div>

@@ -49,7 +49,7 @@ const IconCode = () => (
   </svg>
 );
 
-const BLOB_CHARS = [' ', '·', '∙', '○', '◦', '+', '×', '◇'];
+const BLOB_CHARS = [' ', '.', '+'];
 const BLOB_FPS = 7;
 const BLOB_MS  = 1000 / BLOB_FPS;
 
@@ -116,7 +116,7 @@ function BgShapes({ items }: { items: ShapeItem[] }) {
   );
 }
 
-const STARTER_CODE = `# Edit and run — real Python!
+const STARTER_CODE = `# Edit and run - real Python
 def two_sum(nums, target):
     seen = {}
     for i, v in enumerate(nums):
@@ -142,7 +142,7 @@ function InteractiveEditor() {
 
   const runCode = useCallback(async () => {
     setRunning(true);
-    setOutput('running…');
+    setOutput('running...');
     try {
       const res = await fetch('https://emkc.org/api/v2/piston/execute', {
         method: 'POST',
@@ -157,7 +157,7 @@ function InteractiveEditor() {
       const out = (data.run?.stdout || '') + (data.run?.stderr || '');
       setOutput(out.trim() || '(no output)');
     } catch {
-      setOutput('⚠ Could not reach runtime — check your connection');
+      setOutput('Runtime unavailable - check your connection');
     }
     setRunning(false);
   }, [code]);
@@ -175,19 +175,19 @@ function InteractiveEditor() {
     }
   };
 
-  const isErr = output !== null && output !== 'running…' &&
-    (output.includes('Error') || output.includes('Traceback') || output.startsWith('⚠'));
+  const isErr = output !== null && output !== 'running...' &&
+    (output.includes('Error') || output.includes('Traceback') || output.startsWith('Runtime unavailable'));
 
   return (
     <div className="lp-editor">
       <div className="lp-editor-bar">
-        <div className="lp-demo-dot" style={{ background: '#ff5f57' }} />
-        <div className="lp-demo-dot" style={{ background: '#febc2e' }} />
-        <div className="lp-demo-dot" style={{ background: '#28c840' }} />
+        <div className="lp-demo-dot" style={{ background: 'var(--border-hover)' }} />
+        <div className="lp-demo-dot" style={{ background: 'var(--border-hover)' }} />
+        <div className="lp-demo-dot" style={{ background: 'var(--border-hover)' }} />
         <span className="lp-editor-filename">playground.py</span>
         <span className="lp-editor-linecount">{lineCount}/{MAX_LINES}</span>
         <button className={`lp-editor-run${running ? ' lp-editor-run--busy' : ''}`} onClick={runCode} disabled={running}>
-          {running ? '…' : '▶ Run'}
+          {running ? 'Running' : 'Run'}
         </button>
       </div>
       <div className="lp-editor-body">
@@ -209,11 +209,11 @@ function InteractiveEditor() {
       </div>
       {output !== null && (
         <div className="lp-editor-output">
-          <span className="lp-editor-output-label">▸ output</span>
+          <span className="lp-editor-output-label">output</span>
           <pre className={`lp-editor-output-pre${isErr ? ' lp-editor-output-err' : ''}`}>{output}</pre>
         </div>
       )}
-      <div className="lp-editor-hint-row">⌘ Enter to run · tab to indent · {MAX_LINES} lines max</div>
+      <div className="lp-editor-hint-row">Cmd/Ctrl Enter to run / tab to indent / {MAX_LINES} lines max</div>
     </div>
   );
 }
@@ -228,13 +228,13 @@ const FEATURES: { label: string; Icon: () => React.ReactElement; title: string; 
   {
     label: 'Adaptive hints', Icon: IconLightbulb,
     title: 'Hints that nudge,', titleOrange: ' not spoil.',
-    body: "Stuck? Get a push toward the next idea — not the answer. Build real intuition with hints calibrated to your current level.",
+    body: "Stuck? Get a push toward the next idea, not the answer. Build real intuition with hints calibrated to your current level.",
     checks: ['3 hint levels per problem', 'Socratic nudges', 'Never gives the full answer'],
   },
   {
     label: 'Classroom tools', Icon: IconGradCap,
     title: 'Built for teachers', titleOrange: ' and their students.',
-    body: 'Assign problems to your class, track individual progress, and see exactly where students are getting stuck — all from one dashboard.',
+    body: 'Assign problems to your class, track individual progress, and see exactly where students are getting stuck from one dashboard.',
     checks: ['Class assignment system', 'Per-student progress tracking', 'Difficulty targeting'],
   },
   {
@@ -246,9 +246,9 @@ const FEATURES: { label: string; Icon: () => React.ReactElement; title: string; 
 ];
 
 const STEPS = [
-  { n: '01', title: 'Choose a problem', body: 'Pick from curated topics by difficulty, or open an assignment your teacher queued up.', code: ['$ duckling problem --next', '→ arrays / two-sum  [Easy]'] },
-  { n: '02', title: 'Write your solution', body: 'Code in the editor, hit run, see test output. One click gets you a nudge if you need it.', code: ['$ duckling run --test', '✓ 8/8 tests passed (0.03s)'] },
-  { n: '03', title: 'Track your progress', body: 'See solved count, accuracy, and what the class is working on — all in one dashboard.', code: ['$ duckling progress --view', 'solved: 12/40   accuracy: 94%'] },
+  { n: '01', title: 'Choose a problem', body: 'Pick from curated topics by difficulty, or open an assignment your teacher queued up.', code: ['$ duckling problem --next', 'arrays / two-sum  [Easy]'] },
+  { n: '02', title: 'Write your solution', body: 'Code in the editor, hit run, see test output. One click gets you a nudge if you need it.', code: ['$ duckling run --test', 'PASS 8/8 tests passed (0.03s)'] },
+  { n: '03', title: 'Track your progress', body: 'See solved count, accuracy, and what the class is working on in one dashboard.', code: ['$ duckling progress --view', 'solved: 12/40   accuracy: 94%'] },
 ];
 
 const HERO_SHAPES: ShapeItem[] = [
@@ -276,7 +276,7 @@ export default function Home() {
           <span className="lp-corner lp-corner-tl">[ arrays ]</span>
           <span className="lp-corner lp-corner-tr">[ python ]</span>
           <span className="lp-corner lp-corner-bl">[ easy ]</span>
-          <span className="lp-corner lp-corner-br">[ 8/8 ✓ ]</span>
+          <span className="lp-corner lp-corner-br">[ 8/8 pass ]</span>
         </div>
         <span className="lp-plus" style={{ top: 110, left: '20%' }}>+</span>
         <span className="lp-plus" style={{ top: 200, right: '20%' }}>+</span>
@@ -289,7 +289,7 @@ export default function Home() {
               <span className="lp-h1-orange">Get unstuck.</span>
             </h1>
             <p className="lp-sub">
-              Short problems, useful hints, and class-ready progress tracking —
+              Short problems, useful hints, and class-ready progress tracking
               for students who want to improve and teachers who want to see it.
             </p>
             <div className="lp-hero-btns">
@@ -372,7 +372,7 @@ export default function Home() {
             </div>
             <div className="lp-code-body">
               {([
-                ['# Two Sum — find indices of two numbers that add to target', 'comment'],
+                ['Two Sum: find indices of two numbers that add to target', 'comment'],
                 ['from duckling import run_tests', 'orange'],
                 ['', ''],
                 ['def two_sum(nums, target):', 'white'],
@@ -397,24 +397,24 @@ export default function Home() {
           <div className="lp-code-right">
             <div style={{ background: 'var(--lp-bg)', border: '1px solid var(--lp-border)', borderRadius: 10, overflow: 'hidden' }}>
               <div className="lp-code-header">
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#ff5f57', display: 'inline-block' }} />
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#febc2e', display: 'inline-block' }} />
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#28c840', display: 'inline-block' }} />
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--border-hover)', display: 'inline-block' }} />
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--border-hover)', display: 'inline-block' }} />
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--border-hover)', display: 'inline-block' }} />
                 <span className="lp-output-label" style={{ flex: 1 }}>output.log</span>
-                <span className="lp-output-ok">8/8 ✓</span>
+                <span className="lp-output-ok">8/8 pass</span>
               </div>
               <div style={{ padding: '1rem 1.25rem', fontFamily: "'Geist Mono', monospace", fontSize: '0.78rem', lineHeight: 1.8 }}>
                 {([
                   { text: '$ duckling run --test two_sum.py', color: '#555' },
-                  { text: 'Running test suite…', color: '#777' },
-                  { text: '✓ test_empty_array (2ms)',    color: '#16a34a' },
-                  { text: '✓ test_basic_case (1ms)',     color: '#16a34a' },
-                  { text: '✓ test_negative_nums (1ms)',  color: '#16a34a' },
-                  { text: '✓ test_duplicates (2ms)',     color: '#16a34a' },
-                  { text: '✓ test_large_input (3ms)',    color: '#16a34a' },
-                  { text: '✓ test_no_solution (1ms)',    color: '#16a34a' },
-                  { text: '✓ test_single_pair (1ms)',    color: '#16a34a' },
-                  { text: '✓ test_multiple_pairs (2ms)', color: '#16a34a' },
+                  { text: 'Running test suite...', color: '#777' },
+                  { text: 'PASS test_empty_array (2ms)',    color: '#45c46f' },
+                  { text: 'PASS test_basic_case (1ms)',     color: '#45c46f' },
+                  { text: 'PASS test_negative_nums (1ms)',  color: '#45c46f' },
+                  { text: 'PASS test_duplicates (2ms)',     color: '#45c46f' },
+                  { text: 'PASS test_large_input (3ms)',    color: '#45c46f' },
+                  { text: 'PASS test_no_solution (1ms)',    color: '#45c46f' },
+                  { text: 'PASS test_single_pair (1ms)',    color: '#45c46f' },
+                  { text: 'PASS test_multiple_pairs (2ms)', color: '#45c46f' },
                   { text: '', color: '' },
                   { text: 'PASS  8/8 tests  0.03s', color: '#FD6D03', bold: true },
                 ] as { text: string; color: string; bold?: boolean }[]).map(({ text, color, bold }, i) => (
@@ -423,10 +423,10 @@ export default function Home() {
               </div>
             </div>
             <p style={{ fontSize: '0.88rem', color: 'var(--lp-muted)', lineHeight: 1.7 }}>
-              The editor runs real test suites. When tests fail, you see exactly which case broke — and a nudge toward the why, not the answer.
+              The editor runs real test suites. When tests fail, you see exactly which case broke and a nudge toward the why, not the answer.
             </p>
             <ul className="lp-check-list">
-              {['Full test suite on every submission', 'Hints that nudge — not spoil', 'Accuracy tracked across problems'].map(c => <li key={c}>{c}</li>)}
+              {['Full test suite on every submission', 'Hints that nudge, not spoil', 'Accuracy tracked across problems'].map(c => <li key={c}>{c}</li>)}
             </ul>
           </div>
         </div>
@@ -452,7 +452,7 @@ export default function Home() {
                 <p className="lp-step-body">{s.body}</p>
                 <div className="lp-step-code">
                   {s.code.map((line, j) => (
-                    <div key={j} style={{ color: j === 1 ? '#4ade80' : '#666' }}>
+                    <div key={j} style={{ color: j === 1 ? '#45c46f' : '#666' }}>
                       {j === 0 && <span style={{ color: '#FD6D03', fontWeight: 500 }}>$ </span>}
                       {j === 0 ? line.slice(2) : line}
                     </div>

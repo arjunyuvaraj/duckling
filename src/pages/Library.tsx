@@ -326,8 +326,8 @@ export default function Library() {
                 cursor: 'pointer',
               }}
             >
-              <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.82rem', color: solved.has(p.id) ? '#4ade80' : 'var(--text-subtle)', fontWeight: 600 }}>
-                {solved.has(p.id) ? '✓' : p.id}
+              <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.82rem', color: solved.has(p.id) ? '#45c46f' : 'var(--text-subtle)', fontWeight: 600 }}>
+                {solved.has(p.id) ? 'Done' : p.id}
               </span>
               <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: '0.9rem', color: 'var(--text-primary)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {p.title}

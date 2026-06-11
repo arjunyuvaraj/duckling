@@ -82,13 +82,13 @@ function authJson(session: StoredSession | null) {
   };
 }
 function diffColor(d: string) {
-  return d === 'Easy' ? '#4ade80' : d === 'Medium' ? '#FFC91A' : '#f87171';
+  return d === 'Easy' ? '#45c46f' : d === 'Medium' ? '#d99200' : '#e05252';
 }
 function initials(name: string) {
   return name.slice(0, 2).toUpperCase();
 }
 function placeLabel(n: number) {
-  return ['🥇', '🥈', '🥉', '4th'][n - 1] ?? `${n}th`;
+  return `#${n}`;
 }
 
 function HomeView({
@@ -136,12 +136,12 @@ function HomeView({
                     ...SANS, fontSize: '0.875rem', fontWeight: 500, transition: 'all 0.15s',
                   }}
                 >
-                  {m === 'casual' ? '🎮 Casual' : '🪶 Ranked'}
+                  {m === 'casual' ? 'Casual' : 'Ranked'}
                 </button>
               ))}
             </div>
             <div style={{ ...SANS, fontSize: '0.78rem', color: 'var(--text-subtle)', marginTop: '0.4rem' }}>
-              {mode === 'casual' ? 'No feathers at stake — just compete for fun.' : 'Feathers up for grabs. Win to climb.'}
+              {mode === 'casual' ? 'No rating at stake. Just compete for fun.' : 'Rating is at stake. Win to climb.'}
             </div>
           </div>
 
@@ -154,7 +154,7 @@ function HomeView({
               cursor: 'pointer', transition: 'opacity 0.15s', marginTop: 'auto',
             }}
           >
-            Create Lobby →
+            Create Lobby
           </button>
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             {['Up to 4 players', '30 min time limit', 'Same problem for all'].map(t => (
@@ -191,7 +191,7 @@ function HomeView({
               }}
             />
             {joinError && (
-              <div style={{ ...SANS, fontSize: '0.8rem', color: '#f87171', marginTop: '0.5rem' }}>{joinError}</div>
+              <div style={{ ...SANS, fontSize: '0.8rem', color: '#e05252', marginTop: '0.5rem' }}>{joinError}</div>
             )}
           </div>
 
@@ -208,7 +208,7 @@ function HomeView({
               transition: 'all 0.15s', marginTop: 'auto',
             }}
           >
-            {joining ? 'Joining…' : 'Join Game →'}
+            {joining ? 'Joining...' : 'Join Game'}
           </button>
         </div>
       </div>
@@ -242,7 +242,7 @@ function LobbyRoomView({
         background: 'var(--surface)',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <span style={{ ...MONO, fontSize: '0.65rem', color: lobby.mode === 'ranked' ? '#FD6D03' : '#4ade80', border: `1px solid ${lobby.mode === 'ranked' ? '#FD6D0340' : '#4ade8040'}`, padding: '0.15rem 0.5rem', borderRadius: 4, letterSpacing: '0.08em' }}>
+          <span style={{ ...MONO, fontSize: '0.65rem', color: lobby.mode === 'ranked' ? '#FD6D03' : '#45c46f', border: `1px solid ${lobby.mode === 'ranked' ? 'rgba(253,109,3,0.25)' : 'var(--success-border)'}`, padding: '0.15rem 0.5rem', borderRadius: 4, letterSpacing: '0.08em' }}>
             {lobby.mode.toUpperCase()}
           </span>
           <span style={{ ...SANS, fontSize: '0.85rem', color: 'var(--text-muted)' }}>
@@ -279,16 +279,16 @@ function LobbyRoomView({
             onClick={copyCode}
             style={{
               ...SANS, fontSize: '0.8rem', fontWeight: 500,
-              color: copied ? '#4ade80' : 'var(--text-muted)',
-              background: 'var(--surface)', border: `1px solid ${copied ? '#4ade8040' : 'var(--border)'}`,
+              color: copied ? '#45c46f' : 'var(--text-muted)',
+              background: 'var(--surface)', border: `1px solid ${copied ? 'var(--success-border)' : 'var(--border)'}`,
               borderRadius: 6, padding: '0.4rem 1rem', cursor: 'pointer', transition: 'all 0.2s',
             }}
           >
-            {copied ? '✓ Copied!' : '⎘ Copy code'}
+            {copied ? 'Copied' : 'Copy code'}
           </button>
 
           <div style={{ ...SANS, fontSize: '0.75rem', color: 'var(--text-subtle)', textAlign: 'center', lineHeight: 1.6 }}>
-            Share this code with friends. They go to Compete → Enter Code.
+            Share this code with friends. They go to Compete, then Enter Code.
           </div>
           <div style={{ marginTop: 'auto', width: '100%' }}>
             {isHost ? (
@@ -303,11 +303,11 @@ function LobbyRoomView({
                   cursor: canStart ? 'pointer' : 'not-allowed', transition: 'all 0.15s',
                 }}
               >
-                {starting ? 'Starting…' : 'Start Game →'}
+                {starting ? 'Starting...' : 'Start Game'}
               </button>
             ) : (
               <div style={{ ...SANS, fontSize: '0.8rem', color: 'var(--text-subtle)', textAlign: 'center', padding: '0.75rem', border: '1px solid var(--border)', borderRadius: 8 }}>
-                Waiting for host to start…
+                Waiting for host to start...
               </div>
             )}
           </div>
@@ -349,11 +349,11 @@ function LobbyRoomView({
                     )}
                   </div>
                   <div style={{ ...MONO, fontSize: '0.72rem', color: 'var(--text-subtle)' }}>
-                    🪶 {p.feathers}
+                    Rating {p.feathers}
                   </div>
                 </div>
 
-                <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#4ade80', animation: 'pulse 2s infinite', flexShrink: 0 }} />
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#45c46f', animation: 'pulse 2s infinite', flexShrink: 0 }} />
               </div>
             ))}
             {Array.from({ length: lobby.max_players - players.length }).map((_, i) => (
@@ -369,7 +369,7 @@ function LobbyRoomView({
                   background: 'var(--surface-2)', border: '1px solid var(--border)',
                 }} />
                 <span style={{ ...SANS, fontSize: '0.85rem', color: 'var(--text-subtle)' }}>
-                  Waiting for player…
+                  Waiting for player...
                 </span>
               </div>
             ))}
@@ -447,14 +447,14 @@ function MatchView({
       }}>
         <span style={{
           ...MONO, fontSize: '0.65rem', fontWeight: 700,
-          color: lobby.mode === 'ranked' ? '#FD6D03' : '#4ade80',
-          border: `1px solid ${lobby.mode === 'ranked' ? '#FD6D0340' : '#4ade8040'}`,
+          color: lobby.mode === 'ranked' ? '#FD6D03' : '#45c46f',
+          border: `1px solid ${lobby.mode === 'ranked' ? 'rgba(253,109,3,0.25)' : 'var(--success-border)'}`,
           padding: '0.2rem 0.45rem', borderRadius: 4, letterSpacing: '0.08em', flexShrink: 0,
         }}>
           {lobby.mode.toUpperCase()}
         </span>
 
-        <span style={{ ...MONO, fontSize: '1rem', fontWeight: 700, color: isUrgent ? '#f87171' : 'var(--text-primary)', minWidth: 56, flexShrink: 0 }}>
+        <span style={{ ...MONO, fontSize: '1rem', fontWeight: 700, color: isUrgent ? '#e05252' : 'var(--text-primary)', minWidth: 56, flexShrink: 0 }}>
           {fmt(timeLeft)}
         </span>
         <div style={{ flex: 1, display: 'flex', gap: '0.75rem', overflow: 'hidden', alignItems: 'center' }}>
@@ -474,7 +474,7 @@ function MatchView({
                   {initials(opp.username)}
                 </div>
                 <div style={{ width: 60, height: 4, background: 'var(--border)', borderRadius: 2, flexShrink: 0 }}>
-                  <div style={{ height: '100%', borderRadius: 2, background: sub?.all_passed ? '#4ade80' : '#FD6D03', width: `${pct}%`, transition: 'width 0.5s' }} />
+                  <div style={{ height: '100%', borderRadius: 2, background: sub?.all_passed ? '#45c46f' : '#FD6D03', width: `${pct}%`, transition: 'width 0.5s' }} />
                 </div>
                 <span style={{ ...MONO, fontSize: '0.65rem', color: 'var(--text-subtle)', whiteSpace: 'nowrap' }}>
                   {passed}/{total}
@@ -495,7 +495,7 @@ function MatchView({
             cursor: running ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
           }}
         >
-          {running ? 'Running…' : 'Submit →'}
+          {running ? 'Running...' : 'Submit'}
         </button>
       </div>
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
@@ -524,7 +524,7 @@ function MatchView({
                     <div style={{ marginBottom: '1rem' }}>
                       <div style={{ ...MONO, fontSize: '0.65rem', color: 'var(--text-subtle)', marginBottom: '0.3rem', letterSpacing: '0.05em' }}>CONSTRAINTS</div>
                       {detail.constraints.map((c, i) => (
-                        <div key={i} style={{ ...SANS, fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>· {c}</div>
+                        <div key={i} style={{ ...SANS, fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>- {c}</div>
                       ))}
                     </div>
                   )}
@@ -538,7 +538,7 @@ function MatchView({
                   </div>
                   {detail.explanation && (
                     <p style={{ ...SANS, fontSize: '0.78rem', color: 'var(--text-subtle)', lineHeight: 1.65, margin: 0 }}>
-                      💡 {detail.explanation}
+                      Hint: {detail.explanation}
                     </p>
                   )}
                 </>
@@ -571,8 +571,8 @@ function MatchView({
             <div style={{ height: 130, flexShrink: 0, borderTop: '1px solid var(--border)', background: 'var(--surface)', overflowY: 'auto', padding: '0.65rem 1rem' }}>
               {!result.ok ? (
                 <div>
-                  <div style={{ ...MONO, fontSize: '0.7rem', color: '#f87171', marginBottom: '0.2rem' }}>ERROR</div>
-                  <pre style={{ ...MONO, fontSize: '0.72rem', color: '#f87171', margin: 0, whiteSpace: 'pre-wrap' }}>
+                  <div style={{ ...MONO, fontSize: '0.7rem', color: '#e05252', marginBottom: '0.2rem' }}>ERROR</div>
+                  <pre style={{ ...MONO, fontSize: '0.72rem', color: '#e05252', margin: 0, whiteSpace: 'pre-wrap' }}>
                     {result.compileOutput || result.stderr || 'Execution failed'}
                   </pre>
                 </div>
@@ -583,12 +583,12 @@ function MatchView({
                       <div key={i} style={{
                         display: 'flex', alignItems: 'center', gap: '0.25rem',
                         padding: '0.18rem 0.45rem',
-                        background: c.passed ? 'rgba(74,222,128,0.1)' : 'rgba(248,113,113,0.1)',
-                        border: `1px solid ${c.passed ? '#4ade8030' : '#f8717130'}`,
+                        background: c.passed ? 'var(--success-soft)' : 'var(--danger-soft)',
+                        border: `1px solid ${c.passed ? 'var(--success-border)' : 'var(--danger-border)'}`,
                         borderRadius: 4,
                       }}>
-                        <span style={{ fontSize: '0.7rem' }}>{c.passed ? '✓' : '✗'}</span>
-                        <span style={{ ...MONO, fontSize: '0.68rem', color: c.passed ? '#4ade80' : '#f87171' }}>Case {i + 1}</span>
+                        <span style={{ ...MONO, fontSize: '0.58rem', color: c.passed ? '#45c46f' : '#e05252' }}>{c.passed ? 'PASS' : 'FAIL'}</span>
+                        <span style={{ ...MONO, fontSize: '0.68rem', color: c.passed ? '#45c46f' : '#e05252' }}>Case {i + 1}</span>
                       </div>
                     ))}
                     {result.totalHidden > 0 && (
@@ -597,7 +597,7 @@ function MatchView({
                       </span>
                     )}
                     {result.allPassed && (
-                      <span style={{ ...MONO, fontSize: '0.7rem', color: '#4ade80', fontWeight: 700 }}>✓ ALL PASSED!</span>
+                      <span style={{ ...MONO, fontSize: '0.7rem', color: '#45c46f', fontWeight: 700 }}>ALL PASSED</span>
                     )}
                   </div>
                   {(() => {
@@ -611,7 +611,7 @@ function MatchView({
                         </div>
                         <div>
                           <div style={{ ...MONO, fontSize: '0.6rem', color: 'var(--text-subtle)', marginBottom: '0.15rem' }}>GOT</div>
-                          <pre style={{ ...MONO, fontSize: '0.72rem', color: '#f87171', margin: 0, whiteSpace: 'pre-wrap' }}>{fail.actual}</pre>
+                          <pre style={{ ...MONO, fontSize: '0.72rem', color: '#e05252', margin: 0, whiteSpace: 'pre-wrap' }}>{fail.actual}</pre>
                         </div>
                       </div>
                     );
@@ -646,12 +646,6 @@ function ResultView({
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2.5rem', overflow: 'auto', position: 'relative' }}>
-      <div style={{
-        position: 'absolute', top: '25%', left: '50%', transform: 'translate(-50%,-50%)',
-        width: 400, height: 400, borderRadius: '50%', pointerEvents: 'none',
-        background: `radial-gradient(circle, ${iWon ? '#4ade8010' : '#FD6D0308'}, transparent 70%)`,
-      }} />
-
       <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
         <div style={{ fontSize: '2.5rem', marginBottom: '0.4rem' }}>{placeLabel(myPlace)}</div>
         <div style={{ ...STACK, fontSize: '1.6rem', color: 'var(--text-primary)' }}>
@@ -659,7 +653,7 @@ function ResultView({
         </div>
         {problem && (
           <div style={{ ...SANS, fontSize: '0.8rem', color: 'var(--text-subtle)', marginTop: '0.4rem' }}>
-            {problem.title} · <span style={{ color: diffColor(problem.difficulty) }}>{problem.difficulty}</span> · {lobby.mode === 'ranked' ? 'Ranked' : 'Casual'}
+            {problem.title} / <span style={{ color: diffColor(problem.difficulty) }}>{problem.difficulty}</span> / {lobby.mode === 'ranked' ? 'Ranked' : 'Casual'}
           </div>
         )}
       </div>
@@ -697,7 +691,7 @@ function ResultView({
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <span style={{ ...SANS, fontSize: '0.9rem', fontWeight: 500, color: 'var(--text-primary)' }}>{p.username}</span>
                   {isMe && <span style={{ ...MONO, fontSize: '0.58rem', color: '#FD6D03', letterSpacing: '0.06em' }}>YOU</span>}
-                  {sub?.all_passed && <span style={{ ...MONO, fontSize: '0.58rem', color: '#4ade80' }}>✓ ALL</span>}
+                  {sub?.all_passed && <span style={{ ...MONO, fontSize: '0.58rem', color: '#45c46f' }}>ALL PASSED</span>}
                 </div>
                 <div style={{ ...MONO, fontSize: '0.72rem', color: 'var(--text-subtle)' }}>
                   {passed}/{totalTests} tests passed
@@ -705,10 +699,10 @@ function ResultView({
               </div>
               {lobby.mode === 'ranked' && (
                 <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                  <div style={{ ...MONO, fontSize: '0.8rem', fontWeight: 700, color: change >= 0 ? '#4ade80' : '#f87171' }}>
+                  <div style={{ ...MONO, fontSize: '0.8rem', fontWeight: 700, color: change >= 0 ? '#45c46f' : '#e05252' }}>
                     {change >= 0 ? `+${change}` : change}
                   </div>
-                  <div style={{ ...MONO, fontSize: '0.65rem', color: 'var(--text-subtle)' }}>🪶 {Math.max(0, p.feathers + change)}</div>
+                  <div style={{ ...MONO, fontSize: '0.65rem', color: 'var(--text-subtle)' }}>Rating {Math.max(0, p.feathers + change)}</div>
                 </div>
               )}
             </div>
@@ -717,7 +711,7 @@ function ResultView({
       </div>
       <div style={{ display: 'flex', gap: '0.75rem' }}>
         <button onClick={onPlayAgain} style={{ ...SANS, fontSize: '0.9rem', fontWeight: 500, color: '#fff', background: 'var(--accent, #FD6D03)', border: 'none', borderRadius: 8, padding: '0.65rem 1.5rem', cursor: 'pointer' }}>
-          Play Again →
+          Play Again
         </button>
         <button onClick={onPlayAgain} style={{ ...SANS, fontSize: '0.9rem', color: 'var(--text-muted)', background: 'transparent', border: '1px solid var(--border)', borderRadius: 8, padding: '0.65rem 1.25rem', cursor: 'pointer' }}>
           Back to Menu

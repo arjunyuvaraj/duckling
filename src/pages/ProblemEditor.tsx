@@ -23,9 +23,9 @@ const TEXT: React.CSSProperties = {
 };
 
 const DIFF_PILL: Record<Difficulty, { bg: string; border: string; color: string }> = {
-  Easy:   { bg: 'rgba(74,222,128,0.1)',  border: 'rgba(74,222,128,0.25)',  color: '#4ade80' },
-  Medium: { bg: 'rgba(255,201,26,0.1)',  border: 'rgba(255,201,26,0.25)',  color: '#FFC91A' },
-  Hard:   { bg: 'rgba(248,113,113,0.1)', border: 'rgba(248,113,113,0.25)', color: '#f87171' },
+  Easy:   { bg: 'var(--success-soft)',  border: 'var(--success-border)',  color: '#45c46f' },
+  Medium: { bg: 'var(--warning-soft)',  border: 'var(--warning-border)',  color: '#d99200' },
+  Hard:   { bg: 'var(--danger-soft)', border: 'var(--danger-border)', color: '#e05252' },
 };
 
 const DARK_THEME_DEF = {
@@ -46,8 +46,8 @@ const DARK_THEME_DEF = {
     'editor.background':                   '#0f0f0f',
     'editor.foreground':                   '#e6e6e6',
     'editorLineNumber.foreground':         '#4b4b4b',
-    'editorLineNumber.activeForeground':   '#FFA100',
-    'editorCursor.foreground':             '#FFA100',
+    'editorLineNumber.activeForeground':   '#FD6D03',
+    'editorCursor.foreground':             '#FD6D03',
     'editor.selectionBackground':          '#3f1c0e',
     'editor.inactiveSelectionBackground':  '#2d1a10',
     'editorIndentGuide.background1':       '#2a2a2a',
@@ -78,8 +78,8 @@ const LIGHT_THEME_DEF = {
     'editor.background':                  '#ffffff',
     'editor.foreground':                  '#1e1e1e',
     'editorLineNumber.foreground':        '#aaaaaa',
-    'editorLineNumber.activeForeground':  '#FFA100',
-    'editorCursor.foreground':            '#FFA100',
+    'editorLineNumber.activeForeground':  '#FD6D03',
+    'editorCursor.foreground':            '#FD6D03',
     'editor.selectionBackground':         '#ffd9b340',
     'editor.inactiveSelectionBackground': '#ffd9b320',
     'editorIndentGuide.background1':      '#e8e8e8',
@@ -112,7 +112,7 @@ function TabBar<T extends string>({
             background: 'transparent', border: 'none',
             height: 42, padding: '0 0.75rem',
             cursor: 'pointer', outline: 'none',
-            borderBottom: `2px solid ${on ? '#FFA100' : 'transparent'}`,
+            borderBottom: `2px solid ${on ? '#FD6D03' : 'transparent'}`,
             marginBottom: -1,
           }}>
             {t}
@@ -181,10 +181,10 @@ const DEFAULT_EDITOR_SETTINGS: EditorSettings = {
 };
 
 const ACCENTS: Record<AccentColor, { label: string; color: string; soft: string; border: string }> = {
-  yellow: { label: 'Duckling', color: '#FFA100', soft: 'rgba(255,161,0,0.1)', border: 'rgba(255,161,0,0.28)' },
-  green: { label: 'Focus', color: '#4ade80', soft: 'rgba(74,222,128,0.1)', border: 'rgba(74,222,128,0.28)' },
-  blue: { label: 'Calm', color: '#60a5fa', soft: 'rgba(96,165,250,0.1)', border: 'rgba(96,165,250,0.28)' },
-  coral: { label: 'Energy', color: '#fb7185', soft: 'rgba(251,113,133,0.1)', border: 'rgba(251,113,133,0.28)' },
+  yellow: { label: 'Duckling', color: '#FD6D03', soft: 'var(--accent-soft)', border: 'var(--accent-border)' },
+  green: { label: 'Duckling', color: '#FD6D03', soft: 'var(--accent-soft)', border: 'var(--accent-border)' },
+  blue: { label: 'Duckling', color: '#FD6D03', soft: 'var(--accent-soft)', border: 'var(--accent-border)' },
+  coral: { label: 'Duckling', color: '#FD6D03', soft: 'var(--accent-soft)', border: 'var(--accent-border)' },
 };
 
 function loadEditorSettings(): EditorSettings {
@@ -492,7 +492,7 @@ export default function ProblemEditor() {
         <div style={{ display: 'grid', minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', minWidth: 0 }}>
           <span style={{ color: 'var(--text-subtle)', fontFamily: "'JetBrains Mono', ui-monospace, monospace" }}>/</span>
-          <span style={{ ...MONO, color: '#FFA100', fontSize: '0.74rem', whiteSpace: 'nowrap' }}>
+          <span style={{ ...MONO, color: '#FD6D03', fontSize: '0.74rem', whiteSpace: 'nowrap' }}>
             solve problem-{problem.id}
           </span>
           <span style={{ ...TEXT, color: 'var(--text-muted)', fontSize: '0.78rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -510,7 +510,7 @@ export default function ProblemEditor() {
           </DefaultButton>
         </Link>
         <Link to="/account" style={{ textDecoration: 'none', flexShrink: 0 }}>
-          <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--surface)', border: '1px solid rgba(255,161,0,0.45)', color: '#FFA100', display: 'grid', placeItems: 'center', fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: '0.72rem', fontWeight: 900, cursor: 'pointer' }}>
+          <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--surface)', border: '1px solid rgba(253,109,3,0.45)', color: '#FD6D03', display: 'grid', placeItems: 'center', fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: '0.72rem', fontWeight: 900, cursor: 'pointer' }}>
             {initials}
           </div>
         </Link>
@@ -533,7 +533,7 @@ export default function ProblemEditor() {
               <>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '1rem' }}>
                   <div>
-                    <div style={{ ...MONO, color: '#FFA100', fontSize: '0.72rem', marginBottom: '0.45rem' }}>problem {problem.id}</div>
+                    <div style={{ ...MONO, color: '#FD6D03', fontSize: '0.72rem', marginBottom: '0.45rem' }}>problem {problem.id}</div>
                     <h1 style={{ ...TEXT, fontWeight: 850, fontSize: 'clamp(1.35rem, 2vw, 1.85rem)', lineHeight: 1.08, color: 'var(--text-primary)', margin: 0 }}>
                       {problem.title}
                     </h1>
@@ -550,7 +550,7 @@ export default function ProblemEditor() {
                 </div>
 
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
-                  <span style={{ ...TEXT, fontSize: '0.75rem', fontWeight: 600, padding: '4px 10px', borderRadius: '6px', background: 'rgba(255,161,0,0.06)', border: '1px solid rgba(255,161,0,0.18)', color: '#FFA100' }}>
+                  <span style={{ ...TEXT, fontSize: '0.75rem', fontWeight: 600, padding: '4px 10px', borderRadius: '6px', background: 'rgba(253,109,3,0.06)', border: '1px solid rgba(253,109,3,0.18)', color: '#FD6D03' }}>
                     {problem.set}
                   </span>
                   <span style={{ ...TEXT, fontSize: '0.75rem', fontWeight: 600, padding: '4px 10px', borderRadius: '6px', background: 'var(--surface-2)', border: '1px solid var(--border)', color: 'var(--text-subtle)' }}>
@@ -574,7 +574,7 @@ export default function ProblemEditor() {
                 </div>
 
                 {detail.note && (
-                  <div style={{ marginBottom: '1.5rem', padding: '0.75rem 1rem', background: 'rgba(255,201,26,0.05)', border: '1px solid rgba(255,201,26,0.15)', borderRadius: '8px' }}>
+                  <div style={{ marginBottom: '1.5rem', padding: '0.75rem 1rem', background: 'var(--warning-soft)', border: '1px solid var(--warning-border)', borderRadius: '8px' }}>
                     <p style={{ ...TEXT, fontSize: '0.875rem', color: 'var(--text-muted)', lineHeight: 1.65, margin: 0 }}>
                       <strong style={{ color: 'var(--text-primary)', fontWeight: 600 }}>Note: </strong>{detail.note}
                     </p>
@@ -613,7 +613,7 @@ export default function ProblemEditor() {
                   ['3', 'Trace first', 'Run through the sample by hand and compare each variable update to your code.'],
                 ].map(([step, title, copy]) => (
                   <div key={step} style={{ border: '1px solid var(--border)', borderRadius: 10, background: 'var(--surface-2)', padding: '0.95rem 1rem', display: 'grid', gridTemplateColumns: '34px 1fr', gap: '0.8rem' }}>
-                    <span style={{ ...MONO, width: 34, height: 34, borderRadius: 8, background: 'rgba(255,161,0,0.1)', color: '#FFA100', display: 'grid', placeItems: 'center', fontWeight: 900 }}>{step}</span>
+                    <span style={{ ...MONO, width: 34, height: 34, borderRadius: 8, background: 'rgba(253,109,3,0.1)', color: '#FD6D03', display: 'grid', placeItems: 'center', fontWeight: 900 }}>{step}</span>
                     <span>
                       <strong style={{ ...TEXT, color: 'var(--text-primary)', fontSize: '0.9rem' }}>{title}</strong>
                       <p style={{ ...TEXT, fontSize: '0.84rem', color: 'var(--text-muted)', lineHeight: 1.6, margin: '0.25rem 0 0' }}>{copy}</p>
@@ -673,8 +673,8 @@ export default function ProblemEditor() {
                         style={{
                           width: '100%', textAlign: 'left',
                           padding: '0.7rem 0.85rem',
-                          background: language === activeLanguage ? 'rgba(255,161,0,0.08)' : 'transparent',
-                          color: language === activeLanguage ? '#FFA100' : 'var(--text-primary)',
+                          background: language === activeLanguage ? 'rgba(253,109,3,0.08)' : 'transparent',
+                          color: language === activeLanguage ? '#FD6D03' : 'var(--text-primary)',
                           border: 'none',
                           borderBottom: language === EDITOR_LANGUAGES[EDITOR_LANGUAGES.length - 1] ? 'none' : '1px solid var(--border-faint)',
                           cursor: 'pointer', fontSize: '0.86rem', fontWeight: 600,
@@ -790,33 +790,6 @@ export default function ProblemEditor() {
                           style={{ accentColor: accent.color }}
                         />
                       </label>
-                      <div>
-                        <span style={{ ...TEXT, display: 'block', color: 'var(--text-primary)', fontSize: '0.84rem', fontWeight: 750, marginBottom: '0.5rem' }}>Accent color</span>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.45rem' }}>
-                          {(Object.keys(ACCENTS) as AccentColor[]).map((key) => {
-                            const option = ACCENTS[key];
-                            return (
-                              <button
-                                key={key}
-                                type="button"
-                                onClick={() => updateEditorSetting('accent', key)}
-                                title={option.label}
-                                style={{
-                                  height: 34,
-                                  borderRadius: 8,
-                                  border: `1px solid ${editorSettings.accent === key ? option.color : 'var(--border)'}`,
-                                  background: option.soft,
-                                  color: option.color,
-                                  cursor: 'pointer',
-                                  fontWeight: 900,
-                                }}
-                              >
-                                ●
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
                     </div>
                   </div>
                 )}
@@ -824,9 +797,9 @@ export default function ProblemEditor() {
               <button onClick={handleRun} disabled={running} style={{
                 ...TEXT, fontSize: '0.85rem', fontWeight: 600,
                 height: 30, padding: '0 1.25rem',
-                background: running ? 'var(--surface-3)' : '#FFA100',
+                background: running ? 'var(--surface-3)' : '#FD6D03',
                 color: running ? 'var(--text-subtle)' : '#fff',
-                border: running ? '1px solid var(--border)' : '1px solid #FFA100',
+                border: running ? '1px solid var(--border)' : '1px solid #FD6D03',
                 borderRadius: '7px',
                 cursor: running ? 'default' : 'pointer', outline: 'none',
               }} className="glow-orange-hover">
@@ -923,7 +896,7 @@ export default function ProblemEditor() {
               ) : runResult ? (
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginBottom: '0.9rem' }}>
-                    <div style={{ ...TEXT, fontSize: '1rem', fontWeight: 850, color: runResult.status === 'Accepted' ? '#4ade80' : runResult.status === 'Error' ? '#f87171' : '#FFA100', letterSpacing: 0 }}>
+                    <div style={{ ...TEXT, fontSize: '1rem', fontWeight: 850, color: runResult.status === 'Accepted' ? '#45c46f' : runResult.status === 'Error' ? '#e05252' : '#FD6D03', letterSpacing: 0 }}>
                       {runResult.status}
                     </div>
                   </div>
@@ -959,10 +932,10 @@ export default function ProblemEditor() {
                           <div style={{ ...MONO, padding: '0.85rem 0.9rem', color: 'var(--text-primary)', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                             {tc.expected}
                           </div>
-                          <div style={{ ...MONO, padding: '0.85rem 0.9rem', color: tc.passed ? 'var(--text-primary)' : '#f87171', borderLeft: '1px solid var(--border)', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                          <div style={{ ...MONO, padding: '0.85rem 0.9rem', color: tc.passed ? 'var(--text-primary)' : '#e05252', borderLeft: '1px solid var(--border)', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                             {tc.actual}
                           </div>
-                          <div style={{ ...TEXT, padding: '0.85rem 0.9rem', color: tc.passed ? '#4ade80' : '#f87171', borderLeft: '1px solid var(--border)', fontWeight: 700 }}>
+                          <div style={{ ...TEXT, padding: '0.85rem 0.9rem', color: tc.passed ? '#45c46f' : '#e05252', borderLeft: '1px solid var(--border)', fontWeight: 700 }}>
                             {tc.verdict}
                           </div>
                           <div style={{ background: tc.passed ? '#0f8b0f' : '#c41e1e' }} />
@@ -974,13 +947,13 @@ export default function ProblemEditor() {
                     {runResult.compileOutput && (
                       <div>
                         <div style={{ ...TEXT, fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-subtle)', marginBottom: '0.5rem' }}>Compile output</div>
-                        <pre style={{ ...MONO, fontSize: '0.78rem', color: '#f87171', background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: '7px', padding: '0.75rem 1rem', margin: 0, whiteSpace: 'pre-wrap' }}>{runResult.compileOutput}</pre>
+                        <pre style={{ ...MONO, fontSize: '0.78rem', color: '#e05252', background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: '7px', padding: '0.75rem 1rem', margin: 0, whiteSpace: 'pre-wrap' }}>{runResult.compileOutput}</pre>
                       </div>
                     )}
                     {runResult.stderr && (
                       <div>
                         <div style={{ ...TEXT, fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-subtle)', marginBottom: '0.5rem' }}>stderr</div>
-                        <pre style={{ ...MONO, fontSize: '0.78rem', color: '#f87171', background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: '7px', padding: '0.75rem 1rem', margin: 0, whiteSpace: 'pre-wrap' }}>{runResult.stderr}</pre>
+                        <pre style={{ ...MONO, fontSize: '0.78rem', color: '#e05252', background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: '7px', padding: '0.75rem 1rem', margin: 0, whiteSpace: 'pre-wrap' }}>{runResult.stderr}</pre>
                       </div>
                     )}
                     <div>

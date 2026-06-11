@@ -293,7 +293,7 @@ export const DIFFICULTIES: Array<'All' | Difficulty> = ['All', 'Easy', 'Medium',
 export const LANGUAGES: Array<'All' | Language> = ['All', 'Java', 'Python'];
 
 export const DIFFICULTY_COLOR: Record<Difficulty, string> = {
-  Easy: '#4ade80',
-  Medium: '#FFC91A',
-  Hard: '#f87171',
+  Easy: '#45c46f',
+  Medium: '#d99200',
+  Hard: '#e05252',
 };
