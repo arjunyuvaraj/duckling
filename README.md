@@ -26,6 +26,8 @@ For the presentation demo, keep `VITE_ENABLE_AUTH_API=false` so the local sessio
 
 Host this as two services: the Node API backend and the static Vite frontend. The local Vite proxy in `vite.config.ts` only applies during development, so production needs real API URLs in the frontend environment variables.
 
+Current hosted backend: `https://duckling-api-332057590473.us-central1.run.app`
+
 ### Backend API
 
 Use a Node web service on Render, Railway, Fly.io, or a similar host.
@@ -46,10 +48,14 @@ Use a static frontend host such as Vercel, Netlify, Render Static Sites, Firebas
 
 - Build command: `npm run build`
 - Publish/output directory: `dist`
-- Add an SPA fallback so routes such as `/classroom`, `/compete`, and `/problem/1` serve `index.html`
+- `public/_redirects` is included so Netlify serves `index.html` for routes such as `/classroom`, `/compete`, and `/problem/1`
 - Production environment variables:
-  - `VITE_CODE_API_BASE_URL=https://your-api-host.example.com`
-  - `VITE_COMPETE_API_BASE_URL=https://your-api-host.example.com/api`
+  - `VITE_CODE_API_BASE_URL=https://duckling-api-332057590473.us-central1.run.app`
+  - `VITE_COMPETE_API_BASE_URL=https://duckling-api-332057590473.us-central1.run.app/api`
   - `VITE_ENABLE_AUTH_API=false`
+
+To create a Netlify drag-and-drop build with the hosted backend already wired in:
+
+`VITE_CODE_API_BASE_URL=https://duckling-api-332057590473.us-central1.run.app VITE_COMPETE_API_BASE_URL=https://duckling-api-332057590473.us-central1.run.app/api VITE_ENABLE_AUTH_API=false npm run build`
 
 If the FastAPI auth service is hosted separately, set `VITE_ENABLE_AUTH_API=true` and `VITE_API_BASE_URL=https://your-auth-api-host.example.com`.
